@@ -1,0 +1,75 @@
+# =============================================================================
+# Despliegue a Azure Static Web Apps (tier Free) con API gestionada
+# -----------------------------------------------------------------------------
+# Este workflow construye y publica el frontend (carpeta web/) junto con la
+# API de Azure Functions (carpeta api/) usando el token de despliegue que
+# Azure genera para el recurso de Static Web Apps.
+#
+# IMPORTANTE: el token NO se escribe aqui. Debe configurarse como secreto del
+# repositorio con el nombre AZURE_STATIC_WEB_APPS_API_TOKEN
+# (Settings -> Secrets and variables -> Actions -> New repository secret).
+# =============================================================================
+
+name: Azure Static Web Apps CI/CD
+
+on:
+  # Cada push a main dispara un despliegue a produccion.
+  push:
+    branches:
+      - main
+  # Las pull requests crean/actualizan/cierran entornos de pre-produccion (staging).
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job de construccion y despliegue.
+  # Se ejecuta en pushes y al abrir/actualizar PRs (no al cerrarlas).
+  # ---------------------------------------------------------------------------
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      # Clonamos el repositorio. submodules/lfs por defecto desactivados (no se usan).
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
+
+      # Accion oficial de Azure que construye y despliega a Static Web Apps.
+      - name: Build And Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          # Token de despliegue del recurso SWA (secreto del repositorio).
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          # Token de GitHub para que la accion comente en las PRs.
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          ###### Configuracion de rutas del repositorio/build ######
+          # app_location: carpeta del frontend (HTML/CSS/JS estaticos).
+          app_location: "web"
+          # api_location: carpeta de la API de Azure Functions (Node v4).
+          api_location: "api"
+          # output_location: vacio porque no hay paso de build (sitio estatico tal cual).
+          output_location: ""
+          ###########################################################
+
+  # ---------------------------------------------------------------------------
+  # Job de cierre de pull request (estandar de SWA).
+  # Al cerrar una PR, elimina su entorno de staging asociado.
+  # ---------------------------------------------------------------------------
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        id: closepullrequest
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "close"

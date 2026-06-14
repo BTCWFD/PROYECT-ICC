@@ -1,0 +1,115 @@
+# =============================================================================
+# Integracion continua (CI) - Validaciones rapidas del repositorio ICC
+# -----------------------------------------------------------------------------
+# Este workflow NO despliega nada: solo valida que el codigo y la configuracion
+# esten sanos antes de mezclar a main. Comprueba:
+#   1. Sintaxis de los .js del frontend (web/js) y de la API (api) con node --check.
+#   2. Validez de todos los archivos JSON (incluye staticwebapp.config.json si existe).
+#   3. Validez de todos los archivos YAML del repositorio (.yml / .yaml).
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate (lint sintactico)
+    steps:
+      # Clonamos el repositorio.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Instalamos Node 20 (mismo runtime objetivo que las Azure Functions v4).
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # -----------------------------------------------------------------------
+      # 1) Verificacion de sintaxis de los .js del frontend y de la API.
+      #    node --check analiza el archivo sin ejecutarlo.
+      # -----------------------------------------------------------------------
+      - name: Verificar sintaxis de JavaScript (web/js y api)
+        run: |
+          echo "Buscando archivos .js en web/js y api..."
+          # Recolecta los .js de ambas carpetas (si existen) ignorando node_modules.
+          archivos=$(find web/js api -type f -name "*.js" -not -path "*/node_modules/*" 2>/dev/null || true)
+          if [ -z "$archivos" ]; then
+            echo "No se encontraron archivos .js para validar."
+          else
+            error=0
+            for f in $archivos; do
+              echo "Comprobando: $f"
+              if ! node --check "$f"; then
+                echo "::error file=$f::Error de sintaxis en $f"
+                error=1
+              fi
+            done
+            if [ "$error" -ne 0 ]; then
+              echo "Se encontraron errores de sintaxis en JavaScript."
+              exit 1
+            fi
+            echo "Todos los archivos .js son sintacticamente validos."
+          fi
+
+      # -----------------------------------------------------------------------
+      # 2) Validacion de archivos JSON (incluye staticwebapp.config.json).
+      #    Usamos node para parsear cada JSON; falla si alguno es invalido.
+      # -----------------------------------------------------------------------
+      - name: Validar archivos JSON
+        run: |
+          echo "Buscando archivos .json (excluyendo node_modules)..."
+          archivos=$(find . -type f -name "*.json" -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null || true)
+          if [ -z "$archivos" ]; then
+            echo "No se encontraron archivos .json para validar."
+          else
+            error=0
+            for f in $archivos; do
+              echo "Comprobando: $f"
+              if ! node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$f"; then
+                echo "::error file=$f::JSON invalido en $f"
+                error=1
+              fi
+            done
+            if [ "$error" -ne 0 ]; then
+              echo "Se encontraron archivos JSON invalidos."
+              exit 1
+            fi
+            echo "Todos los archivos JSON son validos."
+          fi
+
+      # -----------------------------------------------------------------------
+      # 3) Validacion de archivos YAML (.yml / .yaml), incluidos los workflows.
+      #    Instalamos un parser ligero (js-yaml) y validamos cada archivo.
+      # -----------------------------------------------------------------------
+      - name: Validar archivos YAML
+        run: |
+          echo "Instalando parser de YAML (js-yaml)..."
+          npm install --no-save --no-audit --no-fund js-yaml@4
+          echo "Buscando archivos .yml / .yaml (excluyendo node_modules)..."
+          archivos=$(find . -type f \( -name "*.yml" -o -name "*.yaml" \) -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null || true)
+          if [ -z "$archivos" ]; then
+            echo "No se encontraron archivos YAML para validar."
+          else
+            error=0
+            for f in $archivos; do
+              echo "Comprobando: $f"
+              if ! node -e "require('js-yaml').load(require('fs').readFileSync(process.argv[1], 'utf8'))" "$f"; then
+                echo "::error file=$f::YAML invalido en $f"
+                error=1
+              fi
+            done
+            if [ "$error" -ne 0 ]; then
+              echo "Se encontraron archivos YAML invalidos."
+              exit 1
+            fi
+            echo "Todos los archivos YAML son validos."
+          fi

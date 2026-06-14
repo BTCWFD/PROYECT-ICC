@@ -1,0 +1,17 @@
+# Archivos que NO deben empaquetarse al desplegar las Azure Functions.
+
+# Configuración local con secretos/cadenas de conexión (nunca al paquete ni al repo).
+local.settings.json
+
+# Dependencias: SWA / Oryx las reinstala en el build; no las subimos.
+node_modules
+
+# Ruido de control de versiones y editores.
+.git*
+.vscode
+*.md
+
+# Pruebas y artefactos temporales.
+test
+tests
+*.test.js

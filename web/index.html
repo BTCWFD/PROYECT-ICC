@@ -32,6 +32,12 @@
     <!-- Panel de control -->
     <aside class="panel">
       <div class="control-group">
+        <label for="club">Club (clasificatorias virtuales)</label>
+        <input type="text" id="club" class="text-input" maxlength="32"
+               placeholder="Ej. Mare Tranquillitatis FC" />
+      </div>
+
+      <div class="control-group">
         <label for="world">Mundo</label>
         <div class="segmented" id="world" role="radiogroup">
           <button data-world="moon" class="active" role="radio" aria-checked="true">🌕 Luna · 1/6 g</button>
@@ -58,6 +64,20 @@
           <input type="checkbox" id="ghost" checked />
           <span>Mostrar trayectoria fantasma del otro mundo</span>
         </label>
+        <label class="checkbox">
+          <input type="checkbox" id="supervision" />
+          <span>Modo Control de Supervisión (latencia 3s)</span>
+        </label>
+      </div>
+
+      <!-- Indicador de latencia RTT Tierra-Luna (visible solo en modo supervisión). -->
+      <div id="latency" class="latency" hidden aria-live="polite">
+        <div class="latency-head">
+          <span>📡 Enlace Tierra ⇄ Luna</span>
+          <strong id="latencyCount">3.0 s</strong>
+        </div>
+        <div class="latency-bar"><div id="latencyFill" class="latency-fill"></div></div>
+        <p class="latency-note">Intención transmitida. Esperando confirmación del robot…</p>
       </div>
 
       <div class="actions">
@@ -78,6 +98,13 @@
         <em>cientos de metros</em> y permanece segundos suspendido. Ese es el
         espectáculo que valida la ICC.
       </p>
+
+      <!-- Top 5 de clasificatorias virtuales. Se oculta si la API no responde
+           (degradación elegante: el simulador funciona también con file://). -->
+      <div id="leaderboard" class="leaderboard" hidden>
+        <h2>🏆 Top 5 · Clasificatorias</h2>
+        <ol id="leaderboardList" class="leaderboard-list"></ol>
+      </div>
     </aside>
   </main>
 

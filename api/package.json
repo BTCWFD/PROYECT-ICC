@@ -1,0 +1,15 @@
+{
+  "name": "icc-api",
+  "version": "1.0.0",
+  "description": "API de Azure Functions (modelo v4) para la Interplanetary Champions Cup (ICC).",
+  "main": "src/functions/*.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

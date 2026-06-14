@@ -26,3 +26,11 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# Azure Functions (API)
+api/node_modules
+api/local.settings.json
+
+# Azure / Static Web Apps CLI
+.azure/
+swa-cli.config.json
