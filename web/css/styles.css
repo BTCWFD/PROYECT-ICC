@@ -493,6 +493,73 @@ input[type="range"]::-moz-range-thumb {
   100% { background-position: 0 0; }
 }
 
+/* ---------- Waitlist (captación de leads) ---------- */
+.waitlist {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.waitlist h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-2);
+  margin: 0 0 2px;
+}
+.waitlist-lead {
+  margin: 0 0 4px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.waitlist-lead em { color: var(--text); font-style: normal; font-weight: 600; }
+
+.waitlist-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 211, 91, .35);
+  border-radius: 12px;
+  background: rgba(255, 211, 91, .06);
+}
+/* El botón del formulario reutiliza .btn.primary; aquí solo el layout. */
+.waitlist-form .btn {
+  padding: 11px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.waitlist-form .btn:active { transform: translateY(1px) scale(.99); }
+.waitlist-form .btn:disabled { opacity: .5; cursor: not-allowed; filter: none; transform: none; }
+/* .primary ya define el degradado azul de marca; aquí refuerza el hover. */
+.waitlist-form .btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+
+/* Mensaje de resultado (éxito / error) tras el envío. */
+.waitlist-msg {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+.waitlist-msg.is-ok {
+  color: var(--ok);
+  border: 1px solid rgba(70, 211, 154, .4);
+  background: rgba(70, 211, 154, .08);
+}
+.waitlist-msg.is-error {
+  color: var(--accent-2);
+  border: 1px solid rgba(255, 211, 91, .4);
+  background: rgba(255, 211, 91, .08);
+}
+
 /* ---------- Bottom bar ---------- */
 .bottombar {
   display: flex;

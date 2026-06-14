@@ -907,6 +907,97 @@ a { color: inherit; text-decoration: none; }
 .reveal.delay-4 { transition-delay: .32s; }
 
 /* =============================================================
+   WAITLIST  (#waitlist y bloque inline en #contacto)
+   Formulario de captura de leads "Sé de los primeros 1.000 operadores".
+   Estados de mensaje (.is-ok / .is-error) los aplica js/waitlist.js.
+   ============================================================= */
+.waitlist-form {
+  margin-top: 28px;
+  max-width: 720px;
+}
+/* Variante inline (en #contacto): centrada bajo las CTA. */
+.waitlist-form--inline {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 34px;
+}
+
+/* Fila de campos: email + club + boton; envuelve en pantallas estrechas. */
+.waitlist-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.waitlist-input {
+  flex: 1 1 220px;
+  min-width: 0;
+  padding: 13px 16px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  transition: border-color .2s var(--ease),
+              box-shadow .2s var(--ease),
+              background .2s var(--ease);
+}
+.waitlist-input::placeholder { color: var(--muted-2); }
+.waitlist-input:hover { border-color: var(--accent); }
+.waitlist-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--panel-2);
+  box-shadow: 0 0 0 3px rgba(91, 140, 255, .25);
+}
+/* Marca de campo invalido cuando el navegador valida (no en estado inicial). */
+.waitlist-input:user-invalid {
+  border-color: #ff6b6b;
+}
+
+/* El boton del formulario no debe encogerse por debajo de su contenido. */
+.waitlist-form .btn { flex: 0 0 auto; }
+/* Boton deshabilitado (durante el envio o tras alta correcta). */
+.waitlist-form .btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(.3) brightness(.85);
+  transform: none;
+}
+
+/* Mensaje de estado bajo el formulario. */
+.waitlist-msg {
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+/* Exito: verde de marca (coherente con .live-banner). */
+.waitlist-msg.is-ok {
+  color: #8ff0c4;
+  background: rgba(70, 211, 154, .1);
+  border-color: rgba(70, 211, 154, .45);
+}
+/* Error: rojo discreto sobre fondo oscuro. */
+.waitlist-msg.is-error {
+  color: #ffb0b0;
+  background: rgba(255, 107, 107, .1);
+  border-color: rgba(255, 107, 107, .45);
+}
+
+/* Nota legal/anti-spam discreta bajo el formulario. */
+.waitlist-note {
+  margin: 14px 0 0;
+  font-size: 12.5px;
+  color: var(--muted-2);
+  letter-spacing: .3px;
+}
+
+/* =============================================================
    RESPONSIVE
    ============================================================= */
 @media (max-width: 980px) {
@@ -927,6 +1018,10 @@ a { color: inherit; text-decoration: none; }
   .hero-actions .btn,
   .contact-actions .btn { width: 100%; }
   .hero-actions, .contact-actions { width: 100%; }
+  /* Waitlist: en movil cada campo y el boton ocupan toda la fila. */
+  .waitlist-fields { flex-direction: column; }
+  .waitlist-input { flex-basis: auto; width: 100%; }
+  .waitlist-form .btn { width: 100%; }
 }
 
 @media (max-width: 420px) {

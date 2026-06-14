@@ -10,8 +10,9 @@
 //   - Build   (output_location) -> "" (no hay paso de build, sitio estático)
 //
 //   - Storage Account (Standard_LRS) con Table Storage:
-//       * tabla "shots"  -> entidades de disparo (leaderboard persistente)
-//       * tabla "events" -> analítica de uso (page_view, shot_executed, ...)
+//       * tabla "shots"    -> entidades de disparo (leaderboard persistente)
+//       * tabla "events"   -> analítica de uso (page_view, shot_executed, ...)
+//       * tabla "waitlist" -> captura de leads ("primeros 1.000 operadores")
 //
 // IMPORTANTE: El SKU Free NO admite "staging environments" (entornos de
 // previsualización por pull request). Si en el futuro se necesitan entornos
@@ -129,6 +130,15 @@ resource shotsTable 'Microsoft.Storage/storageAccounts/tableServices/tables@2023
 resource eventsTable 'Microsoft.Storage/storageAccounts/tableServices/tables@2023-05-01' = {
   parent: tableService
   name: 'events'
+}
+
+// Tabla "waitlist": captura de leads de la campaña "primeros 1.000 operadores".
+// Cada entidad tiene PartitionKey "global" y RowKey = email saneado (deduplicación
+// natural por dirección). Alimenta el contador de la waitlist y la activación de
+// la Operación Primer Toque. Contiene PII (email): tratar conforme a privacidad.
+resource waitlistTable 'Microsoft.Storage/storageAccounts/tableServices/tables@2023-05-01' = {
+  parent: tableService
+  name: 'waitlist'
 }
 
 // -----------------------------------------------------------------------------

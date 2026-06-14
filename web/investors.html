@@ -456,6 +456,56 @@
     </section>
 
     <!-- ========================================================= -->
+    <!-- WAITLIST — "Sé de los primeros 1.000 operadores"          -->
+    <!-- Captura de leads (markup contractual .waitlist-form).      -->
+    <!-- ========================================================= -->
+    <section class="section section--auto" id="waitlist">
+      <div class="section-inner reveal">
+        <p class="kicker">La lista de salida</p>
+        <h2 class="section-title">Sé de los primeros 1.000 operadores</h2>
+        <div class="section-body">
+          <p>
+            Cuando abramos las clasificatorias virtuales que alimentan la liga real,
+            los <strong>primeros 1.000 operadores</strong> entrarán antes que nadie.
+            Déjanos tu correo y te avisaremos del <strong>Primer Toque</strong>.
+          </p>
+        </div>
+
+        <!-- Formulario de waitlist (auto-cableado por js/waitlist.js). -->
+        <form class="waitlist-form" data-source="landing">
+          <div class="waitlist-fields">
+            <label class="sr-only" for="wl-email">Correo electrónico</label>
+            <input
+              class="waitlist-input"
+              id="wl-email"
+              type="email"
+              name="email"
+              autocomplete="email"
+              placeholder="tu@correo.com"
+              required
+            />
+            <label class="sr-only" for="wl-club">Nombre de tu club (opcional)</label>
+            <input
+              class="waitlist-input"
+              id="wl-club"
+              type="text"
+              name="club"
+              autocomplete="organization"
+              placeholder="Nombre de tu club (opcional)"
+            />
+            <button type="submit" class="btn btn-primary">Reservar mi plaza</button>
+          </div>
+          <!-- Mensaje de estado: el JS le añade .is-ok / .is-error y lo muestra. -->
+          <p class="waitlist-msg" hidden></p>
+          <p class="waitlist-note">
+            Sin spam. Solo te escribiremos para el Primer Toque y el arranque de las
+            clasificatorias.
+          </p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
     <!-- CONTACTO — CTA final                                       -->
     <!-- ========================================================= -->
     <section class="section" id="contacto">
@@ -469,6 +519,33 @@
           <a class="btn btn-primary" href="mailto:inversores@icc.space">inversores@icc.space</a>
           <a class="btn btn-ghost" href="/">Ver el simulador en vivo</a>
         </div>
+
+        <!-- Segundo punto de captura de leads, junto al contacto. -->
+        <form class="waitlist-form waitlist-form--inline" data-source="landing-contacto">
+          <div class="waitlist-fields">
+            <label class="sr-only" for="wl-email-2">Correo electrónico</label>
+            <input
+              class="waitlist-input"
+              id="wl-email-2"
+              type="email"
+              name="email"
+              autocomplete="email"
+              placeholder="tu@correo.com"
+              required
+            />
+            <label class="sr-only" for="wl-club-2">Nombre de tu club (opcional)</label>
+            <input
+              class="waitlist-input"
+              id="wl-club-2"
+              type="text"
+              name="club"
+              autocomplete="organization"
+              placeholder="Nombre de tu club (opcional)"
+            />
+            <button type="submit" class="btn btn-primary">Unirme a la lista</button>
+          </div>
+          <p class="waitlist-msg" hidden></p>
+        </form>
       </div>
     </section>
   </main>
@@ -492,7 +569,9 @@
     </div>
   </footer>
 
-  <!-- Todo el JS vive en investors.js (CSP: script-src 'self', sin inline). -->
+  <!-- Todo el JS vive en sus .js (CSP: script-src 'self', sin inline). -->
   <script src="js/investors.js"></script>
+  <!-- Captura de leads (waitlist): auto-cablea los .waitlist-form. -->
+  <script src="js/waitlist.js"></script>
 </body>
 </html>

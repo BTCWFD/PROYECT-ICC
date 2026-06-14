@@ -27,6 +27,23 @@ const PARTITION_KEY = "global";
 // Nombres de las tablas de Azure Table Storage.
 const SHOTS_TABLE = "shots";
 const EVENTS_TABLE = "events";
+const WAITLIST_TABLE = "waitlist";
+
+/**
+ * Sanea un email para usarlo como RowKey de Table Storage.
+ * Pasa a minúsculas, recorta espacios y reemplaza los caracteres prohibidos en
+ * claves de Table Storage (/ \ # ?). Sirve además para deduplicar: el mismo
+ * email produce siempre la misma RowKey.
+ * @param {string} email
+ * @returns {string}
+ */
+function sanitizeEmailKey(email) {
+  return String(email)
+    .trim()
+    .toLowerCase()
+    // Reemplaza los caracteres prohibidos en claves de Table Storage: / \ # ?
+    .replace(/[/\\#?]/g, "_");
+}
 
 /**
  * Genera una RowKey única en TIEMPO DE EJECUCIÓN (no en import).
@@ -75,7 +92,37 @@ function createMemoryStore() {
     return;
   }
 
-  return { addShot, getTopShots, rankForRange, totalShots, addEvent };
+  // Mapa de la waitlist: clave = email saneado, valor = entrada almacenada.
+  // El uso de Map deduplica por email de forma natural.
+  const waitlist = new Map();
+
+  async function addWaitlist(entry) {
+    const key = sanitizeEmailKey(entry.email);
+    // Deduplicación: si el email ya existe, NO se sobrescribe ni se duplica.
+    if (!waitlist.has(key)) {
+      waitlist.set(key, {
+        email: entry.email,
+        club: entry.club || "",
+        source: entry.source || "",
+        createdAt: new Date().toISOString(),
+      });
+    }
+    return { total: waitlist.size };
+  }
+
+  async function waitlistCount() {
+    return waitlist.size;
+  }
+
+  return {
+    addShot,
+    getTopShots,
+    rankForRange,
+    totalShots,
+    addEvent,
+    addWaitlist,
+    waitlistCount,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -86,10 +133,12 @@ function createTableStore(connectionString) {
 
   const shotsClient = TableClient.fromConnectionString(connectionString, SHOTS_TABLE);
   const eventsClient = TableClient.fromConnectionString(connectionString, EVENTS_TABLE);
+  const waitlistClient = TableClient.fromConnectionString(connectionString, WAITLIST_TABLE);
 
   // Creación perezosa de tablas: garantizamos que existan una sola vez.
   let shotsReady = null;
   let eventsReady = null;
+  let waitlistReady = null;
 
   function ensureShotsTable() {
     if (!shotsReady) shotsReady = shotsClient.createTable().catch(() => {});
@@ -98,6 +147,10 @@ function createTableStore(connectionString) {
   function ensureEventsTable() {
     if (!eventsReady) eventsReady = eventsClient.createTable().catch(() => {});
     return eventsReady;
+  }
+  function ensureWaitlistTable() {
+    if (!waitlistReady) waitlistReady = waitlistClient.createTable().catch(() => {});
+    return waitlistReady;
   }
 
   async function addShot(shot) {
@@ -171,7 +224,52 @@ function createTableStore(connectionString) {
     return;
   }
 
-  return { addShot, getTopShots, rankForRange, totalShots, addEvent };
+  async function addWaitlist(entry) {
+    await ensureWaitlistTable();
+    const rowKey = sanitizeEmailKey(entry.email);
+    const item = {
+      partitionKey: PARTITION_KEY,
+      rowKey,
+      email: entry.email,
+      club: entry.club || "",
+      source: entry.source || "",
+      createdAt: new Date().toISOString(),
+    };
+    try {
+      // createEntity falla con 409 si la RowKey ya existe -> deduplicación por email.
+      await waitlistClient.createEntity(item);
+    } catch (err) {
+      // 409 (EntityAlreadyExists) significa que el email ya estaba: no es un error
+      // para nosotros (deduplicación). Cualquier otro error se relanza.
+      const isConflict =
+        err && (err.statusCode === 409 || err.code === "EntityAlreadyExists");
+      if (!isConflict) throw err;
+    }
+    const total = await waitlistCount();
+    return { total };
+  }
+
+  async function waitlistCount() {
+    await ensureWaitlistTable();
+    let count = 0;
+    const iter = waitlistClient.listEntities({
+      queryOptions: { filter: `PartitionKey eq '${PARTITION_KEY}'` },
+    });
+    for await (const _ of iter) {
+      count += 1;
+    }
+    return count;
+  }
+
+  return {
+    addShot,
+    getTopShots,
+    rankForRange,
+    totalShots,
+    addEvent,
+    addWaitlist,
+    waitlistCount,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -189,4 +287,6 @@ module.exports = {
   rankForRange: backend.rankForRange,
   totalShots: backend.totalShots,
   addEvent: backend.addEvent,
+  addWaitlist: backend.addWaitlist,
+  waitlistCount: backend.waitlistCount,
 };

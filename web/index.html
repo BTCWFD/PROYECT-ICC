@@ -115,6 +115,28 @@
           Clasificatorias fuera de línea. El simulador sigue disponible.
         </p>
       </div>
+
+      <!-- Captación de leads (waitlist). El componente window.ICCWaitlist
+           (js/waitlist.js) auto-cablea todo <form class="waitlist-form">:
+           POST /api/waitlist con {email, club, source=data-source}. Degrada
+           con elegancia en file:// (try/catch dentro del componente). -->
+      <div class="waitlist">
+        <h2>🚀 Sé de los primeros 1.000 operadores</h2>
+        <p class="waitlist-lead">
+          Reserva tu plaza en la lista de espera y te avisaremos del
+          <em>Primer Toque</em> antes que a nadie.
+        </p>
+        <form class="waitlist-form" data-source="simulator">
+          <input type="email" name="email" class="text-input" required
+                 autocomplete="email" placeholder="tu@correo.com"
+                 aria-label="Tu correo electrónico" />
+          <input type="text" name="club" class="text-input" maxlength="32"
+                 autocomplete="off" placeholder="Club (opcional)"
+                 aria-label="Tu club (opcional)" />
+          <button type="submit" class="btn primary">Unirme a la lista</button>
+          <p class="waitlist-msg" role="status" aria-live="polite" hidden></p>
+        </form>
+      </div>
     </aside>
   </main>
 
@@ -129,5 +151,7 @@
   <script src="js/analytics.js"></script>
   <script src="js/share.js"></script>
   <script src="js/main.js"></script>
+  <!-- Componente de waitlist: auto-cablea los <form class="waitlist-form">. -->
+  <script src="js/waitlist.js"></script>
 </body>
 </html>
