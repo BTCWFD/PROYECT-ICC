@@ -1,15 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/staticwebapp.config.json",
-
-  "//comentario_general": "Configuracion de Azure Static Web Apps para el sitio ICC. Define el enrutado SPA, el acceso anonimo a la API, cabeceras de seguridad y tipos MIME.",
-
   "platform": {
-    "//comentario": "Runtime de la API gestionada (Azure Functions). Node 20 es requerido por @azure/functions v4.",
     "apiRuntime": "node:20"
   },
-
   "navigationFallback": {
-    "//comentario": "Sirve el index.html como fallback para rutas no fisicas. Se excluyen la API, los recursos estaticos y los archivos con extension para que se sirvan tal cual.",
     "rewrite": "/index.html",
     "exclude": [
       "/api/*",
@@ -21,17 +15,13 @@
       "*.png"
     ]
   },
-
   "routes": [
     {
-      "//comentario": "La API gestionada de Azure Functions queda accesible de forma anonima (sin autenticacion).",
       "route": "/api/*",
       "allowedRoles": ["anonymous"]
     }
   ],
-
   "globalHeaders": {
-    "//comentario": "Cabeceras de seguridad aplicadas a todas las respuestas del sitio.",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "no-referrer",
@@ -39,15 +29,11 @@
     "Permissions-Policy": "geolocation=(), camera=(), microphone=()",
     "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
   },
-
   "mimeTypes": {
-    "//comentario": "Tipos MIME explicitos para servir correctamente JSON y JavaScript.",
     ".json": "application/json",
     ".js": "text/javascript"
   },
-
   "responseOverrides": {
-    "//comentario": "Cualquier 404 devuelve el index.html (enrutado del lado del cliente / SPA).",
     "404": {
       "rewrite": "/index.html"
     }
