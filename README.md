@@ -1,6 +1,12 @@
+<p align="center">
+  <img src="docs/ICC_LOGO.png" alt="Logo ICC" width="180" />
+</p>
+
 # 🌕 Interplanetary Champions Cup (ICC)
 
 > _"Validación del Entretenimiento Multiplanetario a través de Robótica Autónoma Supervisada"_
+
+🎮 **Demo en vivo:** https://btcwfd.github.io/PROYECT-ICC/
 
 La **Interplanetary Champions Cup (ICC)** es una plataforma de validación para la robótica
 de consumo en entornos de baja gravedad, con la visión final de un torneo de fútbol en un
