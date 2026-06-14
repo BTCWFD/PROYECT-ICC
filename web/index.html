@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICC · Simulador de Física Lunar</title>
+  <meta name="description" content="Simulador de física lunar de la Interplanetary Champions Cup — Operación Primer Toque." />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🌕</span>
+      <div>
+        <h1>Interplanetary Champions Cup</h1>
+        <p class="subtitle">Simulador de Física Lunar · Operación «Primer Toque»</p>
+      </div>
+    </div>
+    <span class="badge">Fase 1 · Hype Digital</span>
+  </header>
+
+  <main class="layout">
+    <!-- Lienzo de simulación -->
+    <section class="stage">
+      <canvas id="sim" width="960" height="540" aria-label="Simulación de la trayectoria del balón"></canvas>
+      <div class="stage-footer">
+        <span id="status">Listo para el saque inicial interplanetario.</span>
+      </div>
+    </section>
+
+    <!-- Panel de control -->
+    <aside class="panel">
+      <div class="control-group">
+        <label for="world">Mundo</label>
+        <div class="segmented" id="world" role="radiogroup">
+          <button data-world="moon" class="active" role="radio" aria-checked="true">🌕 Luna · 1/6 g</button>
+          <button data-world="earth" role="radio" aria-checked="false">🌍 Tierra · 1 g</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="power">Potencia del disparo <output id="powerVal">75</output> m/s</label>
+        <input type="range" id="power" min="5" max="120" value="75" />
+      </div>
+
+      <div class="control-group">
+        <label for="angle">Ángulo de disparo <output id="angleVal">35</output>°</label>
+        <input type="range" id="angle" min="5" max="85" value="35" />
+      </div>
+
+      <div class="control-group toggles">
+        <label class="checkbox">
+          <input type="checkbox" id="airResistance" />
+          <span>Resistencia del aire (en mundo con atmósfera)</span>
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" id="ghost" checked />
+          <span>Mostrar trayectoria fantasma del otro mundo</span>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="kick" class="primary">⚽ ¡Patear!</button>
+        <button id="reset" class="ghost-btn">Reiniciar</button>
+      </div>
+
+      <div class="metrics">
+        <h2>Telemetría</h2>
+        <div class="metric"><span>Alcance</span><strong id="mRange">— m</strong></div>
+        <div class="metric"><span>Altura máxima</span><strong id="mHeight">— m</strong></div>
+        <div class="metric"><span>Tiempo de vuelo</span><strong id="mTime">— s</strong></div>
+        <div class="metric"><span>Gravedad</span><strong id="mGravity">1.62 m/s²</strong></div>
+      </div>
+
+      <p class="hint">
+        En la Luna no hay aire y la gravedad es 6 veces menor: el balón vuela
+        <em>cientos de metros</em> y permanece segundos suspendido. Ese es el
+        espectáculo que valida la ICC.
+      </p>
+    </aside>
+  </main>
+
+  <footer class="bottombar">
+    <span>ICC · Oficina del CTO</span>
+    <span>Confidencial / Estratégico</span>
+  </footer>
+
+  <script src="js/physics.js"></script>
+  <script src="js/simulator.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
