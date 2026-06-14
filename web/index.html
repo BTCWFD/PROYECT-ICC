@@ -17,7 +17,7 @@
         <p class="subtitle">Simulador de Física Lunar · Operación «Primer Toque»</p>
       </div>
     </div>
-    <span class="badge">Fase 1 · Hype Digital</span>
+    <span class="badge">Temporada Inaugural · Luna</span>
   </header>
 
   <main class="layout">
@@ -25,7 +25,8 @@
     <section class="stage">
       <canvas id="sim" width="960" height="540" aria-label="Simulación de la trayectoria del balón"></canvas>
       <div class="stage-footer">
-        <span id="status">Listo para el saque inicial interplanetario.</span>
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="status" role="status" aria-live="polite">Robot L-Striker en posición. Listo para el primer toque.</span>
       </div>
     </section>
 
@@ -81,7 +82,7 @@
       </div>
 
       <div class="actions">
-        <button id="kick" class="primary">⚽ ¡Patear!</button>
+        <button id="kick" class="primary">⚽ Ejecutar saque lunar</button>
         <button id="reset" class="ghost-btn">Reiniciar</button>
       </div>
 
@@ -109,8 +110,8 @@
   </main>
 
   <footer class="bottombar">
-    <span>ICC · Oficina del CTO</span>
-    <span>Confidencial / Estratégico</span>
+    <span>Interplanetary Champions Cup</span>
+    <span>Camino a los Campeones del Sistema Solar</span>
   </footer>
 
   <script src="js/physics.js"></script>

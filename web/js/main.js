@@ -67,7 +67,31 @@
     // Clasificatorias.
     leaderboard: document.getElementById("leaderboard"),
     leaderboardList: document.getElementById("leaderboardList"),
+    // Lienzo (para la sacudida de impacto).
+    sim: canvas,
   };
+
+  // Etiqueta original del botón de saque (para restaurarla tras el vuelo).
+  const KICK_LABEL = els.kick.textContent;
+
+  // ----- Overlay de celebración (clímax del disparo) -----
+  // Se construye dinámicamente y se superpone al lienzo dentro de .stage.
+  const stage = canvas.closest(".stage");
+  const celebration = document.createElement("div");
+  celebration.className = "shot-celebration";
+  celebration.setAttribute("aria-hidden", "true");
+  celebration.innerHTML =
+    '<span class="celebration-kicker">Operación Primer Toque</span>' +
+    '<h2 class="celebration-title"></h2>' +
+    '<div class="celebration-range"></div>' +
+    '<div class="celebration-club"></div>' +
+    '<div class="celebration-record" hidden>★ Nuevo récord personal</div>';
+  stage.appendChild(celebration);
+  els.celebration = celebration;
+  els.celebTitle = celebration.querySelector(".celebration-title");
+  els.celebRange = celebration.querySelector(".celebration-range");
+  els.celebClub = celebration.querySelector(".celebration-club");
+  els.celebRecord = celebration.querySelector(".celebration-record");
 
   function trajectoryFor(worldKey, { withGhostColor } = {}) {
     const world = WORLDS[worldKey];
@@ -103,27 +127,73 @@
     const world = WORLDS[state.world];
     const traj = trajectoryFor(state.world);
     const ghost = ghostTrajectory();
-    setMetrics(traj);
 
+    // Bloqueo + feedback en el botón mientras el balón está en vuelo.
+    setSending(true);
+    els.kick.textContent = "Volando…";
+    els.status.textContent = "El L-Striker conecta. El balón surca el vacío lunar…";
+
+    // Count-up del alcance en vivo durante el vuelo.
     sim.onProgress = (p) => {
-      if (p) {
-        els.mRange.textContent = `${p.x.toFixed(1)} m`;
-      }
+      if (p) els.mRange.textContent = `${p.x.toFixed(0)} m`;
     };
-    sim.animate(world, traj, ghost);
 
-    const compare =
-      state.world === "moon"
-        ? `En la Tierra ese mismo disparo llegaría a ~${(ghost ? ghost.range : trajectoryFor("earth").range).toFixed(0)} m.`
-        : "";
-    els.status.textContent =
-      `¡Saque ejecutado en ${world.name}! Alcance: ${traj.range.toFixed(0)} m · vuelo: ${traj.flightTime.toFixed(1)} s. ${compare}`;
+    sim.animate(world, traj, ghost, {
+      onImpact: () => {
+        // Sacudida del visor y destello de la métrica de alcance.
+        els.sim.classList.remove("shake");
+        void els.sim.offsetWidth; // reinicia la animación
+        els.sim.classList.add("shake");
+        els.mRange.classList.remove("flash");
+        void els.mRange.offsetWidth;
+        els.mRange.classList.add("flash");
+      },
+      onComplete: () => {
+        setMetrics(traj);
+        setSending(false);
+        els.kick.textContent = KICK_LABEL;
 
-    // Restaurar la métrica final tras la animación.
-    setTimeout(() => setMetrics(traj), 200 + 16);
+        const compare =
+          state.world === "moon"
+            ? ` Seis veces más lejos que en la Tierra (~${(ghost ? ghost.range : trajectoryFor("earth").range).toFixed(0)} m).`
+            : "";
+        els.status.textContent =
+          `Vuelo lunar de ${traj.range.toFixed(0)} m en ${traj.flightTime.toFixed(1)} s.${compare}`;
+
+        celebrate(traj);
+      },
+    });
 
     // Intento de integración con la API (no bloquea ni rompe el simulador).
     submitShot(traj);
+  }
+
+  // Récord personal de alcance (persistente en el navegador).
+  function getRecord() {
+    return Number(localStorage.getItem("icc_record") || 0);
+  }
+
+  /** Muestra el overlay de celebración con un hito acorde al alcance. */
+  function celebrate(traj) {
+    const range = traj.range;
+    const prevRecord = getRecord();
+    const isRecord = range > prevRecord;
+    if (isRecord) localStorage.setItem("icc_record", String(Math.round(range)));
+
+    let title;
+    if (range >= 300) title = "¡HAZAÑA HISTÓRICA!";
+    else if (range >= 100) title = "¡Vuelo orbital!";
+    else title = "Saque registrado";
+
+    const club = (state.club || "").trim();
+    els.celebTitle.textContent = title;
+    els.celebRange.textContent = `${range.toFixed(0)} m`;
+    els.celebClub.textContent = club ? `${club} · L-Striker 01` : "L-Striker 01";
+    els.celebRecord.hidden = !isRecord;
+
+    els.celebration.classList.remove("show");
+    void els.celebration.offsetWidth;
+    els.celebration.classList.add("show");
   }
 
   /** Activa/desactiva el botón de patear según haya un envío en curso. */
@@ -305,9 +375,11 @@
     clearTimeout(latencyTimeout);
     els.latency.hidden = true;
     els.latencyFill.style.width = "0%";
+    els.celebration.classList.remove("show");
+    els.kick.textContent = KICK_LABEL;
     setSending(false);
     refreshIdle();
-    els.status.textContent = "Reiniciado. Listo para el saque inicial interplanetario.";
+    els.status.textContent = "Robot L-Striker en posición. Listo para el primer toque.";
   });
 
   // Estado inicial.

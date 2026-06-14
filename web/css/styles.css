@@ -6,7 +6,8 @@
   --text: #e8eefc;
   --accent: #5b8cff;
   --accent-2: #ffd35b;
-  --muted: #8ea0c4;
+  /* Subido para cumplir contraste WCAG AA (4.5:1) sobre los paneles oscuros. */
+  --muted: #aab8d8;
   --moon: #d9dde6;
   --earth: #4ea1ff;
   --ok: #46d39a;
@@ -20,6 +21,33 @@ html, body {
   color: var(--text);
   font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
   min-height: 100vh;
+}
+
+/* Foco visible global y accesible (WCAG 2.4.7). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Texto solo para lectores de pantalla. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Respeta a quienes prefieren menos movimiento (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
 }
 
 /* ---------- Top bar ---------- */
@@ -67,10 +95,12 @@ html, body {
 
 /* ---------- Stage ---------- */
 .stage {
+  position: relative;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, .6);
 }
 #sim {
   display: block;
@@ -78,11 +108,88 @@ html, body {
   height: auto;
   background: #02030a;
 }
+/* Sacudida de impacto al aterrizar el balón. */
+#sim.shake { animation: shake .18s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
 .stage-footer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   padding: 10px 16px;
   font-size: 13px;
   color: var(--muted);
   border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, .02);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 0 rgba(70, 211, 154, .5);
+  animation: pulse-dot 2s infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(70, 211, 154, .5); }
+  70% { box-shadow: 0 0 0 6px rgba(70, 211, 154, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(70, 211, 154, 0); }
+}
+
+/* Overlay de celebración del disparo (clímax). */
+.shot-celebration {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  background: radial-gradient(circle at 50% 45%, rgba(91, 140, 255, .18), rgba(2, 3, 10, .55) 70%);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+.shot-celebration.show { animation: celebrate 2.4s ease forwards; }
+@keyframes celebrate {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.celebration-kicker {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.celebration-title {
+  font-size: clamp(22px, 4vw, 40px);
+  font-weight: 800;
+  color: var(--accent-2);
+  text-shadow: 0 0 24px rgba(255, 211, 91, .5);
+  margin: 0;
+}
+.celebration-range {
+  font-size: clamp(28px, 6vw, 56px);
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.celebration-club { font-size: 14px; color: var(--muted); }
+.celebration-record {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-2);
+  border: 1px solid rgba(255, 211, 91, .4);
+  border-radius: 999px;
+  padding: 3px 12px;
 }
 
 /* ---------- Panel ---------- */
@@ -112,18 +219,19 @@ input[type="range"] {
   height: 6px;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  outline: none;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 18px; height: 18px;
+  width: 24px; height: 24px;
   border-radius: 50%;
   background: #fff;
   cursor: pointer;
   box-shadow: 0 0 0 4px rgba(91, 140, 255, .25);
+  transition: box-shadow .15s ease;
 }
+input[type="range"]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(91, 140, 255, .3); }
 input[type="range"]::-moz-range-thumb {
-  width: 18px; height: 18px; border: none; border-radius: 50%;
+  width: 24px; height: 24px; border: none; border-radius: 50%;
   background: #fff; cursor: pointer;
 }
 
@@ -152,13 +260,27 @@ input[type="range"]::-moz-range-thumb {
   display: flex; align-items: center; gap: 9px;
   font-size: 12.5px; color: var(--muted); cursor: pointer;
 }
-.checkbox input { width: 16px; height: 16px; accent-color: var(--accent); }
+.checkbox input { width: 20px; height: 20px; accent-color: var(--accent); }
+.segmented button:hover { background: rgba(91, 140, 255, .08); color: var(--text); }
+.checkbox:hover { color: var(--text); }
 
-/* Actions */
+/* Actions — la acción principal pesa el doble que Reiniciar. */
 .actions { display: flex; gap: 10px; }
-.actions button { flex: 1; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
-.primary { background: linear-gradient(90deg, var(--accent), #7aa2ff); color: #03102e; }
-.primary:hover { filter: brightness(1.08); }
+.actions button {
+  padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.actions button:active { transform: translateY(1px) scale(.99); }
+.actions button:disabled { opacity: .5; cursor: not-allowed; filter: none; transform: none; }
+#kick { flex: 2; padding: 14px; font-size: 15px; }
+#reset { flex: 1; }
+.primary {
+  background: linear-gradient(90deg, var(--accent), #7aa2ff);
+  color: #03102e;
+  box-shadow: 0 6px 18px -8px rgba(91, 140, 255, .8);
+}
+.primary:hover:not(:disabled) { filter: brightness(1.08); }
 .ghost-btn { background: transparent; border-color: var(--line); color: var(--muted); }
 .ghost-btn:hover { color: var(--text); border-color: var(--accent); }
 
@@ -173,7 +295,13 @@ input[type="range"]::-moz-range-thumb {
 .metrics h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0 0 4px; }
 .metric { display: flex; justify-content: space-between; font-size: 13.5px; }
 .metric span { color: var(--muted); }
-.metric strong { color: var(--accent-2); font-variant-numeric: tabular-nums; }
+/* Dorado reservado para logros/marca: las métricas usan color de texto normal. */
+.metric strong { color: var(--text); font-variant-numeric: tabular-nums; font-size: 15px; }
+.metric strong.flash { animation: flash-metric .6s ease; }
+@keyframes flash-metric {
+  0% { color: var(--accent-2); text-shadow: 0 0 16px rgba(255, 211, 91, .7); }
+  100% { color: var(--text); text-shadow: none; }
+}
 
 .hint { font-size: 12px; color: var(--muted); line-height: 1.6; margin: 0; }
 .hint em { color: var(--text); font-style: normal; font-weight: 600; }
@@ -273,10 +401,15 @@ input[type="range"]::-moz-range-thumb {
 }
 .leaderboard-list li::before {
   content: counter(pos);
-  color: var(--accent-2);
+  color: var(--muted);
   font-weight: 700;
   min-width: 16px;
 }
+/* El líder (#1) es el único con tratamiento dorado: "dorado = logro". */
+.leaderboard-list li:first-child {
+  background: linear-gradient(90deg, rgba(255, 211, 91, .12), rgba(255, 255, 255, .03));
+}
+.leaderboard-list li:first-child::before { color: var(--accent-2); }
 .leaderboard-list .lb-club {
   flex: 1;
   overflow: hidden;
@@ -284,10 +417,11 @@ input[type="range"]::-moz-range-thumb {
   white-space: nowrap;
 }
 .leaderboard-list .lb-range {
-  color: var(--accent-2);
+  color: var(--text);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
+.leaderboard-list li:first-child .lb-range { color: var(--accent-2); }
 .leaderboard-list .lb-world { color: var(--muted); font-size: 11px; }
 
 /* ---------- Bottom bar ---------- */
