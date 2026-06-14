@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  PLANTILLA DE EMAIL — NO es una pagina del sitio web.
+  Email de bienvenida "Operador Fundador" (campana "Primer Toque", Fase 1).
+
+  IMPORTANTE: este archivo NO se sirve desde el sitio y NO pasa por la CSP.
+  Los clientes de correo (Gmail, Outlook, etc.) NO soportan CSS externo de
+  forma fiable, por lo que aqui SE USAN estilos inline (style="") y tablas de
+  maquetacion a proposito: es la practica correcta y email-safe. No copiar
+  este patron a archivos .html del sitio (alli rige la CSP: nada inline).
+
+  Merge tags genericos (Mailchimp/Brevo): {{first_name}}, {{sim_url}},
+  {{unsubscribe_url}}. Configurar {{first_name}} con valor por defecto "Operador".
+  ============================================================================
+-->
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="supported-color-schemes" content="dark" />
+  <title>Bienvenido, Operador Fundador — ICC</title>
+</head>
+<!-- Tema oscuro de marca: --bg #05070f, --text #e8eefc, --accent #5b8cff, --accent-2 #ffd35b -->
+<body style="margin:0; padding:0; background-color:#05070f; color:#e8eefc; font-family:'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;">
+
+  <!-- Preheader oculto: texto de vista previa en la bandeja de entrada -->
+  <div style="display:none; max-height:0; overflow:hidden; mso-hide:all; font-size:1px; line-height:1px; color:#05070f; opacity:0;">
+    Tu estuviste antes de que un robot pateara un balon en la Luna.
+  </div>
+
+  <!-- Contenedor exterior centrado -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#05070f;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+
+        <!-- Tarjeta principal (max 600px) -->
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background-color:#0e1424; border:1px solid #233152; border-radius:14px; overflow:hidden;">
+
+          <!-- Cabecera de marca -->
+          <tr>
+            <td style="padding:28px 32px 12px 32px; border-bottom:1px solid #233152;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="left" style="font-size:18px; font-weight:700; letter-spacing:0.3px; color:#e8eefc;">
+                    ICC <span style="color:#ffd35b;">&#127757;</span>
+                    <div style="font-size:12.5px; font-weight:400; color:#aab8d8; margin-top:4px;">
+                      Interplanetary Champions Cup
+                    </div>
+                  </td>
+                  <td align="right" valign="top">
+                    <span style="display:inline-block; font-size:12px; color:#ffd35b; border:1px solid rgba(255,211,91,0.35); background-color:rgba(255,211,91,0.07); border-radius:999px; padding:5px 12px;">
+                      Operador Fundador
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Heroe -->
+          <tr>
+            <td style="padding:36px 32px 8px 32px;">
+              <h1 style="margin:0; font-size:28px; line-height:1.2; color:#e8eefc; font-weight:800;">
+                Bienvenido, {{first_name}}.
+              </h1>
+              <p style="margin:14px 0 0 0; font-size:16px; line-height:1.5; color:#ffd35b; font-weight:600;">
+                Estas en la lista. Te avisaremos del Primer Toque.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Cuerpo -->
+          <tr>
+            <td style="padding:18px 32px 8px 32px;">
+              <p style="margin:0 0 16px 0; font-size:15px; line-height:1.65; color:#e8eefc;">
+                Eso no es una frase de marketing: es un contrato. Cuando un robot patee un
+                balon en la Luna &mdash;el Apolo 11 del entretenimiento&mdash; tu ya estabas
+                dentro. Hoy reservas tu plaza entre los <strong>primeros 1.000 operadores</strong>
+                que estrenaran el control del L-Striker.
+              </p>
+              <p style="margin:0 0 16px 0; font-size:15px; line-height:1.65; color:#e8eefc;">
+                Porque esto va de eso: el L-Striker no es una maquina que patea. Es el
+                <strong style="color:#5b8cff;">primer deportista interplanetario</strong>. Un atleta
+                entrenado para un unico gesto historico, a 1,62 m/s&#178; de gravedad, donde el
+                balon no cae: vuela.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Lista de beneficios de la plaza -->
+          <tr>
+            <td style="padding:4px 32px 8px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#141c33; border:1px solid #233152; border-radius:10px;">
+                <tr>
+                  <td style="padding:18px 20px;">
+                    <p style="margin:0 0 12px 0; font-size:13px; letter-spacing:0.4px; text-transform:uppercase; color:#aab8d8; font-weight:700;">
+                      Tu plaza fundacional incluye
+                    </p>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr><td style="padding:5px 0; font-size:14px; line-height:1.5; color:#e8eefc;"><span style="color:#46d39a;">&#10003;</span>&nbsp; Plaza numerada entre los primeros 1.000 operadores.</td></tr>
+                      <tr><td style="padding:5px 0; font-size:14px; line-height:1.5; color:#e8eefc;"><span style="color:#46d39a;">&#10003;</span>&nbsp; Aviso prioritario del Primer Toque (el evento real).</td></tr>
+                      <tr><td style="padding:5px 0; font-size:14px; line-height:1.5; color:#e8eefc;"><span style="color:#46d39a;">&#10003;</span>&nbsp; Acceso anticipado a retos, rankings y drops (incl. el NFT del primer toque).</td></tr>
+                      <tr><td style="padding:5px 0; font-size:14px; line-height:1.5; color:#e8eefc;"><span style="color:#46d39a;">&#10003;</span>&nbsp; Tu badge de &laquo;Operador Fundador&raquo; en la comunidad.</td></tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Texto puente al CTA -->
+          <tr>
+            <td style="padding:20px 32px 4px 32px;">
+              <p style="margin:0; font-size:15px; line-height:1.65; color:#e8eefc;">
+                Mientras tanto, no esperes sentado: prueba el simulador. Manda el balon lo
+                mas lejos que puedas en gravedad lunar. Ese es tu primer toque.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Boton CTA (bulletproof button con tabla) -->
+          <tr>
+            <td align="center" style="padding:26px 32px 30px 32px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" bgcolor="#5b8cff" style="border-radius:10px;">
+                    <a href="{{sim_url}}" target="_blank" style="display:inline-block; padding:15px 34px; font-size:16px; font-weight:700; color:#05070f; text-decoration:none; border-radius:10px; background-color:#5b8cff;">
+                      Ver el simulador &rarr;
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:14px 0 0 0; font-size:13px; line-height:1.5; color:#aab8d8;">
+                Comparte tu mejor disparo con <span style="color:#ffd35b; font-weight:600;">#ICCFirstTouch</span>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Pie -->
+          <tr>
+            <td style="padding:22px 32px 28px 32px; border-top:1px solid #233152;">
+              <p style="margin:0 0 8px 0; font-size:12.5px; line-height:1.5; color:#aab8d8;">
+                El juego cambia de cancha. 2026. &mdash; Interplanetary Champions Cup
+              </p>
+              <p style="margin:0; font-size:11.5px; line-height:1.5; color:#7e8bab;">
+                Recibes este correo porque reservaste tu plaza en la waitlist de ICC.
+                <a href="{{unsubscribe_url}}" style="color:#5b8cff; text-decoration:underline;">Darse de baja</a>.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Tarjeta principal -->
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

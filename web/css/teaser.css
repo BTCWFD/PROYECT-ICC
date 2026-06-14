@@ -1,0 +1,262 @@
+/* =============================================================
+   ICC · TEASER VISUAL GRABABLE — Acto I (ciego, sin marca)
+   "El juego cambia de cancha. 2026."  ·  #ICCFirstTouch
+   - Lienzo vertical 9:16 centrado sobre fondo negro espacial.
+   - Animacion en LOOP de ~9 s: balon entra flotando (gravedad
+     lunar), queda suspendido, y se revela el texto.
+   - 100% same-origin, sin CDNs, sin inline, sin fuentes externas.
+   - Tipografia del SISTEMA, mayusculas con tracking.
+   - prefers-reduced-motion: muestra el frame final estatico.
+   - Pensado para grabar en pantalla y exportar a video 9:16.
+   ============================================================= */
+
+/* ---------- Variables ---------- */
+:root {
+  --bg-space: #02030a;        /* negro espacial */
+  --text: #eef3ff;
+  --accent: #5b8cff;          /* azul ICC */
+  --font: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Duracion del loop completo del teaser. */
+  --loop: 9s;
+}
+
+/* ---------- Reset / base ---------- */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: #000;            /* franjas negras alrededor del lienzo */
+  color: var(--text);
+  font-family: var(--font);
+  overflow: hidden;           /* sin scroll: es una escena fija */
+}
+
+/* ---------- Contenedor a pantalla completa ---------- */
+.teaser {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(120% 90% at 50% 30%, #060912 0%, #000 70%);
+}
+
+/* ---------- Lienzo 9:16 ---------- */
+.stage {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  aspect-ratio: 9 / 16;        /* mantiene vertical para grabar */
+  max-width: 100vw;
+  overflow: hidden;
+  background: var(--bg-space);
+  box-shadow: 0 0 120px rgba(0, 0, 0, .9) inset;
+}
+
+.scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* =============================================================
+   ANIMACION DEL BALON
+   Entra desde fuera de cuadro (abajo-izquierda), sube lento como
+   en 1/6 g, y queda suspendido con una leve flotacion residual.
+   ============================================================= */
+.ball-group {
+  /* El origen de transformaciones es el centro del balon (540,980). */
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ball-enter var(--loop) cubic-bezier(.16, .68, .3, 1) infinite;
+}
+
+@keyframes ball-enter {
+  /* Fuera de cuadro, abajo a la izquierda, pequeno y con rotacion. */
+  0% {
+    transform: translate(-260px, 760px) scale(.62) rotate(-26deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  /* Ascenso lento (gravedad lunar): trayectoria larga y suave. */
+  46% {
+    transform: translate(-30px, 90px) scale(.98) rotate(-6deg);
+    opacity: 1;
+  }
+  /* Llega a su posicion y queda suspendido. */
+  60% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  /* Flotacion residual mientras se revela el texto. */
+  78% {
+    transform: translate(0, -22px) scale(1) rotate(1.5deg);
+  }
+  90% {
+    transform: translate(0, -6px) scale(1) rotate(0deg);
+  }
+  /* Mantiene el frame final hasta reiniciar el loop. */
+  100% {
+    transform: translate(0, -14px) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Sombra en el suelo: se ajusta segun se acerca el balon. */
+.ball-shadow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: shadow-track var(--loop) cubic-bezier(.16, .68, .3, 1) infinite;
+}
+
+@keyframes shadow-track {
+  0%   { transform: translate(-260px, 0) scale(.4); opacity: 0; }
+  10%  { opacity: .15; }
+  46%  { transform: translate(-30px, 0) scale(.8); opacity: .3; }
+  60%  { transform: translate(0, 0) scale(1); opacity: .4; }
+  78%  { transform: translate(0, 0) scale(1.04); opacity: .28; }
+  100% { transform: translate(0, 0) scale(1); opacity: .34; }
+}
+
+/* =============================================================
+   REVEAL DEL TEXTO
+   Aparece tras la suspension del balon; se mantiene y desaparece
+   justo antes de reiniciar el loop para un corte limpio.
+   ============================================================= */
+.reveal-text text {
+  fill: var(--text);
+  font-family: var(--font);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.line-1 {
+  font-size: 62px;
+  letter-spacing: 6px;
+}
+
+.line-2 {
+  font-size: 92px;
+  letter-spacing: 12px;
+  fill: var(--accent);
+}
+
+.reveal-text .line-1,
+.reveal-text .line-2 {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: text-reveal var(--loop) ease infinite;
+}
+
+/* La segunda linea entra un poco despues (cascada). */
+.reveal-text .line-2 {
+  animation-name: text-reveal-2;
+}
+
+@keyframes text-reveal {
+  0%, 62%   { opacity: 0; transform: translateY(18px); }
+  72%       { opacity: 1; transform: translateY(0); }
+  92%       { opacity: 1; transform: translateY(0); }
+  100%      { opacity: 0; transform: translateY(0); }
+}
+
+@keyframes text-reveal-2 {
+  0%, 70%   { opacity: 0; transform: translateY(18px) scale(.96); }
+  82%       { opacity: 1; transform: translateY(0) scale(1); }
+  92%       { opacity: 1; transform: translateY(0) scale(1); }
+  100%      { opacity: 0; transform: translateY(0) scale(1); }
+}
+
+/* =============================================================
+   TWINKLE DE ESTRELLAS (parpadeo desfasado)
+   ============================================================= */
+.star {
+  animation: twinkle 4s ease-in-out infinite;
+}
+.star.s1 { animation-duration: 3.2s; animation-delay: 0s; }
+.star.s2 { animation-duration: 4.6s; animation-delay: .8s; }
+.star.s3 { animation-duration: 5.4s; animation-delay: 1.6s; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: .25; }
+  50%      { opacity: 1; }
+}
+
+/* =============================================================
+   POLVO LUNAR EN SUSPENSION (asciende muy lento, baja densidad)
+   ============================================================= */
+.mote {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: float-dust 7s ease-in-out infinite;
+}
+.mote.m1 { animation-duration: 6.5s; animation-delay: .4s; }
+.mote.m2 { animation-duration: 8s;   animation-delay: 1.8s; }
+.mote.m3 { animation-duration: 7.2s; animation-delay: 3.1s; }
+
+@keyframes float-dust {
+  0%   { opacity: 0;  transform: translateY(40px); }
+  25%  { opacity: .5; }
+  75%  { opacity: .35; }
+  100% { opacity: 0;  transform: translateY(-90px); }
+}
+
+/* Halo atmosferico de la Tierra: latido muy sutil. */
+.earth-group {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: earth-breathe 12s ease-in-out infinite;
+}
+@keyframes earth-breathe {
+  0%, 100% { opacity: .96; }
+  50%      { opacity: 1; }
+}
+
+/* =============================================================
+   RESPONSIVE: en pantallas anchas el lienzo se limita por alto;
+   en moviles ocupa todo. La escena escala con el SVG (viewBox),
+   asi que el contenido siempre encuadra bien.
+   ============================================================= */
+@media (max-aspect-ratio: 9 / 16) {
+  .stage {
+    width: 100vw;
+    height: auto;
+    aspect-ratio: 9 / 16;
+  }
+}
+
+/* =============================================================
+   ACCESIBILIDAD: prefers-reduced-motion
+   Sin movimiento -> se muestra el FRAME FINAL estatico:
+   balon suspendido en su sitio, texto visible, sin parpadeos.
+   ============================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .ball-group,
+  .ball-shadow,
+  .reveal-text .line-1,
+  .reveal-text .line-2,
+  .star,
+  .mote,
+  .earth-group {
+    animation: none !important;
+  }
+
+  /* Balon en posicion final. */
+  .ball-group { transform: translate(0, -8px); opacity: 1; }
+  .ball-shadow { opacity: .34; }
+
+  /* Texto revelado y fijo. */
+  .reveal-text .line-1,
+  .reveal-text .line-2 { opacity: 1; transform: none; }
+
+  /* Estrellas y polvo en un estado legible y quieto. */
+  .star { opacity: .7; }
+  .mote { opacity: 0; }   /* sin polvo suspendido para evitar ruido */
+}

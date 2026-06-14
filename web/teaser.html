@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El juego cambia de cancha. 2026.</title>
+  <meta name="description" content="El juego cambia de cancha. 2026. Un balon flota sobre el regolito lunar, la Tierra al fondo. Teaser ciego." />
+  <!-- Toda la animacion y los estilos viven en css/teaser.css (CSP: sin inline). -->
+  <link rel="stylesheet" href="css/teaser.css" />
+</head>
+<body>
+  <!-- =================================================================
+       TEASER VISUAL GRABABLE — Acto I (ciego, sin logo ni marca)
+       Lienzo vertical 9:16 centrado sobre fondo negro espacial.
+       Escena: regolito abajo, Tierra al fondo, balon que entra
+       flotando lento (gravedad lunar) y queda suspendido; al final
+       se revela el texto. Animacion en LOOP de ~9 s.
+       Pensado para grabar en pantalla y exportar a video vertical.
+       ================================================================= -->
+  <main class="teaser" aria-label="Teaser: el juego cambia de cancha, 2026">
+
+    <!-- Lienzo 9:16. Todo se dibuja en SVG inline. -->
+    <div class="stage">
+      <svg
+        class="scene"
+        viewBox="0 0 1080 1920"
+        preserveAspectRatio="xMidYMid slice"
+        role="img"
+        aria-label="Un balon de futbol flota sobre la superficie lunar con la Tierra al fondo. Texto: el juego cambia de cancha, 2026."
+      >
+        <defs>
+          <!-- Cielo espacial profundo (negro azulado). -->
+          <radialGradient id="sky" cx="50%" cy="34%" r="85%">
+            <stop offset="0%" stop-color="#0a1226" />
+            <stop offset="55%" stop-color="#05080f" />
+            <stop offset="100%" stop-color="#02030a" />
+          </radialGradient>
+
+          <!-- Tierra: azul oceanico con terminador. -->
+          <radialGradient id="earth" cx="38%" cy="36%" r="75%">
+            <stop offset="0%" stop-color="#7fc2ff" />
+            <stop offset="38%" stop-color="#2f7fe6" />
+            <stop offset="70%" stop-color="#143e8c" />
+            <stop offset="100%" stop-color="#04122e" />
+          </radialGradient>
+          <!-- Halo atmosferico de la Tierra. -->
+          <radialGradient id="earthGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="62%" stop-color="rgba(91,140,255,0)" />
+            <stop offset="86%" stop-color="rgba(91,140,255,.34)" />
+            <stop offset="100%" stop-color="rgba(91,140,255,0)" />
+          </radialGradient>
+
+          <!-- Regolito lunar. -->
+          <linearGradient id="regolith" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3a3d4a" />
+            <stop offset="40%" stop-color="#24262f" />
+            <stop offset="100%" stop-color="#0c0d12" />
+          </linearGradient>
+
+          <!-- Esfera del balon: sombreado para volumen. -->
+          <radialGradient id="ball" cx="38%" cy="34%" r="72%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="58%" stop-color="#dfe5f2" />
+            <stop offset="88%" stop-color="#9aa6c0" />
+            <stop offset="100%" stop-color="#5a6280" />
+          </radialGradient>
+
+          <!-- Vineta para enfocar al centro. -->
+          <radialGradient id="vignette" cx="50%" cy="48%" r="72%">
+            <stop offset="55%" stop-color="rgba(0,0,0,0)" />
+            <stop offset="100%" stop-color="rgba(0,0,0,.72)" />
+          </radialGradient>
+
+          <!-- Recorte para que la luz quede dentro del balon. -->
+          <clipPath id="ballClip">
+            <circle cx="540" cy="980" r="150" />
+          </clipPath>
+        </defs>
+
+        <!-- ---------- Fondo espacial ---------- -->
+        <rect x="0" y="0" width="1080" height="1920" fill="url(#sky)" />
+
+        <!-- ---------- Estrellas (twinkle via CSS) ---------- -->
+        <g class="stars" fill="#ffffff">
+          <circle class="star s1" cx="120" cy="180" r="2.4" />
+          <circle class="star s2" cx="300" cy="120" r="1.6" />
+          <circle class="star s3" cx="470" cy="240" r="2" />
+          <circle class="star s1" cx="650" cy="150" r="1.4" />
+          <circle class="star s2" cx="820" cy="220" r="2.6" />
+          <circle class="star s3" cx="960" cy="140" r="1.8" />
+          <circle class="star s2" cx="200" cy="360" r="1.5" />
+          <circle class="star s1" cx="900" cy="380" r="2.2" />
+          <circle class="star s3" cx="60" cy="520" r="1.7" />
+          <circle class="star s1" cx="1010" cy="560" r="1.5" />
+          <circle class="star s2" cx="380" cy="60" r="1.3" />
+          <circle class="star s3" cx="720" cy="430" r="1.6" />
+          <circle class="star s1" cx="540" cy="500" r="1.4" />
+          <circle class="star s2" cx="150" cy="700" r="1.8" />
+          <circle class="star s3" cx="980" cy="760" r="1.5" />
+          <circle class="star s1" cx="430" cy="420" r="1.2" />
+        </g>
+
+        <!-- ---------- Tierra al fondo (arriba a la derecha) ---------- -->
+        <g class="earth-group">
+          <circle cx="800" cy="430" r="210" fill="url(#earthGlow)" />
+          <circle cx="800" cy="430" r="170" fill="url(#earth)" />
+          <!-- Insinuacion de continentes (formas suaves). -->
+          <g fill="#2f6f4e" opacity=".55">
+            <path d="M735 360 q40 -22 78 -6 q22 28 -4 52 q-46 18 -86 -8 q-12 -24 12 -38 z" />
+            <path d="M810 470 q34 -10 60 14 q10 28 -22 40 q-40 6 -56 -22 q-2 -24 18 -32 z" />
+            <path d="M720 470 q20 -6 30 14 q4 22 -18 28 q-22 0 -26 -20 q0 -16 14 -22 z" />
+          </g>
+          <!-- Nubes tenues. -->
+          <g fill="#dfeaff" opacity=".22">
+            <ellipse cx="760" cy="395" rx="56" ry="16" />
+            <ellipse cx="838" cy="500" rx="44" ry="13" />
+          </g>
+        </g>
+
+        <!-- ---------- Polvo / regolito en suspension ---------- -->
+        <g class="dust" fill="#cdd4e6">
+          <circle class="mote m1" cx="420" cy="1300" r="3" />
+          <circle class="mote m2" cx="560" cy="1360" r="2.4" />
+          <circle class="mote m3" cx="640" cy="1280" r="3.4" />
+          <circle class="mote m1" cx="500" cy="1240" r="2" />
+          <circle class="mote m2" cx="380" cy="1380" r="2.8" />
+          <circle class="mote m3" cx="700" cy="1340" r="2.2" />
+        </g>
+
+        <!-- ---------- Suelo lunar (regolito) ---------- -->
+        <g class="ground">
+          <path
+            d="M0 1500 Q 270 1430 540 1470 T 1080 1455 L 1080 1920 L 0 1920 Z"
+            fill="url(#regolith)"
+          />
+          <!-- Crateres (elipses con borde claro). -->
+          <ellipse cx="300" cy="1620" rx="120" ry="34" fill="#15171f" />
+          <ellipse cx="300" cy="1614" rx="120" ry="34" fill="none" stroke="#4a4e5d" stroke-width="3" opacity=".5" />
+          <ellipse cx="760" cy="1740" rx="170" ry="46" fill="#101218" />
+          <ellipse cx="760" cy="1733" rx="170" ry="46" fill="none" stroke="#4a4e5d" stroke-width="3" opacity=".5" />
+          <ellipse cx="560" cy="1560" rx="64" ry="20" fill="#181a22" />
+        </g>
+
+        <!-- ---------- Sombra del balon proyectada en el suelo ---------- -->
+        <ellipse class="ball-shadow" cx="540" cy="1300" rx="86" ry="22" fill="#000000" opacity=".4" />
+
+        <!-- ---------- Balon de futbol (entra flotando, queda suspendido) ---------- -->
+        <g class="ball-group">
+          <!-- Esfera base. -->
+          <circle cx="540" cy="980" r="150" fill="url(#ball)" />
+          <!-- Paneles del balon (pentagonos negros + costuras), recortados a la esfera. -->
+          <g clip-path="url(#ballClip)" stroke="#11151f" stroke-width="6" stroke-linejoin="round">
+            <!-- Pentagono central. -->
+            <polygon points="540,932 584,964 567,1016 513,1016 496,964" fill="#161a24" />
+            <!-- Pentagonos perifericos (parcialmente fuera del recorte). -->
+            <polygon points="478,872 522,856 552,892 528,936 482,930" fill="#161a24" />
+            <polygon points="602,872 646,892 642,940 596,940 576,896" fill="#161a24" />
+            <polygon points="452,1006 498,1024 492,1074 444,1080 422,1036" fill="#161a24" />
+            <polygon points="632,1010 678,1036 660,1086 612,1078 606,1028" fill="#161a24" />
+            <polygon points="540,1078 590,1098 576,1152 504,1152 490,1098" fill="#161a24" />
+            <!-- Costuras hacia el borde (lineas blancas/grises). -->
+            <g stroke="#aeb6cc" stroke-width="5" fill="none" opacity=".7">
+              <line x1="496" y1="964" x2="430" y2="934" />
+              <line x1="584" y1="964" x2="650" y2="934" />
+              <line x1="513" y1="1016" x2="470" y2="1070" />
+              <line x1="567" y1="1016" x2="612" y2="1070" />
+              <line x1="540" y1="932" x2="540" y2="864" />
+            </g>
+          </g>
+          <!-- Brillo especular suave. -->
+          <ellipse cx="492" cy="924" rx="42" ry="28" fill="#ffffff" opacity=".5" />
+        </g>
+
+        <!-- ---------- Vineta encima de la escena ---------- -->
+        <rect x="0" y="0" width="1080" height="1920" fill="url(#vignette)" />
+
+        <!-- ---------- Reveal de texto (aparece al final del loop) ---------- -->
+        <g class="reveal-text" text-anchor="middle">
+          <text class="line-1" x="540" y="1640">EL JUEGO CAMBIA DE CANCHA.</text>
+          <text class="line-2" x="540" y="1760">2026.</text>
+        </g>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

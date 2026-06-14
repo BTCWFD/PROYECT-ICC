@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ICC · TEASER POSTER (Acto I, ciego, sin marca)
+  Version ESTATICA del teaser para posts / hilos / GIF estatico.
+  Mismo encuadre 9:16 que web/teaser.html (frame final).
+  Autocontenido: sin recursos externos, sin fuentes externas
+  (stack del sistema). "El juego cambia de cancha. 2026."
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920"
+     viewBox="0 0 1080 1920" role="img"
+     aria-label="Un balon de futbol flota sobre la superficie lunar con la Tierra al fondo. Texto: el juego cambia de cancha, 2026.">
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="34%" r="85%">
+      <stop offset="0%" stop-color="#0a1226" />
+      <stop offset="55%" stop-color="#05080f" />
+      <stop offset="100%" stop-color="#02030a" />
+    </radialGradient>
+
+    <radialGradient id="earth" cx="38%" cy="36%" r="75%">
+      <stop offset="0%" stop-color="#7fc2ff" />
+      <stop offset="38%" stop-color="#2f7fe6" />
+      <stop offset="70%" stop-color="#143e8c" />
+      <stop offset="100%" stop-color="#04122e" />
+    </radialGradient>
+    <radialGradient id="earthGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="62%" stop-color="rgba(91,140,255,0)" />
+      <stop offset="86%" stop-color="rgba(91,140,255,.34)" />
+      <stop offset="100%" stop-color="rgba(91,140,255,0)" />
+    </radialGradient>
+
+    <linearGradient id="regolith" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a3d4a" />
+      <stop offset="40%" stop-color="#24262f" />
+      <stop offset="100%" stop-color="#0c0d12" />
+    </linearGradient>
+
+    <radialGradient id="ball" cx="38%" cy="34%" r="72%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="58%" stop-color="#dfe5f2" />
+      <stop offset="88%" stop-color="#9aa6c0" />
+      <stop offset="100%" stop-color="#5a6280" />
+    </radialGradient>
+
+    <radialGradient id="vignette" cx="50%" cy="48%" r="72%">
+      <stop offset="55%" stop-color="rgba(0,0,0,0)" />
+      <stop offset="100%" stop-color="rgba(0,0,0,.72)" />
+    </radialGradient>
+
+    <clipPath id="ballClip">
+      <circle cx="540" cy="972" r="150" />
+    </clipPath>
+  </defs>
+
+  <!-- Fondo espacial -->
+  <rect x="0" y="0" width="1080" height="1920" fill="url(#sky)" />
+
+  <!-- Estrellas (estaticas) -->
+  <g fill="#ffffff">
+    <circle cx="120" cy="180" r="2.4" opacity=".9" />
+    <circle cx="300" cy="120" r="1.6" opacity=".6" />
+    <circle cx="470" cy="240" r="2" opacity=".8" />
+    <circle cx="650" cy="150" r="1.4" opacity=".55" />
+    <circle cx="820" cy="220" r="2.6" opacity=".95" />
+    <circle cx="960" cy="140" r="1.8" opacity=".7" />
+    <circle cx="200" cy="360" r="1.5" opacity=".6" />
+    <circle cx="900" cy="380" r="2.2" opacity=".85" />
+    <circle cx="60"  cy="520" r="1.7" opacity=".65" />
+    <circle cx="1010" cy="560" r="1.5" opacity=".6" />
+    <circle cx="380" cy="60"  r="1.3" opacity=".5" />
+    <circle cx="720" cy="430" r="1.6" opacity=".7" />
+    <circle cx="540" cy="500" r="1.4" opacity=".55" />
+    <circle cx="150" cy="700" r="1.8" opacity=".7" />
+    <circle cx="980" cy="760" r="1.5" opacity=".6" />
+    <circle cx="430" cy="420" r="1.2" opacity=".5" />
+  </g>
+
+  <!-- Tierra al fondo -->
+  <g>
+    <circle cx="800" cy="430" r="210" fill="url(#earthGlow)" />
+    <circle cx="800" cy="430" r="170" fill="url(#earth)" />
+    <g fill="#2f6f4e" opacity=".55">
+      <path d="M735 360 q40 -22 78 -6 q22 28 -4 52 q-46 18 -86 -8 q-12 -24 12 -38 z" />
+      <path d="M810 470 q34 -10 60 14 q10 28 -22 40 q-40 6 -56 -22 q-2 -24 18 -32 z" />
+      <path d="M720 470 q20 -6 30 14 q4 22 -18 28 q-22 0 -26 -20 q0 -16 14 -22 z" />
+    </g>
+    <g fill="#dfeaff" opacity=".22">
+      <ellipse cx="760" cy="395" rx="56" ry="16" />
+      <ellipse cx="838" cy="500" rx="44" ry="13" />
+    </g>
+  </g>
+
+  <!-- Suelo lunar -->
+  <g>
+    <path d="M0 1500 Q 270 1430 540 1470 T 1080 1455 L 1080 1920 L 0 1920 Z" fill="url(#regolith)" />
+    <ellipse cx="300" cy="1620" rx="120" ry="34" fill="#15171f" />
+    <ellipse cx="300" cy="1614" rx="120" ry="34" fill="none" stroke="#4a4e5d" stroke-width="3" opacity=".5" />
+    <ellipse cx="760" cy="1740" rx="170" ry="46" fill="#101218" />
+    <ellipse cx="760" cy="1733" rx="170" ry="46" fill="none" stroke="#4a4e5d" stroke-width="3" opacity=".5" />
+    <ellipse cx="560" cy="1560" rx="64" ry="20" fill="#181a22" />
+  </g>
+
+  <!-- Sombra del balon -->
+  <ellipse cx="540" cy="1300" rx="86" ry="22" fill="#000000" opacity=".34" />
+
+  <!-- Balon de futbol suspendido -->
+  <g>
+    <circle cx="540" cy="972" r="150" fill="url(#ball)" />
+    <g clip-path="url(#ballClip)" stroke="#11151f" stroke-width="6" stroke-linejoin="round">
+      <polygon points="540,924 584,956 567,1008 513,1008 496,956" fill="#161a24" />
+      <polygon points="478,864 522,848 552,884 528,928 482,922" fill="#161a24" />
+      <polygon points="602,864 646,884 642,932 596,932 576,888" fill="#161a24" />
+      <polygon points="452,998 498,1016 492,1066 444,1072 422,1028" fill="#161a24" />
+      <polygon points="632,1002 678,1028 660,1078 612,1070 606,1020" fill="#161a24" />
+      <polygon points="540,1070 590,1090 576,1144 504,1144 490,1090" fill="#161a24" />
+      <g stroke="#aeb6cc" stroke-width="5" fill="none" opacity=".7">
+        <line x1="496" y1="956" x2="430" y2="926" />
+        <line x1="584" y1="956" x2="650" y2="926" />
+        <line x1="513" y1="1008" x2="470" y2="1062" />
+        <line x1="567" y1="1008" x2="612" y2="1062" />
+        <line x1="540" y1="924" x2="540" y2="856" />
+      </g>
+    </g>
+    <ellipse cx="492" cy="916" rx="42" ry="28" fill="#ffffff" opacity=".5" />
+  </g>
+
+  <!-- Vineta -->
+  <rect x="0" y="0" width="1080" height="1920" fill="url(#vignette)" />
+
+  <!-- Texto revelado (baked) -->
+  <g text-anchor="middle"
+     font-family="system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="540" y="1640" fill="#eef3ff" font-size="62" font-weight="800"
+          letter-spacing="6">EL JUEGO CAMBIA DE CANCHA.</text>
+    <text x="540" y="1760" fill="#5b8cff" font-size="92" font-weight="800"
+          letter-spacing="12">2026.</text>
+  </g>
+</svg>
