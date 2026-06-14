@@ -690,6 +690,127 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: .5px;
 }
 
+/* -------------------------------------------------------------
+   USO DE FONDOS con barra de porcentaje (sin estilos inline)
+   El ancho se controla con --pct (custom property en el HTML, no
+   un style="": var() en una declaracion del CSS, permitido por CSP).
+   ------------------------------------------------------------- */
+.fund-list li {
+  /* Permitimos columna vertical para encajar la barra de porcentaje. */
+  flex-direction: column;
+}
+.fund-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+.fund-pct {
+  color: var(--accent-2);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .5px;
+}
+.fund-bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: rgba(91, 140, 255, .14);
+  overflow: hidden;
+}
+.fund-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  /* --pct lo fija una clase modificadora .fund--NN del <li> (sin estilos inline). */
+  width: var(--pct, 0%);
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+/* Porcentajes de uso de fondos: la clase fija --pct, la barra lo lee.
+   Mantener sincronizado con los porcentajes mostrados en el HTML. */
+.fund--3  { --pct: 3%; }
+.fund--4  { --pct: 4%; }
+.fund--6  { --pct: 6%; }
+.fund--7  { --pct: 7%; }
+.fund--12 { --pct: 12%; }
+.fund--13 { --pct: 13%; }
+.fund--55 { --pct: 55%; }
+
+/* -------------------------------------------------------------
+   DISCLAIMER discreto y honesto de estimaciones
+   ------------------------------------------------------------- */
+.disclaimer {
+  margin-top: 26px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted-2);
+  font-style: italic;
+  max-width: 70ch;
+}
+
+/* -------------------------------------------------------------
+   Cifra de ronda / presupuesto destacada (.headline-figure)
+   reutiliza el lenguaje visual de .stat sin duplicar .stats
+   ------------------------------------------------------------- */
+.figure-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin: 26px 0 4px;
+}
+.figure-card {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px 22px;
+}
+.figure-value {
+  display: block;
+  font-size: clamp(26px, 3.4vw, 38px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: .5px;
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 30px rgba(255, 211, 91, .22);
+}
+.figure-label {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.figure-note { display: block; margin-top: 8px; font-size: 13px; color: var(--muted-2); font-style: normal; letter-spacing: 0; }
+
+/* Rango de ingreso anual dentro de una .card de #negocio. */
+.revenue-range {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sub-titulo intermedio dentro de una seccion (p.ej. bloque de mercado). */
+.subhead {
+  font-size: clamp(18px, 2.2vw, 26px);
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 48px 0 6px;
+  color: var(--text);
+}
+
 /* =============================================================
    CONTACTO  (#contacto)  CTA final
    ============================================================= */
