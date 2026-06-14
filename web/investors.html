@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICC · Operación Primer Toque — Oportunidad de Inversión</title>
+  <meta name="description" content="Interplanetary Champions Cup: fútbol robótico en la Luna. El Apolo 11 del entretenimiento. Producto ya vivo en producción. Oportunidad de inversión pre-seed." />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <!-- Toda la CSS vive en investors.css (CSP: style-src 'self', sin inline). -->
+  <link rel="stylesheet" href="css/investors.css" />
+</head>
+<body>
+  <!-- ============================================================= -->
+  <!-- HEADER FIJO TRANSLÚCIDO — JS añade .scrolled al hacer scroll -->
+  <!-- ============================================================= -->
+  <header class="site-header">
+    <a class="brand" href="#hero" aria-label="Interplanetary Champions Cup — inicio">
+      <img class="brand-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup" />
+      <span class="brand-name">ICC</span>
+    </a>
+
+    <nav class="nav" aria-label="Navegación principal">
+      <ul class="nav-links">
+        <li><a href="#problema">Problema</a></li>
+        <li><a href="#solucion">Solución</a></li>
+        <li><a href="#mvp">MVP</a></li>
+        <li><a href="#tecnologia">Tecnología</a></li>
+        <li><a href="#traccion">Tracción</a></li>
+        <li><a href="#negocio">Negocio</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
+        <li><a href="#oportunidad">Oportunidad</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+
+    <!-- CTA al simulador en vivo (mismo dominio: "/"). -->
+    <a class="btn btn-primary" href="/">Probar simulador</a>
+  </header>
+
+  <main>
+    <!-- ========================================================= -->
+    <!-- HERO — pantalla completa con fondo hero-1.png (vía CSS)    -->
+    <!-- ========================================================= -->
+    <section class="section" id="hero">
+      <!-- El velo/vineta del hero los aporta el CSS (var(--scrim) + #hero::after). -->
+      <div class="hero-content reveal">
+        <p class="kicker">Operación Primer Toque</p>
+        <h1 class="hero-title">El Apolo 11<br />del entretenimiento</h1>
+        <p class="hero-subtitle">
+          Fútbol robótico en la superficie de la Luna. Un solo robot, un solo balón,
+          una audiencia global. La primera liga deportiva fuera de la Tierra empieza aquí.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/">Ver el simulador en vivo</a>
+          <a class="btn btn-ghost" href="#contacto">Solicitar dossier</a>
+        </div>
+      </div>
+      <!-- Indicador de scroll (.scroll-cue): la flecha animada la dibuja el CSS con ::after. -->
+      <a class="scroll-cue" href="#problema" aria-label="Desplázate para conocer más">
+        <span>Descubre la misión</span>
+      </a>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- PROBLEMA — La barrera de los 3 segundos                   -->
+    <!-- ========================================================= -->
+    <section class="section" id="problema">
+      <div class="section-inner">
+        <p class="kicker reveal">El obstáculo</p>
+        <h2 class="section-title reveal">La barrera de los 3 segundos</h2>
+        <div class="section-body reveal">
+          <p>
+            La luz tarda en recorrer la distancia Tierra-Luna. Cada orden enviada a un
+            robot lunar y cada imagen devuelta a la Tierra acumulan una latencia de ida
+            y vuelta de aproximadamente <strong>2,5 a 3 segundos</strong>.
+          </p>
+          <p>
+            En un deporte de reacción, ese retraso es letal: cuando el operador humano ve
+            el balón, este ya se ha movido. El <strong>control directo en tiempo real es
+            físicamente imposible</strong>. Es la razón por la que nadie ha construido
+            todavía un espectáculo deportivo en otro mundo. Es, también, nuestra ventaja.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- SOLUCIÓN — Arquitectura Split-Brain / Control Supervisión -->
+    <!-- ========================================================= -->
+    <section class="section" id="solucion">
+      <div class="split section-inner">
+        <div class="split-media reveal" aria-hidden="true">
+          <img src="assets/hero-1.png" alt="" />
+        </div>
+        <div class="split-content">
+        <p class="kicker reveal">La arquitectura</p>
+        <h2 class="section-title reveal">Cerebro dividido. Reflejos locales.</h2>
+        <div class="section-body reveal">
+          <p>
+            Resolvemos la latencia no luchando contra la física, sino diseñando alrededor
+            de ella. Nuestra arquitectura <strong>«Split-Brain» de Control de Supervisión</strong>
+            separa la <em>intención</em> de la <em>ejecución</em>.
+          </p>
+          <p>
+            El jugador humano, en la Tierra, vive la experiencia en realidad virtual y
+            transmite <strong>intenciones de alto nivel</strong>: «presiona», «dispara a
+            la izquierda», «defiende». El robot en la Luna, dotado de <strong>Edge AI</strong>,
+            ejecuta esas intenciones localmente con <strong>cero milisegundos de latencia</strong>
+            en el terreno de juego.
+          </p>
+          <p>
+            El humano aporta la estrategia; la máquina aporta los reflejos. La distancia
+            deja de ser un muro y se convierte en parte del juego.
+          </p>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- MVP — Operación Primer Toque                               -->
+    <!-- ========================================================= -->
+    <section class="section" id="mvp">
+      <div class="section-inner">
+        <p class="kicker reveal">El primer hito</p>
+        <h2 class="section-title reveal">Operación Primer Toque</h2>
+        <div class="section-body reveal">
+          <p>
+            No necesitamos una liga completa para capturar al mundo. Necesitamos
+            <strong>un robot, un balón y un instante</strong>: el primer toque de un
+            balón de fútbol sobre suelo lunar.
+          </p>
+          <p>
+            Un único robot <strong>L-Striker</strong> golpeando un balón en la Luna es un
+            titular global, un momento de la talla del <strong>Apolo 11</strong>. Ese
+            instante de hype planetario es nuestro producto mínimo viable: un evento que
+            <strong>de-riesga toda la liga</strong>, valida la tecnología ante el mundo y
+            <strong>financia las fases siguientes</strong> con la atención que genera.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TECNOLOGÍA — L-Striker Mark I                              -->
+    <!-- ========================================================= -->
+    <section class="section" id="tecnologia">
+      <div class="split split--reverse section-inner">
+        <div class="split-media reveal" aria-hidden="true">
+          <img src="assets/hero-2.png" alt="" />
+        </div>
+        <div class="split-content">
+        <p class="kicker reveal">El atleta</p>
+        <h2 class="section-title reveal">L-Striker Mark I</h2>
+        <div class="section-body reveal">
+          <p>
+            Un robot diseñado desde cero para competir bajo <strong>un sexto de la gravedad
+            terrestre</strong>, en el vacío, el polvo y los extremos térmicos de la
+            superficie lunar.
+          </p>
+          <ul class="feature-list reveal">
+            <li><strong>Piernas digitígradas:</strong> tracción y potencia de patada
+              optimizadas para baja gravedad.</li>
+            <li><strong>Giroscopios de reacción:</strong> equilibrio y orientación precisos
+              sin apoyo aerodinámico.</li>
+            <li><strong>Anclaje activo:</strong> agarre instantáneo al regolito para
+              frenar, girar y disparar sin deslizamiento.</li>
+            <li><strong>Carcasa térmica y anti-polvo:</strong> protección frente al
+              regolito abrasivo y a oscilaciones térmicas extremas.</li>
+          </ul>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TRACCIÓN — Producto ya vivo + contadores                  -->
+    <!-- ========================================================= -->
+    <section class="section" id="traccion">
+      <div class="section-inner">
+        <p class="kicker reveal">No es una idea. Está en producción.</p>
+        <h2 class="section-title reveal">El producto ya está vivo</h2>
+        <div class="section-body reveal">
+          <p>
+            Mientras otros presentan diapositivas, nosotros tenemos un producto
+            desplegado y funcionando. Nuestro <strong>simulador de física lunar</strong>
+            corre hoy en <strong>producción sobre Azure</strong>, con API real,
+            persistencia de datos, sistema anti-trampas y un pipeline de
+            <strong>CI/CD</strong> completo — operando a un coste de infraestructura
+            cercano a <strong>cero</strong>.
+          </p>
+        </div>
+
+        <!-- Contadores animados por JS (.counter es el hook; .stat-value le da el estilo grande). -->
+        <!-- reduced-motion: el JS muestra directamente el valor final. -->
+        <div class="stats reveal">
+          <div class="stat">
+            <span class="stat-value counter" data-target="0" data-suffix=" USD/mes">0</span>
+            <span class="stat-label">Coste de infraestructura</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value"><span class="stat-prefix">1/</span><span class="counter" data-target="6" data-suffix="">6</span></span>
+            <span class="stat-label">Gravedad lunar simulada</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value counter" data-target="3" data-suffix=" s">3</span>
+            <span class="stat-label">Latencia Tierra-Luna modelada</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value counter" data-target="100" data-suffix=" %">100</span>
+            <span class="stat-label">Fase 1 entregada</span>
+          </div>
+        </div>
+
+        <div class="traccion-cta reveal">
+          <a class="btn btn-primary" href="/">Ver el simulador en vivo</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- NEGOCIO — Monetización                                     -->
+    <!-- ========================================================= -->
+    <section class="section" id="negocio">
+      <div class="section-inner">
+        <p class="kicker reveal">El modelo</p>
+        <h2 class="section-title reveal">El espacio publicitario más caro del sistema solar</h2>
+        <div class="section-body reveal">
+          <p>
+            La atención planetaria que genera un deporte en la Luna se monetiza por
+            múltiples vías, cada una con techo de valor difícil de replicar en la Tierra:
+          </p>
+        </div>
+
+        <div class="card-grid reveal">
+          <article class="card">
+            <h3>Patrocinio en el pecho del robot</h3>
+            <p>El logotipo en el torso del L-Striker es, literalmente, el espacio
+              publicitario más caro del sistema solar: visto por una audiencia global en
+              un contexto histórico único.</p>
+          </article>
+          <article class="card">
+            <h3>NFT del primer toque</h3>
+            <p>El registro digital, verificable e irrepetible del primer contacto humano
+              con un balón fuera de la Tierra. Un activo histórico coleccionable.</p>
+          </article>
+          <article class="card">
+            <h3>Asientos virtuales en VR</h3>
+            <p>Entradas para vivir el partido desde la grada lunar en realidad virtual,
+              con ángulos imposibles y presencia inmersiva.</p>
+          </article>
+          <article class="card">
+            <h3>Derechos de retransmisión</h3>
+            <p>Licencias de emisión global de un contenido sin competencia directa: el
+              único deporte en directo desde otro mundo.</p>
+          </article>
+          <article class="card">
+            <h3>Licencias de clubes</h3>
+            <p>Franquicias, identidad de equipos y participación en las clasificatorias
+              virtuales que alimentan la liga real.</p>
+          </article>
+          <article class="card">
+            <h3>Merchandising y datos</h3>
+            <p>Productos de marca, telemetría deportiva y experiencias derivadas
+              alrededor del fenómeno cultural. <span class="placeholder">[por definir]</span></p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- ROADMAP — Tres fases                                       -->
+    <!-- ========================================================= -->
+    <section class="section" id="roadmap">
+      <div class="section-inner">
+        <p class="kicker reveal">El plan de vuelo</p>
+        <h2 class="section-title reveal">Roadmap por hitos</h2>
+
+        <!-- Cada fase es un .phase; la fase actual usa .phase--current (el badge "ACTUAL" lo pone el CSS). -->
+        <ol class="roadmap reveal">
+          <li class="phase phase--current">
+            <span class="phase-num">Fase 1</span><span class="phase-time">0-12 meses</span>
+            <h3>Hype Digital</h3>
+            <p>Simulador en producción, comunidad y clasificatorias virtuales. Validamos
+              la tecnología y construimos audiencia a coste mínimo. <strong>Ya entregada.</strong></p>
+          </li>
+          <li class="phase">
+            <span class="phase-num">Fase 2</span><span class="phase-time">12-24 meses</span>
+            <h3>MVP «Primer Toque»</h3>
+            <p>Despliegue del primer L-Striker en la Luna junto a un socio de transporte
+              espacial (tipo SpaceX / Blue Origin). El primer toque real, ante el mundo.</p>
+          </li>
+          <li class="phase">
+            <span class="phase-num">Fase 3</span><span class="phase-time">3+ años</span>
+            <h3>Liga ICC</h3>
+            <p>Liga competitiva completa, domo geodésico presurizado para los partidos y
+              entradas VR a escala global. El deporte rey, fuera de la Tierra.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- OPORTUNIDAD — La ronda                                     -->
+    <!-- ========================================================= -->
+    <section class="section" id="oportunidad">
+      <div class="section-inner">
+        <p class="kicker reveal">La ronda</p>
+        <h2 class="section-title reveal">Invierte en el primer gol fuera de la Tierra</h2>
+        <div class="section-body reveal">
+          <p>
+            Abrimos una ronda <strong>pre-seed / seed</strong> para ejecutar la
+            «Operación Primer Toque». El capital se libera <strong>por hitos</strong>,
+            de-riesgando la inversión fase a fase.
+          </p>
+        </div>
+
+        <!-- Uso de fondos como .fund-list (ul); el titulo de cada item va en <strong>. -->
+        <ul class="fund-list reveal">
+          <li>
+            <strong>Transporte</strong>
+            <span>Lanzamiento y entrega del L-Striker a la superficie lunar mediante socio
+              de carga espacial. <span class="placeholder">[por definir]</span></span>
+          </li>
+          <li>
+            <strong>Hardware</strong>
+            <span>Fabricación y validación del L-Striker Mark I y del balón de competición.
+              <span class="placeholder">[por definir]</span></span>
+          </li>
+          <li>
+            <strong>Equipo</strong>
+            <span>Ingeniería robótica, Edge AI, producción de contenido y operaciones de
+              misión. <span class="placeholder">[por definir]</span></span>
+          </li>
+        </ul>
+
+        <div class="oportunidad-cta reveal">
+          <a class="btn btn-primary" href="#contacto">Solicitar dossier de inversión</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- CONTACTO — CTA final                                       -->
+    <!-- ========================================================= -->
+    <section class="section" id="contacto">
+      <div class="section-inner reveal">
+        <p class="kicker">Hablemos</p>
+        <h2 class="contact-title">Construyamos el primer gol fuera de la Tierra</h2>
+        <p class="section-lead">
+          Si quieres formar parte del Apolo 11 del entretenimiento, este es el momento de entrar.
+        </p>
+        <div class="contact-actions">
+          <a class="btn btn-primary" href="mailto:inversores@icc.space">inversores@icc.space</a>
+          <a class="btn btn-ghost" href="/">Ver el simulador en vivo</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================= -->
+  <!-- FOOTER                                                         -->
+  <!-- ============================================================= -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img class="footer-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup" />
+        <span>Interplanetary Champions Cup</span>
+      </div>
+      <nav class="footer-nav" aria-label="Enlaces del pie de página">
+        <a href="#oportunidad">Oportunidad</a>
+        <a href="#contacto">Contacto</a>
+        <a href="/">Simulador en vivo</a>
+        <a href="mailto:inversores@icc.space">inversores@icc.space</a>
+      </nav>
+      <p class="footer-tagline">Camino a los Campeones del Sistema Solar</p>
+    </div>
+  </footer>
+
+  <!-- Todo el JS vive en investors.js (CSP: script-src 'self', sin inline). -->
+  <script src="js/investors.js"></script>
+</body>
+</html>
