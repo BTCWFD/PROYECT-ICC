@@ -2,15 +2,26 @@
 // Interplanetary Champions Cup (ICC) - Infraestructura como Código
 // -----------------------------------------------------------------------------
 // Despliega un Azure Static Web App (SKU Free) con API gestionada de
-// Azure Functions (modelo de programación Node v4).
+// Azure Functions (modelo de programación Node v4) y una cuenta de
+// Azure Storage con dos tablas para persistencia y analítica.
 //
 //   - Frontend (app_location)   -> carpeta "web"
 //   - API     (api_location)    -> carpeta "api"
 //   - Build   (output_location) -> "" (no hay paso de build, sitio estático)
 //
+//   - Storage Account (Standard_LRS) con Table Storage:
+//       * tabla "shots"  -> entidades de disparo (leaderboard persistente)
+//       * tabla "events" -> analítica de uso (page_view, shot_executed, ...)
+//
 // IMPORTANTE: El SKU Free NO admite "staging environments" (entornos de
 // previsualización por pull request). Si en el futuro se necesitan entornos
 // de staging, hay que migrar al SKU Standard.
+//
+// IMPORTANTE: La cadena de conexión de la Storage Account NO se cablea aquí
+// automáticamente. Tras el despliegue hay que inyectarla como app setting
+// TABLES_CONNECTION_STRING de la Static Web App (ver docs/DEPLOY_AZURE.md).
+// La API la lee en runtime: si existe usa Table Storage, si no cae al store
+// EN MEMORIA (útil para ejecución local file:///).
 // =============================================================================
 
 targetScope = 'resourceGroup'
@@ -30,6 +41,11 @@ param repositoryUrl string = ''
 
 @description('Rama del repositorio a desplegar (opcional). Solo se aplica si repositoryUrl no está vacío.')
 param branch string = 'main'
+
+@description('Nombre de la cuenta de Azure Storage para persistencia (tablas "shots" y "events"). Debe ser globalmente único, 3-24 caracteres, solo minúsculas y dígitos. Por defecto se deriva del nombre de la SWA + un sufijo único determinista del grupo de recursos.')
+@minLength(3)
+@maxLength(24)
+param storageName string = toLower(take('${replace(name, '-', '')}st${uniqueString(resourceGroup().id)}', 24))
 
 // -----------------------------------------------------------------------------
 // Variables
@@ -75,6 +91,47 @@ resource staticSite 'Microsoft.Web/staticSites@2023-12-01' = {
 }
 
 // -----------------------------------------------------------------------------
+// Recurso: Azure Storage Account (Standard_LRS) para persistencia
+// -----------------------------------------------------------------------------
+// Cuenta de propósito general v2 (StorageV2), la opción más económica y la
+// requerida para Table Storage. Standard_LRS = replicación local redundante,
+// suficiente para la Fase 1.
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
+  name: storageName
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    // Buenas prácticas mínimas de seguridad para la cuenta.
+    minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: false
+    supportsHttpsTrafficOnly: true
+  }
+}
+
+// Servicio de tablas (Table Storage) dentro de la cuenta.
+resource tableService 'Microsoft.Storage/storageAccounts/tableServices@2023-05-01' = {
+  parent: storageAccount
+  name: 'default'
+}
+
+// Tabla "shots": entidades de disparo que alimentan el leaderboard persistente.
+resource shotsTable 'Microsoft.Storage/storageAccounts/tableServices/tables@2023-05-01' = {
+  parent: tableService
+  name: 'shots'
+}
+
+// Tabla "events": analítica de uso (page_view, shot_executed, milestone_reached,
+// record_beaten, club_named, share_clicked). Sin PII.
+resource eventsTable 'Microsoft.Storage/storageAccounts/tableServices/tables@2023-05-01' = {
+  parent: tableService
+  name: 'events'
+}
+
+// -----------------------------------------------------------------------------
 // Salidas
 // -----------------------------------------------------------------------------
 
@@ -83,3 +140,6 @@ output defaultHostname string = staticSite.properties.defaultHostname
 
 @description('Identificador de recurso (resourceId) del Static Web App.')
 output resourceId string = staticSite.id
+
+@description('Nombre de la cuenta de Azure Storage creada. Úsalo para obtener la cadena de conexión e inyectarla como app setting TABLES_CONNECTION_STRING de la Static Web App (ver docs/DEPLOY_AZURE.md).')
+output storageAccountName string = storageAccount.name

@@ -100,11 +100,20 @@
         espectáculo que valida la ICC.
       </p>
 
-      <!-- Top 5 de clasificatorias virtuales. Se oculta si la API no responde
-           (degradación elegante: el simulador funciona también con file://). -->
-      <div id="leaderboard" class="leaderboard" hidden>
+      <!-- Top 5 de clasificatorias virtuales. Siempre visible: si la API no
+           responde o aún no hay disparos, muestra un estado vacío/de error en
+           lugar de ocultarse (degradación elegante; funciona con file://). -->
+      <div id="leaderboard" class="leaderboard">
         <h2>🏆 Top 5 · Clasificatorias</h2>
         <ol id="leaderboardList" class="leaderboard-list"></ol>
+        <!-- Estado vacío: invitación a ser el primer club registrado. -->
+        <p id="leaderboardEmpty" class="leaderboard-empty">
+          Aún no hay disparos — sé el primer club en marcar.
+        </p>
+        <!-- Estado de error discreto: la API no respondió (no rompe la UX). -->
+        <p id="leaderboardError" class="leaderboard-error" hidden>
+          Clasificatorias fuera de línea. El simulador sigue disponible.
+        </p>
       </div>
     </aside>
   </main>
@@ -116,6 +125,9 @@
 
   <script src="js/physics.js"></script>
   <script src="js/simulator.js"></script>
+  <!-- Analítica y tarjeta compartible: deben cargar ANTES de main.js. -->
+  <script src="js/analytics.js"></script>
+  <script src="js/share.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

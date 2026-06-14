@@ -13,6 +13,9 @@
     },
     "branch": {
       "value": "main"
+    },
+    "storageName": {
+      "value": "iccsimulatorst01"
     }
   }
 }

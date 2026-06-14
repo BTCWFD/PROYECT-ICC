@@ -12,9 +12,22 @@
 
 La Fase 1 entrega un **Simulador Web de Física Lunar** (HTML/CSS/JS sin paso de
 build) acompañado de una **API gestionada de Azure Functions** que registra los
-disparos de la comunidad y publica una **tabla de clasificación** (leaderboard).
-Todo se sirve desde **un único recurso de Azure Static Web Apps (tier Free)**, con
-CI/CD automático mediante GitHub Actions.
+disparos de la comunidad, publica una **tabla de clasificación** (leaderboard) y
+recoge **analítica de uso** anónima. El sitio se sirve desde **un único recurso de
+Azure Static Web Apps (tier Free)**, con CI/CD automático mediante GitHub Actions, y
+la persistencia se apoya en **Azure Table Storage** (tablas `shots` y `events`).
+
+Dos decisiones clave del Lote 2:
+
+- **Persistencia con fallback.** Si existe la variable de entorno
+  `TABLES_CONNECTION_STRING`, la API persiste en **Azure Table Storage**; si no
+  existe (p. ej. ejecución local `file:///`), cae automáticamente a un **store en
+  memoria** sin romperse. El contrato de API no cambia entre ambos modos.
+- **Anti-trampas (recompute en servidor).** El servidor **no confía** en el
+  `range`/`hangTime` que envía el cliente: los **recalcula** desde
+  `{world, power, angle, airResistance}` con la **misma física** que el front
+  (`computeTrajectory`). El cliente sigue enviando `range`/`hangTime`, pero el
+  servidor los **ignora** y usa los suyos para rankear y guardar.
 
 Esto materializa el objetivo de la Fase 1 del white paper V3.0 ("Hype Digital":
 simulador + clasificatorias virtuales) sin incurrir en costes de infraestructura.
@@ -32,10 +45,15 @@ flowchart LR
     subgraph SWA["☁️ Azure Static Web Apps (Free)"]
         direction TB
         CDN["Hosting estático global<br/>(app_location = web)"]
-        FUNC["API gestionada<br/>Azure Functions Node v4<br/>(api_location = api)"]
-        STORE[("Store EN MEMORIA<br/>(se reinicia en cold start)")]
+        FUNC["API gestionada<br/>Azure Functions Node v4<br/>(api_location = api)<br/>recompute de física (anti-trampas)"]
+        MEM[("Store EN MEMORIA<br/>(fallback si no hay conexión)")]
+        FUNC -.->|"sin TABLES_CONNECTION_STRING"| MEM
         CDN -->|enruta /api/*| FUNC
-        FUNC --> STORE
+    end
+
+    subgraph STG["💾 Azure Storage (Standard_LRS)"]
+        TSHOTS[("Tabla 'shots'<br/>disparos / leaderboard")]
+        TEVENTS[("Tabla 'events'<br/>analítica de uso")]
     end
 
     subgraph GH["🐙 GitHub — BTCWFD/PROYECT-ICC (main)"]
@@ -46,8 +64,12 @@ flowchart LR
 
     UI -->|"GET / (HTML, CSS, JS)"| CDN
     UI -->|"GET /api/health"| FUNC
-    UI -->|"GET /api/leaderboard"| FUNC
+    UI -->|"GET /api/leaderboard?top=N"| FUNC
     UI -->|"POST /api/shots"| FUNC
+    UI -->|"POST /api/events (fire-and-forget)"| FUNC
+
+    FUNC -->|"app setting<br/>TABLES_CONNECTION_STRING"| TSHOTS
+    FUNC --> TEVENTS
 
     REPO -->|push a main| GHA
     GHA -->|usa| SECRET
@@ -57,12 +79,20 @@ flowchart LR
 ### Flujo resumido
 
 1. El navegador descarga los archivos estáticos del simulador desde el CDN de SWA.
-2. El simulador calcula trayectorias **en el cliente** (`web/js/physics.js`).
-3. Al guardar un disparo, el front llama a `POST /api/shots`; para refrescar el
-   ranking llama a `GET /api/leaderboard`; `GET /api/health` sirve de sonda.
-4. SWA enruta automáticamente todo lo que cuelga de `/api/*` a las Azure Functions
+2. El simulador calcula trayectorias **en el cliente** (`web/js/physics.js`) para la
+   animación inmediata.
+3. Al guardar un disparo, el front llama a `POST /api/shots`. El servidor
+   **recalcula** `range`/`hangTime` con la misma física (anti-trampas) y los persiste
+   en la tabla `shots`. Para refrescar el ranking llama a `GET /api/leaderboard?top=N`;
+   `GET /api/health` sirve de sonda.
+4. La UI también emite eventos de analítica con `POST /api/events`
+   (**fire-and-forget**): nunca bloquea ni rompe la experiencia, y los eventos se
+   guardan en la tabla `events` (sin PII).
+5. SWA enruta automáticamente todo lo que cuelga de `/api/*` a las Azure Functions
    gestionadas (sin necesidad de gestionar CORS ni un host de Functions aparte).
-5. Cada `git push` a `main` dispara GitHub Actions, que reconstruye y publica.
+6. La API persiste en **Azure Table Storage** si dispone de
+   `TABLES_CONNECTION_STRING`; en caso contrario usa el **store en memoria**.
+7. Cada `git push` a `main` dispara GitHub Actions, que reconstruye y publica.
 
 ---
 
@@ -73,15 +103,26 @@ Todos los componentes respetan **exactamente** este contrato:
 | Método | Ruta              | Cuerpo / Respuesta |
 |--------|-------------------|--------------------|
 | `GET`  | `/api/health`     | → `{ "status":"ok", "service":"icc-api", "version":"1.0.0" }` |
-| `GET`  | `/api/leaderboard`| → `{ "entries": [ { "club":string, "world":"moon"\|"earth", "range":number, "hangTime":number } ] }` (orden **descendente por `range`**) |
-| `POST` | `/api/shots`      | body `{ "club":string, "world":"moon"\|"earth", "power":number, "angle":number, "range":number, "hangTime":number }` → `{ "ok":true, "rank":number, "total":number }` |
+| `GET`  | `/api/leaderboard?top=N`| → `{ "entries": [ { "club":string, "world":"moon"\|"earth", "range":number, "hangTime":number } ] }` (orden **descendente por `range`**; `top` por defecto **5**, máximo **50**) |
+| `POST` | `/api/shots`      | body `{ "club":string, "world":"moon"\|"earth", "power":number, "angle":number, "airResistance":boolean, "range":number, "hangTime":number }` → `{ "ok":true, "rank":number, "total":number }` |
+| `POST` | `/api/events`     | body `{ "event":string, "props":object? }` → `{ "ok":true }` (siempre 200; **fire-and-forget**, nunca rompe la UX) |
 
 - `world` toma los valores `"moon"` / `"earth"`, alineados con las claves de
   `WORLDS` en `web/js/physics.js`.
-- `range` (alcance, m) y `hangTime` (tiempo de vuelo, s) son las métricas estrella
-  que el simulador ya calcula (`computeTrajectory` devuelve `range` y `flightTime`).
+- `range` (alcance, m) y `hangTime` (tiempo de vuelo, s) son las métricas estrella.
+  El cliente las envía en `POST /api/shots`, pero el **servidor las ignora** y las
+  **recalcula** desde `{world, power, angle, airResistance}` con la misma física
+  (`computeTrajectory` devuelve `range` y `flightTime`). Esto es el mecanismo
+  **anti-trampas**: el cliente no puede falsear su marca.
+- `airResistance` (booleano) indica si el disparo activó la resistencia del aire;
+  es necesario para que el recompute del servidor coincida con el del cliente
+  (en `moon` no hay atmósfera; en `earth` sí).
 - El ranking se ordena por `range` descendente: el disparo más largo encabeza la
   tabla, reforzando el "gancho físico" de la baja gravedad lunar.
+- **Eventos válidos** de `/api/events`: `page_view`, `shot_executed`,
+  `milestone_reached`, `record_beaten`, `club_named`, `share_clicked`. Sin PII. Si
+  no hay conexión a Table Storage, el endpoint es un **no-op** que sigue devolviendo
+  `{ "ok":true }`.
 
 ---
 
@@ -113,11 +154,38 @@ Configuración usada por el workflow de despliegue:
 > Nota: el `index.html` de la **raíz** del repo es un redirector pensado para
 > GitHub Pages. En SWA, el contenido servido es el de `app_location = web`.
 
-### 4.3 Store en memoria (provisional)
+### 4.3 Persistencia: Azure Table Storage con fallback en memoria
 
-La API usa un **store en memoria** para los disparos. Es deliberadamente simple
-para la Fase 1, pero implica que **los datos se pierden en cada cold start** del
-Function App. Es aceptable para una demo/"hype", no para producción real.
+La API persiste los disparos (tabla `shots`) y la analítica (tabla `events`) en
+**Azure Table Storage** mediante la dependencia `@azure/data-tables`. La selección
+del backend es **en runtime**:
+
+- Si la variable de entorno **`TABLES_CONNECTION_STRING`** está presente
+  (inyectada como app setting de la SWA), se usa Table Storage: los datos
+  **sobreviven** a los cold starts del Function App.
+- Si **no** está presente (típicamente ejecución local `file:///` o un entorno sin
+  configurar), la API cae a un **store en memoria** sin romperse. En ese modo los
+  datos se pierden en cada cold start; es aceptable para desarrollo y demos.
+
+El contrato de API es idéntico en ambos modos: solo cambia la capa de datos.
+
+### 4.4 Anti-trampas: recompute de física en el servidor
+
+El leaderboard es competitivo, así que el servidor **no confía** en las métricas
+del cliente. En `POST /api/shots`, el cliente envía `range`/`hangTime`, pero el
+servidor los **descarta** y los **recalcula** desde `{world, power, angle,
+airResistance}` con la **misma función de física** que el front (`computeTrajectory`
+de `physics.js`, replicada en el servidor). Solo las métricas recalculadas se usan
+para **rankear** y **guardar**. Así, manipular el JSON del cliente no permite
+inflar una marca.
+
+### 4.5 Analítica de uso (events)
+
+El endpoint `POST /api/events` recoge eventos anónimos de producto (`page_view`,
+`shot_executed`, `milestone_reached`, `record_beaten`, `club_named`,
+`share_clicked`) en la tabla `events`. Es **fire-and-forget** desde el cliente y
+**siempre** responde `{ "ok":true }`: nunca debe degradar ni romper la experiencia.
+No se almacena PII; si no hay conexión a Table Storage, es un no-op silencioso.
 
 ---
 
@@ -126,17 +194,23 @@ Function App. Es aceptable para una demo/"hype", no para producción real.
 Alineada con el roadmap del white paper V3.0:
 
 ### Fase 1 — Hype Digital (estado actual)
-- Simulador web + API de leaderboard con store en memoria sobre SWA Free.
+- Simulador web + API de leaderboard sobre SWA Free.
+- **Persistencia en Azure Table Storage** (tablas `shots` y `events`) con fallback
+  en memoria si no hay `TABLES_CONNECTION_STRING`.
+- **Anti-trampas** por recompute de física en servidor.
+- **Analítica** de uso anónima vía `POST /api/events`.
 
 ### Hacia Fase 2 — MVP "Primer Toque"
-1. **Persistencia real.** Migrar el store en memoria a **Azure Table Storage**
-   (opción más económica) o **Cosmos DB** (si se requiere baja latencia global y
-   consultas más ricas). El contrato de API no cambia: solo la capa de datos.
-2. **Identidad y anti-trampas.** Activar **autenticación de SWA** (proveedores
-   integrados: GitHub, Microsoft, etc.) para asociar disparos a usuarios reales,
-   validar `POST /api/shots` en servidor y evitar leaderboards falseados.
+1. **Identidad.** Activar **autenticación de SWA** (proveedores integrados: GitHub,
+   Microsoft, etc.) para asociar disparos a usuarios reales y reforzar aún más el
+   anti-trampas ya existente.
+2. **Persistencia avanzada (opcional).** Si se requiere baja latencia global o
+   consultas más ricas, evaluar **Cosmos DB**. El contrato de API no cambia: solo la
+   capa de datos.
 3. **Telemetría real.** Sustituir disparos simulados por datos del MVP físico
    (1 robot + 1 balón en la Luna), manteniendo el mismo esquema `range`/`hangTime`.
+4. **Cuadros de mando.** Explotar la tabla `events` para métricas de producto
+   (embudo de disparo, retención, compartidos).
 
 ### Hacia Fase 3 — Liga ICC
 4. **Escalado.** Pasar a SWA Standard (SLA, mayor cuota de Functions) y considerar
@@ -150,8 +224,8 @@ Alineada con el roadmap del white paper V3.0:
 
 | Fase white paper | Entregable técnico | Componente de esta arquitectura |
 |------------------|--------------------|---------------------------------|
-| **Fase 1 (0-12 m)** — Hype Digital | Simulador + clasificatorias virtuales | `web/` (simulador) + `api/` (leaderboard) sobre SWA Free |
-| **Fase 2 (12-24 m)** — MVP "Primer Toque" | Telemetría de 1 robot real | Persistencia (Table/Cosmos) + auth SWA |
+| **Fase 1 (0-12 m)** — Hype Digital | Simulador + clasificatorias virtuales + analítica | `web/` (simulador) + `api/` (leaderboard + events) sobre SWA Free, persistencia en Table Storage |
+| **Fase 2 (12-24 m)** — MVP "Primer Toque" | Telemetría de 1 robot real | Auth SWA + persistencia avanzada (Cosmos) opcional |
 | **Fase 3 (año 3+)** — Liga ICC | Domo, múltiples unidades, VR tickets | Escalado SWA Standard + Cosmos + gemelo digital/VR |
 
 El simulador demuestra el **gancho físico** de la marca (la gravedad 1/6 g produce

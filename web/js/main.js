@@ -85,13 +85,34 @@
     '<h2 class="celebration-title"></h2>' +
     '<div class="celebration-range"></div>' +
     '<div class="celebration-club"></div>' +
-    '<div class="celebration-record" hidden>★ Nuevo récord personal</div>';
+    '<div class="celebration-record" hidden>★ Nuevo récord personal</div>' +
+    '<button id="share" class="share-btn" type="button">📣 Compartir mi hazaña</button>';
   stage.appendChild(celebration);
   els.celebration = celebration;
   els.celebTitle = celebration.querySelector(".celebration-title");
   els.celebRange = celebration.querySelector(".celebration-range");
   els.celebClub = celebration.querySelector(".celebration-club");
   els.celebRecord = celebration.querySelector(".celebration-record");
+  els.share = celebration.querySelector("#share");
+  // Referencias de los estados del leaderboard (vacío / error).
+  els.leaderboardEmpty = document.getElementById("leaderboardEmpty");
+  els.leaderboardError = document.getElementById("leaderboardError");
+
+  // Datos del último disparo (para la tarjeta compartible y los eventos).
+  let lastShot = null;
+  // Bandera: el evento club_named se emite solo la primera vez que hay club.
+  let clubNamedTracked = false;
+
+  /** Envuelve ICCAnalytics.track de forma segura (nunca rompe la UX). */
+  function track(event, props) {
+    try {
+      if (window.ICCAnalytics && typeof window.ICCAnalytics.track === "function") {
+        window.ICCAnalytics.track(event, props);
+      }
+    } catch (_err) {
+      /* la analítica jamás interrumpe el simulador */
+    }
+  }
 
   function trajectoryFor(worldKey, { withGhostColor } = {}) {
     const world = WORLDS[worldKey];
@@ -127,6 +148,13 @@
     const world = WORLDS[state.world];
     const traj = trajectoryFor(state.world);
     const ghost = ghostTrajectory();
+
+    // Analítica: disparo ejecutado (sin PII, solo parámetros de juego).
+    track("shot_executed", {
+      world: state.world,
+      power: state.power,
+      angle: state.angle,
+    });
 
     // Bloqueo + feedback en el botón mientras el balón está en vuelo.
     setSending(true);
@@ -190,6 +218,31 @@
     els.celebRange.textContent = `${range.toFixed(0)} m`;
     els.celebClub.textContent = club ? `${club} · L-Striker 01` : "L-Striker 01";
     els.celebRecord.hidden = !isRecord;
+
+    // Guarda el último disparo para la tarjeta compartible y el botón #share.
+    lastShot = {
+      club,
+      world: state.world,
+      range: Math.round(range),
+      milestone: title,
+    };
+
+    // Analítica: hito alcanzado (vuelo orbital / hazaña histórica).
+    if (range >= 100) {
+      track("milestone_reached", {
+        world: state.world,
+        range: Math.round(range),
+        milestone: title,
+      });
+    }
+    // Analítica: récord personal batido.
+    if (isRecord && prevRecord > 0) {
+      track("record_beaten", {
+        world: state.world,
+        range: Math.round(range),
+        previous: Math.round(prevRecord),
+      });
+    }
 
     els.celebration.classList.remove("show");
     void els.celebration.offsetWidth;
@@ -272,6 +325,9 @@
           world: state.world,
           power: state.power,
           angle: state.angle,
+          // El servidor RECALCULA range/hangTime con esta bandera (anti-trampas);
+          // los enviamos por compatibilidad pero el servidor usa los suyos.
+          airResistance: state.airResistance && WORLDS[state.world].hasAtmosphere,
           range: Number(traj.range.toFixed(2)),
           hangTime: Number(traj.flightTime.toFixed(2)),
         }),
@@ -284,7 +340,11 @@
     refreshLeaderboard();
   }
 
-  /** Obtiene y pinta el Top 5 de clasificatorias. Oculta el panel si falla. */
+  /**
+   * Obtiene y pinta el Top 5 de clasificatorias. En vez de ocultarse, muestra
+   * estados claros: vacío (aún sin disparos) o error discreto (API no responde).
+   * El panel permanece siempre visible para no romper el layout.
+   */
   async function refreshLeaderboard() {
     try {
       const res = await fetch(`${API_BASE}/leaderboard`);
@@ -293,16 +353,24 @@
       const entries = Array.isArray(data.entries) ? data.entries.slice(0, 5) : [];
       renderLeaderboard(entries);
     } catch (_err) {
-      // API no disponible: ocultamos la sección sin molestar al usuario.
-      els.leaderboard.hidden = true;
+      // API no disponible (p. ej. file://): estado de error discreto, sin ocultar.
+      els.leaderboardList.innerHTML = "";
+      if (els.leaderboardEmpty) els.leaderboardEmpty.hidden = true;
+      if (els.leaderboardError) els.leaderboardError.hidden = false;
     }
   }
 
   function renderLeaderboard(entries) {
+    // Sin entradas: mostramos el estado vacío invitando a participar.
     if (!entries.length) {
-      els.leaderboard.hidden = true;
+      els.leaderboardList.innerHTML = "";
+      if (els.leaderboardError) els.leaderboardError.hidden = true;
+      if (els.leaderboardEmpty) els.leaderboardEmpty.hidden = false;
       return;
     }
+    // Hay entradas: ocultamos estados vacío/error y pintamos la lista.
+    if (els.leaderboardEmpty) els.leaderboardEmpty.hidden = true;
+    if (els.leaderboardError) els.leaderboardError.hidden = true;
     els.leaderboardList.innerHTML = "";
     entries.forEach((e) => {
       const li = document.createElement("li");
@@ -322,12 +390,34 @@
       li.append(club, world, range);
       els.leaderboardList.appendChild(li);
     });
-    els.leaderboard.hidden = false;
   }
 
   // ----- Eventos -----
   els.club.addEventListener("input", () => {
     state.club = els.club.value;
+    // Analítica: primera vez que el usuario nombra su club (sin enviar el nombre).
+    if (!clubNamedTracked && els.club.value.trim()) {
+      clubNamedTracked = true;
+      track("club_named");
+    }
+  });
+
+  // Botón "Compartir mi hazaña": genera la tarjeta del último disparo.
+  els.share.addEventListener("click", () => {
+    track("share_clicked", lastShot ? { world: lastShot.world } : {});
+    const data = lastShot || {
+      club: (state.club || "").trim(),
+      world: state.world,
+      range: 0,
+      milestone: "",
+    };
+    try {
+      if (window.ICCShare && typeof window.ICCShare.shareFeat === "function") {
+        window.ICCShare.shareFeat(data);
+      }
+    } catch (_err) {
+      /* compartir nunca rompe la UX */
+    }
   });
 
   els.worldBtns.forEach((btn) => {
@@ -386,4 +476,6 @@
   refreshIdle();
   // Carga inicial del Top 5 (si la API está disponible).
   refreshLeaderboard();
+  // Analítica: vista de página al cargar.
+  track("page_view");
 })();

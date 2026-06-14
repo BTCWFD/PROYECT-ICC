@@ -12,8 +12,18 @@ lunar de la *Interplanetary Champions Cup*.
 
 ## Archivos
 
-- `main.bicep` — definición del recurso `Microsoft.Web/staticSites` (Free).
-- `main.parameters.json` — parámetros de ejemplo (esquema ARM `deploymentParameters`).
+- `main.bicep` — definición de:
+  - el recurso `Microsoft.Web/staticSites` (Free), y
+  - una cuenta `Microsoft.Storage/storageAccounts` (Standard_LRS, StorageV2) con
+    su `tableServices/default` y las tablas **`shots`** (disparos) y **`events`**
+    (analítica).
+- `main.parameters.json` — parámetros de ejemplo (esquema ARM `deploymentParameters`),
+  incluido `storageName`.
+
+> La cadena de conexión de la Storage Account **no** se cablea desde Bicep: tras el
+> despliegue se inyecta como **app setting `TABLES_CONNECTION_STRING`** de la SWA
+> (ver [`../docs/DEPLOY_AZURE.md`](../docs/DEPLOY_AZURE.md)). La API la lee en
+> runtime; si no existe, cae al **store en memoria**.
 
 ## Requisitos previos
 

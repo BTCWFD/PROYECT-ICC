@@ -4,14 +4,20 @@
  * Contrato:
  *   POST /api/shots
  *     body { "club":string, "world":"moon"|"earth", "power":number,
- *            "angle":number, "range":number, "hangTime":number }
+ *            "angle":number, "airResistance":boolean(opcional),
+ *            "range":number, "hangTime":number }
  *     -> { "ok":true, "rank":number, "total":number }
+ *
+ * ANTI-TRAMPAS: el servidor NO confía en range/hangTime del cliente. Aunque el
+ * cliente los siga enviando, aquí se IGNORAN y se RECALCULAN con la misma física
+ * del cliente (api/src/physics.js) a partir de {world,power,angle,airResistance}.
  *
  * Modelo de programación v4 de Azure Functions, compatible con SWA managed functions.
  */
 
 const { app } = require("@azure/functions");
 const store = require("../store");
+const { WORLDS, computeTrajectory } = require("../physics");
 
 /**
  * Comprueba que un valor sea un número finito (no NaN, no Infinity).
@@ -32,7 +38,7 @@ function validateBody(body) {
     return { ok: false, message: "El cuerpo debe ser un objeto JSON." };
   }
 
-  const { club, world, power, angle, range, hangTime } = body;
+  const { club, world, power, angle, airResistance } = body;
 
   if (typeof club !== "string" || club.trim().length === 0) {
     return { ok: false, message: "'club' debe ser un texto no vacío." };
@@ -51,11 +57,9 @@ function validateBody(body) {
   if (!isFiniteNumber(angle) || angle < 0 || angle > 90) {
     return { ok: false, message: "'angle' debe ser un número entre 0 y 90." };
   }
-  if (!isFiniteNumber(range) || range < 0 || range > 1e7) {
-    return { ok: false, message: "'range' debe ser un número no negativo." };
-  }
-  if (!isFiniteNumber(hangTime) || hangTime < 0 || hangTime > 1e6) {
-    return { ok: false, message: "'hangTime' debe ser un número no negativo." };
+  // airResistance es opcional; si viene, debe ser booleano.
+  if (airResistance !== undefined && typeof airResistance !== "boolean") {
+    return { ok: false, message: "'airResistance' debe ser booleano." };
   }
 
   return { ok: true };
@@ -87,21 +91,37 @@ app.http("shots", {
         };
       }
 
-      // Normalizamos y persistimos el tiro en el store en memoria.
+      const world = body.world;
+      const power = body.power;
+      const angle = body.angle;
+      // El cliente puede pedir resistencia del aire, pero solo aplica si el
+      // mundo tiene atmósfera (mismo criterio que el cliente).
+      const airResistance = Boolean(body.airResistance) && WORLDS[world].hasAtmosphere;
+
+      // RECALCULAMOS la trayectoria con la física del servidor (anti-trampas).
+      // Ignoramos por completo body.range / body.hangTime.
+      const traj = computeTrajectory({
+        gravity: WORLDS[world].gravity,
+        speed: power,
+        angleDeg: angle,
+        airResistance,
+      });
+
+      // Normalizamos y persistimos el tiro con los valores RECALCULADOS.
       const shot = {
         club: body.club.trim(),
-        world: body.world,
-        power: body.power,
-        angle: body.angle,
-        range: body.range,
-        hangTime: body.hangTime,
+        world,
+        power,
+        angle,
+        range: traj.range,
+        hangTime: traj.flightTime,
       };
 
       // Calculamos el rank ANTES de insertar (1 = mejor alcance).
-      const rank = store.rankForRange(shot.range);
+      const rank = await store.rankForRange(shot.range);
 
-      store.addShot(shot);
-      const total = store.totalShots();
+      await store.addShot(shot);
+      const total = await store.totalShots();
 
       return {
         status: 201,

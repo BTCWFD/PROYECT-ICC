@@ -17,6 +17,9 @@ coherente en todos los comandos):
 |----------------------|-------------------|
 | Resource group       | `rg-icc`          |
 | Static Web App       | `icc-simulator`   |
+| Storage Account      | `iccsimulatorst01` (debe ser globalmente único; 3-24 car., minúsculas/dígitos) |
+| Tablas               | `shots`, `events` |
+| App setting (SWA)    | `TABLES_CONNECTION_STRING` |
 | Región               | `eastus2`         |
 | Repositorio GitHub   | `BTCWFD/PROYECT-ICC` |
 | Rama                 | `main`            |
@@ -102,6 +105,91 @@ az staticwebapp create \
   --location eastus2 \
   --sku Free
 ```
+
+---
+
+## 3b. Crear la Storage Account y configurar la persistencia
+
+La API persiste los disparos (tabla `shots`) y la analítica (tabla `events`) en
+**Azure Table Storage**. La selección es **en runtime**: si la SWA tiene el app
+setting `TABLES_CONNECTION_STRING`, la API usa Table Storage; si no, cae al **store
+en memoria** (datos volátiles). Para tener un leaderboard persistente, sigue estos
+pasos.
+
+> Si despliegas con Bicep (`infra/main.bicep`), la cuenta y las tablas `shots` /
+> `events` **ya se crean** por plantilla; en ese caso salta al paso **3b.3** para
+> obtener la connection string y al **3b.4** para fijar el app setting.
+
+### 3b.1 Crear la cuenta de almacenamiento
+
+> El nombre debe ser **globalmente único**, 3-24 caracteres, solo minúsculas y
+> dígitos. Cambia `iccsimulatorst01` si ya está en uso.
+
+```bash
+az storage account create \
+  --name iccsimulatorst01 \
+  --resource-group rg-icc \
+  --location eastus2 \
+  --sku Standard_LRS \
+  --kind StorageV2 \
+  --min-tls-version TLS1_2 \
+  --allow-blob-public-access false
+```
+
+### 3b.2 Crear las tablas `shots` y `events`
+
+```bash
+# Obtén la connection string en una variable de entorno
+CONN=$(az storage account show-connection-string \
+  --name iccsimulatorst01 \
+  --resource-group rg-icc \
+  --query connectionString --output tsv)
+
+# Crea ambas tablas (idempotente)
+az storage table create --name shots  --connection-string "$CONN"
+az storage table create --name events --connection-string "$CONN"
+```
+
+### 3b.3 Obtener la cadena de conexión
+
+```bash
+az storage account show-connection-string \
+  --name iccsimulatorst01 \
+  --resource-group rg-icc \
+  --query connectionString --output tsv
+```
+
+Copia el valor (empieza por `DefaultEndpointsProtocol=https;AccountName=...`).
+**Trátalo como una credencial**: no lo subas al repo ni lo pegues en logs públicos.
+
+### 3b.4 Inyectar la connection string como app setting de la SWA
+
+Este es el paso que **activa** Table Storage en la API:
+
+```bash
+az staticwebapp appsettings set \
+  --name icc-simulator \
+  --resource-group rg-icc \
+  --setting-names TABLES_CONNECTION_STRING="<CADENA_DE_CONEXION>"
+```
+
+O, encadenando con la obtención automática de la cadena:
+
+```bash
+CONN=$(az storage account show-connection-string \
+  --name iccsimulatorst01 \
+  --resource-group rg-icc \
+  --query connectionString --output tsv)
+
+az staticwebapp appsettings set \
+  --name icc-simulator \
+  --resource-group rg-icc \
+  --setting-names TABLES_CONNECTION_STRING="$CONN"
+```
+
+> Para listar los app settings actuales:
+> `az staticwebapp appsettings list -n icc-simulator -g rg-icc`.
+> Tras cambiar app settings, la API los recoge en el siguiente arranque.
 
 ---
 
@@ -213,24 +301,40 @@ npx @azure/static-web-apps-cli deploy web \
    # Esperado: {"status":"ok","service":"icc-api","version":"1.0.0"}
    ```
 
-4. **Leaderboard:**
+4. **Leaderboard** (admite `?top=N`, por defecto **5**, máximo **50**):
    ```bash
-   curl https://<defaultHostname>/api/leaderboard
+   curl "https://<defaultHostname>/api/leaderboard"          # top 5 (por defecto)
+   curl "https://<defaultHostname>/api/leaderboard?top=10"   # top 10
    # Esperado: {"entries":[ ... ]}  (ordenado desc por "range")
    ```
 
-5. **Registrar un disparo de prueba:**
+5. **Registrar un disparo de prueba** (el body incluye `airResistance`; el servidor
+   **ignora** el `range`/`hangTime` enviados y los **recalcula** — anti-trampas):
    ```bash
    curl -X POST https://<defaultHostname>/api/shots \
      -H "Content-Type: application/json" \
-     -d '{"club":"Test FC","world":"moon","power":80,"angle":45,"range":612.3,"hangTime":18.4}'
+     -d '{"club":"Test FC","world":"moon","power":80,"angle":45,"airResistance":false,"range":612.3,"hangTime":18.4}'
    # Esperado: {"ok":true,"rank":<n>,"total":<n>}
+   # Nota: el "range" guardado será el recalculado por el servidor, no el enviado.
    ```
 
-> Recuerda: la API usa un **store en memoria**, por lo que el leaderboard se
-> **reinicia en cada cold start** del Function App. Para persistencia real,
-> consulta la ruta de evolución (Azure Table Storage / Cosmos DB) en
-> [`ARCHITECTURE.md`](ARCHITECTURE.md).
+6. **Analítica (events)** — siempre responde `{ "ok":true }` (fire-and-forget):
+   ```bash
+   curl -X POST https://<defaultHostname>/api/events \
+     -H "Content-Type: application/json" \
+     -d '{"event":"page_view","props":{"ref":"verificacion"}}'
+   # Esperado: {"ok":true}
+   ```
+   Eventos válidos: `page_view`, `shot_executed`, `milestone_reached`,
+   `record_beaten`, `club_named`, `share_clicked`. Sin PII. Si la SWA **no** tiene
+   `TABLES_CONNECTION_STRING`, el endpoint sigue devolviendo `{ "ok":true }` como
+   no-op.
+
+> **Persistencia:** si configuraste `TABLES_CONNECTION_STRING` (paso 3b), el
+> leaderboard y la analítica se guardan en **Azure Table Storage** (tablas `shots` /
+> `events`) y **sobreviven** a los cold starts. Si **no** lo configuraste, la API
+> usa el **store en memoria** y el leaderboard se **reinicia en cada cold start**.
+> Detalles en [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ---
 
@@ -251,5 +355,8 @@ az group delete --name rg-icc --yes --no-wait
 | `/api/*` devuelve 404 | `api_location` mal configurado o la build de Functions falló | Revisa el log de Actions y confirma `api_location: "api"`. |
 | El despliegue falla con "token inválido" | Token caducado o secreto mal puesto | Re-obtén el token (paso 4) y vuelve a fijar el secreto (paso 5). |
 | El front carga pero no hay estilos/JS | `app_location`/`output_location` incorrectos | Confirma `app_location: "web"` y `output_location: ""`. |
-| El leaderboard "se vacía solo" | Store en memoria + cold start | Comportamiento esperado en Fase 1; migrar a Table/Cosmos. |
+| El leaderboard "se vacía solo" | Falta `TABLES_CONNECTION_STRING` → store en memoria + cold start | Configura el app setting (paso 3b.4); con Table Storage el leaderboard persiste. |
+| `POST /api/events` no persiste pero responde `{"ok":true}` | Sin `TABLES_CONNECTION_STRING` el endpoint es un no-op | Esperado; configura la connection string para guardar en la tabla `events`. |
+| Disparo enviado con `range` enorme no aparece arriba | Anti-trampas: el servidor **recalcula** `range`/`hangTime` | Esperado; solo cuentan las métricas recalculadas desde `power`/`angle`/`world`/`airResistance`. |
+| `az storage account create` falla por nombre en uso | El nombre debe ser globalmente único | Elige otro `storageName` (3-24 car., minúsculas/dígitos). |
 | `az staticwebapp create` no acepta `--sku Free` | CLI desactualizada | `az upgrade` y reintenta. |
