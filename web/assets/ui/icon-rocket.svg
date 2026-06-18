@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ICC · Icono UI: Cohete -->
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"
+     role="img" aria-label="Cohete">
+  <defs>
+    <linearGradient id="rkBody" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#eef3ff"/>
+      <stop offset="100%" stop-color="#b9c6e6"/>
+    </linearGradient>
+  </defs>
+  <!-- Fuselaje -->
+  <path d="M24 4 C32 10 34 22 32 32 H16 C14 22 16 10 24 4 Z"
+        fill="url(#rkBody)" stroke="#1b2a55" stroke-width="1.6" stroke-linejoin="round"/>
+  <!-- Aletas -->
+  <path d="M16 26 L9 36 L16 32 Z" fill="#5b8cff" stroke="#1b2a55" stroke-width="1.4" stroke-linejoin="round"/>
+  <path d="M32 26 L39 36 L32 32 Z" fill="#5b8cff" stroke="#1b2a55" stroke-width="1.4" stroke-linejoin="round"/>
+  <!-- Ventana -->
+  <circle cx="24" cy="17" r="4.5" fill="#5b8cff" stroke="#1b2a55" stroke-width="1.4"/>
+  <!-- Llama -->
+  <path d="M20 32 q4 10 4 12 q0 -2 4 -12 z" fill="#ffd35b"/>
+  <path d="M22 32 q2 6 2 8 q0 -2 2 -8 z" fill="#ff8a3b"/>
+</svg>

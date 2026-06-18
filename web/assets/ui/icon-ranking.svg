@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ICC · Icono UI: Ranking (podio) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"
+     role="img" aria-label="Ranking">
+  <!-- Segundo puesto -->
+  <rect x="6" y="26" width="12" height="16" rx="1.5" fill="#5b8cff" stroke="#1b2a55" stroke-width="1.4"/>
+  <!-- Primer puesto -->
+  <rect x="18" y="18" width="12" height="24" rx="1.5" fill="#ffd35b" stroke="#1b2a55" stroke-width="1.4"/>
+  <!-- Tercer puesto -->
+  <rect x="30" y="30" width="12" height="12" rx="1.5" fill="#3a63d6" stroke="#1b2a55" stroke-width="1.4"/>
+  <!-- Estrella ganador -->
+  <path d="M24 8 l1.7 3.6 3.9 .4 -2.9 2.6 .9 3.9 -3.6 -2 -3.6 2 .9 -3.9 -2.9 -2.6 3.9 -.4 z"
+        fill="#fff7e0" stroke="#8a661d" stroke-width="0.8"/>
+</svg>

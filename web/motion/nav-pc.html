@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICC · Motion · Navegación PC (prototipo grabable)</title>
+  <meta name="description" content="Prototipo de movimiento: transiciones de navegación de escritorio para la ICC. Bucle automático grabable." />
+  <link rel="icon" type="image/png" href="../assets/logo.png" />
+  <link rel="stylesheet" href="../css/motion.css" />
+</head>
+<body>
+  <!-- Etiqueta del clip (identifica la grabación para el agente UX/UI). -->
+  <div class="clip-tag">ICC · Motion <b>/ nav-pc · 16:9 · loop</b></div>
+
+  <!-- Escenario centrado para captura de pantalla. -->
+  <div class="recorder">
+    <!-- Marco 16:9 que simula una ventana de navegador de escritorio. -->
+    <section class="pc-frame" aria-label="Demostración de navegación de escritorio">
+
+      <!-- Barra de ventana decorativa. -->
+      <div class="pc-chrome" aria-hidden="true">
+        <div class="pc-dots"><i></i><i></i><i></i></div>
+        <div class="pc-url">interplanetarychampions.cup</div>
+      </div>
+
+      <!-- Viewport donde sucede la navegación. -->
+      <div class="pc-view">
+
+        <!-- Header que se condensa al hacer scroll. -->
+        <header class="pc-header">
+          <div class="pc-brand">
+            <span class="logo-dot" aria-hidden="true"></span>
+            <span class="name">Interplanetary Champions Cup</span>
+          </div>
+          <nav class="pc-nav" aria-label="Navegación principal">
+            <a href="#">Simulador</a>
+            <a href="#">Inversionistas</a>
+            <a href="#">Prensa</a>
+            <a href="#" class="is-cta"><span class="pc-cta">Unirme a la lista</span></a>
+          </nav>
+        </header>
+
+        <!-- Mega-menu desplegable (aparece al final del guion). -->
+        <div class="pc-megamenu" aria-hidden="true">
+          <div class="mm-row"><span class="mm-ico">🌕</span><span>Física Lunar<small>1/6 g · vuelos de cientos de metros</small></span></div>
+          <div class="mm-row"><span class="mm-ico">🤖</span><span>Fútbol Robótico<small>Operación «Primer Toque»</small></span></div>
+          <div class="mm-row"><span class="mm-ico">🏆</span><span>Clasificatorias<small>Top 5 de clubes virtuales</small></span></div>
+        </div>
+
+        <!-- Contenido que se desplaza dentro del viewport. -->
+        <div class="pc-scroll">
+
+          <!-- Sección 1: hero. -->
+          <section class="pc-section pc-hero">
+            <span class="kicker">Temporada inaugural · Luna</span>
+            <h2>El primer toque que se ve desde la Tierra.</h2>
+            <p class="lead">
+              Simulador de física lunar de la ICC. La gravedad es seis veces
+              menor: el balón vuela cientos de metros y permanece segundos
+              suspendido. Ese es el espectáculo.
+            </p>
+          </section>
+
+          <!-- Sección 2: tarjetas que aparecen al hacer scroll. -->
+          <section class="pc-section">
+            <h2>Tecnología que valida la liga</h2>
+            <p class="lead">Tres pilares que hacen del fútbol robótico lunar un deporte real.</p>
+            <div class="pc-cards">
+              <article class="pc-card">
+                <div class="ico" aria-hidden="true">🌕</div>
+                <h3>Física real</h3>
+                <p>Trayectorias balísticas con gravedad lunar y comparación con la Tierra.</p>
+              </article>
+              <article class="pc-card">
+                <div class="ico" aria-hidden="true">📡</div>
+                <h3>Control supervisado</h3>
+                <p>Latencia Tierra–Luna modelada: el reto de pilotar a distancia.</p>
+              </article>
+              <article class="pc-card">
+                <div class="ico" aria-hidden="true">🏆</div>
+                <h3>Clasificatorias</h3>
+                <p>Clubes virtuales compiten por el mejor saque de la temporada.</p>
+              </article>
+            </div>
+          </section>
+
+        </div><!-- /pc-scroll -->
+
+        <!-- Cursor falso que recorre el guion. -->
+        <div class="pc-cursor" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 3l14 8-6 1.5L10 19 5 3z" fill="#fff" stroke="#0a0f1c" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+      </div><!-- /pc-view -->
+    </section>
+  </div>
+</body>
+</html>

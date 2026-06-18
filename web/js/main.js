@@ -55,6 +55,8 @@
     supervision: document.getElementById("supervision"),
     kick: document.getElementById("kick"),
     reset: document.getElementById("reset"),
+    // Botón de sonido (mute) de los SFX.
+    sfxToggle: document.getElementById("sfxToggle"),
     status: document.getElementById("status"),
     mRange: document.getElementById("mRange"),
     mHeight: document.getElementById("mHeight"),
@@ -114,6 +116,33 @@
     }
   }
 
+  // ----- Integración de AUDIO (ICCSfx) — degradación elegante -----
+  // Si js/sfx.js no se cargó (window.ICCSfx ausente), sfx() es un no-op y nada
+  // se rompe. El AudioContext es perezoso (se activa en el primer gesto).
+  /** Reproduce un efecto sintetizado por nombre de forma segura. */
+  function sfx(name) {
+    try {
+      if (window.ICCSfx && typeof window.ICCSfx.play === "function") {
+        window.ICCSfx.play(name);
+      }
+    } catch (_err) {
+      /* el audio jamás interrumpe el simulador */
+    }
+  }
+
+  // ----- Integración de PROGRESIÓN (ICCGame) — degradación elegante -----
+  /** Procesa un disparo en el motor de juego; devuelve su resultado o null. */
+  function gameOnShot(payload) {
+    try {
+      if (window.ICCGame && typeof window.ICCGame.onShot === "function") {
+        return window.ICCGame.onShot(payload);
+      }
+    } catch (_err) {
+      /* la progresión jamás interrumpe el simulador */
+    }
+    return null;
+  }
+
   function trajectoryFor(worldKey, { withGhostColor } = {}) {
     const world = WORLDS[worldKey];
     const traj = computeTrajectory({
@@ -156,6 +185,10 @@
       angle: state.angle,
     });
 
+    // Audio: golpe al balón en el momento del saque y silbido del vuelo.
+    sfx("kick");
+    sfx("whoosh");
+
     // Bloqueo + feedback en el botón mientras el balón está en vuelo.
     setSending(true);
     els.kick.textContent = "Volando…";
@@ -168,6 +201,8 @@
 
     sim.animate(world, traj, ghost, {
       onImpact: () => {
+        // Audio: aterrizaje del balón en el momento del impacto.
+        sfx("impact");
         // Sacudida del visor y destello de la métrica de alcance.
         els.sim.classList.remove("shake");
         void els.sim.offsetWidth; // reinicia la animación
@@ -242,6 +277,33 @@
         range: Math.round(range),
         previous: Math.round(prevRecord),
       });
+    }
+
+    // Audio: fanfarria de récord (solo si supera una marca previa real).
+    if (isRecord && prevRecord > 0) sfx("record");
+
+    // ----- Progresión (ICCGame): procesa el disparo tras el impacto -----
+    // Le pasamos el resultado físico ya conocido; el motor calcula XP, nivel,
+    // rango, combo, logros y reto diario, actualiza su HUD y muestra sus
+    // propios overlays (nivel/logro). Aquí solo sonorizamos esos hitos.
+    const gameResult = gameOnShot({
+      range: Math.round(range),
+      world: state.world,
+      hangTime: Number(traj.flightTime.toFixed(2)),
+      power: state.power,
+      angle: state.angle,
+      club,
+      isRecord,
+    });
+    if (gameResult) {
+      // Audio: subida de nivel y desbloqueo de logros (si los hubo).
+      if (gameResult.leveledUp) sfx("levelup");
+      if (
+        Array.isArray(gameResult.achievementsUnlocked) &&
+        gameResult.achievementsUnlocked.length
+      ) {
+        sfx("achievement");
+      }
     }
 
     els.celebration.classList.remove("show");
@@ -458,8 +520,13 @@
       : "Modo directo: los saques se ejecutan de inmediato.";
   });
 
-  els.kick.addEventListener("click", kick);
+  els.kick.addEventListener("click", () => {
+    // Sonido de interfaz al pulsar la acción principal (antes del bloqueo).
+    if (!sending) sfx("ui");
+    kick();
+  });
   els.reset.addEventListener("click", () => {
+    sfx("ui");
     // Cancelar cualquier cuenta regresiva de latencia en curso.
     cancelAnimationFrame(latencyRaf);
     clearTimeout(latencyTimeout);
@@ -471,6 +538,62 @@
     refreshIdle();
     els.status.textContent = "Robot L-Striker en posición. Listo para el primer toque.";
   });
+
+  // ----- Inicialización del motor de progresión (ICCGame) -----
+  // Monta el HUD de juego sobre el lienzo. Defensivo: si ICCGame no existe,
+  // simplemente no se monta nada y el simulador funciona igual.
+  (function initGame() {
+    try {
+      if (window.ICCGame && typeof window.ICCGame.init === "function") {
+        // game.js espera un ELEMENTO en hudMount (no un id). Pasamos el nodo
+        // real; si no existe, ICCGame.init recurre a #game-hud por defecto.
+        window.ICCGame.init({ hudMount: document.getElementById("game-hud") });
+      }
+    } catch (_err) {
+      /* la progresión jamás interrumpe el simulador */
+    }
+  })();
+
+  // ----- Toggle de sonido (ICCSfx) -----
+  // Sincroniza el aspecto del botón con el estado real de ICCSfx. Si el módulo
+  // de audio no existe, ocultamos el botón para no ofrecer un control inerte.
+  (function initSfxToggle() {
+    const btn = els.sfxToggle;
+    if (!btn) return;
+    const hasSfx =
+      window.ICCSfx &&
+      typeof window.ICCSfx.setMuted === "function" &&
+      typeof window.ICCSfx.isMuted === "function";
+    if (!hasSfx) {
+      btn.hidden = true; // sin audio disponible: no mostramos el control
+      return;
+    }
+    // Refleja el estado de silencio en el icono y la accesibilidad.
+    const sync = () => {
+      let muted = false;
+      try {
+        muted = !!window.ICCSfx.isMuted();
+      } catch (_err) {
+        muted = false;
+      }
+      btn.textContent = muted ? "🔇" : "🔊";
+      btn.setAttribute("aria-pressed", String(muted));
+      btn.setAttribute("aria-label", muted ? "Activar el sonido" : "Silenciar el sonido");
+      btn.classList.toggle("is-muted", muted);
+    };
+    btn.addEventListener("click", () => {
+      try {
+        const next = !window.ICCSfx.isMuted();
+        window.ICCSfx.setMuted(next);
+        // Pequeño feedback audible solo al ACTIVAR (no al silenciar).
+        if (!next) sfx("ui");
+      } catch (_err) {
+        /* el toggle jamás rompe la UX */
+      }
+      sync();
+    });
+    sync();
+  })();
 
   // Estado inicial.
   refreshIdle();

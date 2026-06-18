@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ICC · Icono UI: Compartir (tres nodos conectados) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"
+     role="img" aria-label="Compartir">
+  <line x1="32" y1="14" x2="17" y2="22" stroke="#5b8cff" stroke-width="2.6" stroke-linecap="round"/>
+  <line x1="17" y1="26" x2="32" y2="34" stroke="#5b8cff" stroke-width="2.6" stroke-linecap="round"/>
+  <circle cx="35" cy="12" r="6" fill="#ffd35b" stroke="#1b2a55" stroke-width="1.6"/>
+  <circle cx="14" cy="24" r="6" fill="#5b8cff" stroke="#1b2a55" stroke-width="1.6"/>
+  <circle cx="35" cy="36" r="6" fill="#ffd35b" stroke="#1b2a55" stroke-width="1.6"/>
+</svg>

@@ -1,0 +1,814 @@
+/* =========================================================================
+   ICC · motion.css
+   Prototipos de MOVIMIENTO grabables para el agente UX/UI.
+   Todas las animaciones viven aqui (CSS keyframes). Sin recursos externos.
+   - nav-pc.html    : demo 16:9 de navegacion de escritorio.
+   - nav-mobile.html : demo 9:16 de navegacion tactil en marco de movil.
+
+   FILOSOFIA DE "VIDEO" GRABABLE:
+   Cada demo es un guion (storyboard) en bucle infinito accionado por una sola
+   animacion maestra de linea de tiempo (--dur). Los sub-elementos se animan en
+   sincronia con esa misma duracion y distintos retardos negativos / porcentajes
+   de keyframe, de modo que el bucle se reproduce solo y se puede grabar con
+   cualquier capturador de pantalla sin interaccion.
+
+   prefers-reduced-motion: se detiene la linea de tiempo en su FRAME FINAL
+   estatico (estado "ya navegado": header condensado, menus en reposo).
+   ========================================================================= */
+
+:root {
+  --bg: #05070f;
+  --panel: #0e1424;
+  --panel-2: #141c33;
+  --line: #233152;
+  --text: #e8eefc;
+  --muted: #aab8d8;
+  --accent: #5b8cff;
+  --accent-2: #ffd35b;
+  --ok: #46d39a;
+
+  /* Curvas de animacion compartidas (sensacion AAA). */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);     /* salida suave, "expo" */
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);  /* simetrica enfatica */
+  --ease-back: cubic-bezier(.34, 1.56, .64, 1); /* rebote leve */
+
+  /* Duracion del bucle maestro de cada demo (se sobreescribe por demo). */
+  --loop: 12s;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Capa de "escenario" centrada para grabar (fondo neutro alrededor). */
+.recorder {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(900px 500px at 70% -10%, #11203f 0%, var(--bg) 60%),
+    var(--bg);
+}
+
+/* Etiqueta flotante que identifica el clip al grabar. */
+.clip-tag {
+  position: fixed;
+  top: 14px; left: 14px;
+  z-index: 50;
+  font-size: 11px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  background: rgba(8, 12, 24, .7);
+  backdrop-filter: blur(6px);
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+.clip-tag b { color: var(--accent-2); font-weight: 600; }
+
+/* Tipografias de apoyo. */
+.logo-dot {
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 14px rgba(91, 140, 255, .5);
+  flex: 0 0 auto;
+}
+
+/* =========================================================================
+   1) DEMO PC — marco 16:9
+   ========================================================================= */
+.pc-frame {
+  --loop: 12s;
+  position: relative;
+  width: min(96vw, calc(96vh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .8);
+}
+
+/* Barra de "ventana" del navegador (decorativa). */
+.pc-chrome {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  background: #0a1020;
+  border-bottom: 1px solid var(--line);
+}
+.pc-dots { display: flex; gap: 7px; }
+.pc-dots i {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: #34406a; display: block;
+}
+.pc-dots i:nth-child(1) { background: #ff6b6b; }
+.pc-dots i:nth-child(2) { background: var(--accent-2); }
+.pc-dots i:nth-child(3) { background: var(--ok); }
+.pc-url {
+  margin-left: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  background: #060a16;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 12px;
+  flex: 1;
+  max-width: 360px;
+}
+
+/* Viewport donde ocurre la "navegacion". */
+.pc-view {
+  position: absolute;
+  inset: 34px 0 0 0;
+  overflow: hidden;
+}
+
+/* ---- Header de escritorio que se CONDENSA al hacer scroll ---- */
+.pc-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 30px;
+  background: rgba(8, 12, 24, 0);
+  border-bottom: 1px solid transparent;
+  backdrop-filter: blur(0px);
+  animation: pcHeaderCondense var(--loop) var(--ease-in-out) infinite;
+}
+.pc-brand { display: flex; align-items: center; gap: 12px; }
+.pc-brand .name { font-size: 17px; font-weight: 600; letter-spacing: .3px; }
+.pc-brand .name { animation: pcBrandShrink var(--loop) var(--ease-in-out) infinite; }
+
+/* Menu superior con subrayado animado al "hover". */
+.pc-nav { display: flex; align-items: center; gap: 26px; }
+.pc-nav a {
+  position: relative;
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 4px 2px;
+}
+.pc-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -6px;
+  height: 2px; width: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transform: scaleX(0);
+  transform-origin: left;
+}
+/* El "puntero" recorre los enlaces y activa el subrayado por turnos. */
+.pc-nav a:nth-child(1)::after { animation: pcHover var(--loop) var(--ease-out) infinite; animation-delay: calc(var(--loop) * -0.00); }
+.pc-nav a:nth-child(2)::after { animation: pcHover var(--loop) var(--ease-out) infinite; animation-delay: calc(var(--loop) * 0.10); }
+.pc-nav a:nth-child(3)::after { animation: pcHover var(--loop) var(--ease-out) infinite; animation-delay: calc(var(--loop) * 0.20); }
+.pc-nav a.is-cta { color: var(--text); }
+
+/* Boton CTA del header con microinteraccion (brillo recorrido). */
+.pc-cta {
+  position: relative;
+  font-size: 13px;
+  font-weight: 600;
+  color: #061026;
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 18px;
+  background: linear-gradient(90deg, var(--accent), #7aa2ff);
+  overflow: hidden;
+  animation: pcCtaPulse var(--loop) var(--ease-out) infinite;
+}
+.pc-cta::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -60%;
+  width: 50%; height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .55), transparent);
+  transform: skewX(-18deg);
+  animation: pcShine var(--loop) linear infinite;
+}
+
+/* ---- Cursor falso que recorre el guion ---- */
+.pc-cursor {
+  position: absolute;
+  z-index: 40;
+  width: 22px; height: 22px;
+  margin: -4px 0 0 -4px;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .5));
+  animation: pcCursor var(--loop) var(--ease-in-out) infinite;
+}
+.pc-cursor svg { display: block; width: 100%; height: 100%; }
+/* Anillo de "click" que late cuando el cursor pulsa. */
+.pc-cursor::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border: 2px solid var(--accent-2);
+  border-radius: 50%;
+  opacity: 0;
+  animation: pcClick var(--loop) var(--ease-out) infinite;
+}
+
+/* ---- Pista de scroll (las secciones suben dentro del viewport) ---- */
+.pc-scroll {
+  position: absolute;
+  inset: 0;
+  padding-top: 78px;
+  animation: pcScroll var(--loop) var(--ease-in-out) infinite;
+}
+.pc-section {
+  padding: 26px 40px 40px;
+  min-height: 100%;
+}
+.pc-section h2 {
+  margin: 0 0 6px;
+  font-size: clamp(20px, 3.4vw, 40px);
+  letter-spacing: .3px;
+}
+.pc-section .lead { margin: 0; color: var(--muted); font-size: 15px; max-width: 60ch; }
+
+/* Hero con titular que entra escalonado. */
+.pc-hero { display: grid; gap: 14px; }
+.pc-hero .kicker {
+  font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--accent-2);
+}
+.pc-hero h2 { animation: pcReveal var(--loop) var(--ease-out) infinite; }
+.pc-hero .lead { animation: pcReveal var(--loop) var(--ease-out) infinite; animation-delay: calc(var(--loop) * 0.03); }
+
+/* Rejilla de tarjetas que aparece al entrar en la 2a seccion. */
+.pc-cards {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.pc-card {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+}
+.pc-card .ico {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(91, 140, 255, .14);
+  display: grid; place-items: center;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+.pc-card h3 { margin: 0 0 4px; font-size: 16px; }
+.pc-card p { margin: 0; font-size: 13px; color: var(--muted); }
+.pc-card:nth-child(1) { animation: pcCardIn var(--loop) var(--ease-back) infinite; animation-delay: calc(var(--loop) * 0.42); }
+.pc-card:nth-child(2) { animation: pcCardIn var(--loop) var(--ease-back) infinite; animation-delay: calc(var(--loop) * 0.45); }
+.pc-card:nth-child(3) { animation: pcCardIn var(--loop) var(--ease-back) infinite; animation-delay: calc(var(--loop) * 0.48); }
+
+/* Mega-menu desplegable (panel que cae bajo el header al final del guion). */
+.pc-megamenu {
+  position: absolute;
+  z-index: 25;
+  top: 64px; right: 30px;
+  width: 320px;
+  background: rgba(12, 18, 34, .96);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .8);
+  transform-origin: top right;
+  transform: translateY(-8px) scale(.96);
+  opacity: 0;
+  animation: pcMega var(--loop) var(--ease-out) infinite;
+}
+.pc-megamenu .mm-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  font-size: 13px;
+  color: var(--text);
+}
+.pc-megamenu .mm-row .mm-ico {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: rgba(255, 211, 91, .14);
+  display: grid; place-items: center; font-size: 14px;
+}
+.pc-megamenu .mm-row + .mm-row { margin-top: 2px; }
+.pc-megamenu .mm-row span small { display: block; color: var(--muted); font-size: 11px; }
+
+/* =========================================================================
+   KEYFRAMES — DEMO PC
+   Linea de tiempo (porcentajes ~ 12s):
+   0-12%   estado inicial, hero entrando
+   12-34%  scroll hacia abajo + header se condensa + tarjetas aparecen
+   34-58%  puntero recorre el menu (hovers)
+   58-74%  abre mega-menu
+   74-100% cierra, vuelve arriba, header se expande (bucle)
+   ========================================================================= */
+
+@keyframes pcHeaderCondense {
+  0%, 10% {
+    padding-top: 22px; padding-bottom: 22px;
+    background: rgba(8, 12, 24, 0);
+    border-bottom-color: transparent;
+    backdrop-filter: blur(0px);
+  }
+  24%, 92% {
+    padding-top: 11px; padding-bottom: 11px;
+    background: rgba(8, 12, 24, .82);
+    border-bottom-color: var(--line);
+    backdrop-filter: blur(10px);
+  }
+  100% {
+    padding-top: 22px; padding-bottom: 22px;
+    background: rgba(8, 12, 24, 0);
+    border-bottom-color: transparent;
+    backdrop-filter: blur(0px);
+  }
+}
+@keyframes pcBrandShrink {
+  0%, 10% { font-size: 17px; }
+  24%, 92% { font-size: 14px; }
+  100% { font-size: 17px; }
+}
+
+@keyframes pcScroll {
+  0%, 10%   { transform: translateY(0); }
+  30%, 70%  { transform: translateY(-42%); }
+  88%, 100% { transform: translateY(0); }
+}
+
+@keyframes pcReveal {
+  0% { opacity: 0; transform: translateY(16px); }
+  8%, 100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pcCardIn {
+  0%, 41% { opacity: 0; transform: translateY(22px) scale(.97); }
+  52%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Cada enlace: su subrayado entra y sale en su ventana de "hover". */
+@keyframes pcHover {
+  0%, 34% { transform: scaleX(0); }
+  40%, 46% { transform: scaleX(1); }
+  52%, 100% { transform: scaleX(0); }
+}
+
+@keyframes pcCtaPulse {
+  0%, 78% { transform: scale(1); box-shadow: 0 0 0 rgba(91, 140, 255, 0); }
+  84% { transform: scale(1.06); box-shadow: 0 0 26px rgba(91, 140, 255, .55); }
+  90%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(91, 140, 255, 0); }
+}
+
+@keyframes pcShine {
+  0%, 60% { left: -60%; }
+  78% { left: 130%; }
+  100% { left: 130%; }
+}
+
+/* Trayectoria del cursor por el guion (porcentaje -> punto en pantalla). */
+@keyframes pcCursor {
+  0%   { left: 38%; top: 60%; }
+  12%  { left: 40%; top: 55%; }
+  /* recorre el menu */
+  36%  { left: 56%; top: 9%; }
+  40%  { left: 56%; top: 9%; }
+  46%  { left: 64%; top: 9%; }
+  52%  { left: 72%; top: 9%; }
+  /* va al CTA / icono de menu */
+  60%  { left: 88%; top: 9%; }
+  66%  { left: 88%; top: 9%; }
+  /* baja al mega-menu */
+  72%  { left: 80%; top: 28%; }
+  84%  { left: 84%; top: 36%; }
+  100% { left: 38%; top: 60%; }
+}
+@keyframes pcClick {
+  0%, 58% { opacity: 0; transform: scale(.4); }
+  62% { opacity: .9; transform: scale(.8); }
+  68% { opacity: 0; transform: scale(1.6); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+@keyframes pcMega {
+  0%, 60% { opacity: 0; transform: translateY(-8px) scale(.96); pointer-events: none; }
+  66%, 82% { opacity: 1; transform: translateY(0) scale(1); }
+  90%, 100% { opacity: 0; transform: translateY(-8px) scale(.96); }
+}
+
+/* =========================================================================
+   2) DEMO MOVIL — marco 9:16
+   ========================================================================= */
+.phone {
+  --loop: 14s;
+  position: relative;
+  width: min(86vw, calc(92vh * 9 / 16));
+  aspect-ratio: 9 / 16;
+  background: #02030a;
+  border: 10px solid #0a0f1c;
+  border-radius: 42px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 2px #1b2440,
+    0 36px 90px -28px rgba(0, 0, 0, .85);
+}
+/* Muesca (notch). */
+.phone::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 40%; height: 22px;
+  background: #0a0f1c;
+  border-radius: 0 0 16px 16px;
+  z-index: 60;
+}
+
+.ph-view {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 60% at 70% -10%, #11203f 0%, #05070f 55%),
+    #05070f;
+  overflow: hidden;
+}
+
+/* Barra superior movil con hamburguesa. */
+.ph-top {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 18px 12px;
+  background: rgba(8, 12, 24, .7);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.ph-brand { display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 14px; }
+
+/* Boton hamburguesa -> X. */
+.ph-burger {
+  position: relative;
+  width: 30px; height: 22px;
+  border: 0; background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.ph-burger i {
+  position: absolute;
+  left: 3px; right: 3px;
+  height: 2.5px; border-radius: 2px;
+  background: var(--text);
+}
+.ph-burger i:nth-child(1) { top: 3px;  animation: phBurgerTop var(--loop) var(--ease-in-out) infinite; }
+.ph-burger i:nth-child(2) { top: 10px; animation: phBurgerMid var(--loop) var(--ease-in-out) infinite; }
+.ph-burger i:nth-child(3) { top: 17px; animation: phBurgerBot var(--loop) var(--ease-in-out) infinite; }
+
+/* Contenido scrollable de la pagina. */
+.ph-scroll {
+  position: absolute;
+  inset: 0;
+  padding: 86px 18px 96px;
+  animation: phScroll var(--loop) var(--ease-in-out) infinite;
+}
+.ph-hero h2 {
+  margin: 0 0 6px; font-size: 26px; line-height: 1.15;
+  animation: phReveal var(--loop) var(--ease-out) infinite;
+}
+.ph-hero p { margin: 0; color: var(--muted); font-size: 13.5px; animation: phReveal var(--loop) var(--ease-out) infinite; animation-delay: calc(var(--loop) * 0.02); }
+.ph-hero .kicker { font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--accent-2); margin-bottom: 8px; }
+
+.ph-card {
+  margin-top: 14px;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+}
+.ph-card h3 { margin: 0 0 3px; font-size: 15px; }
+.ph-card p { margin: 0; font-size: 12.5px; color: var(--muted); }
+.ph-card:nth-of-type(1) { animation: phCardIn var(--loop) var(--ease-back) infinite; animation-delay: calc(var(--loop) * 0.12); }
+.ph-card:nth-of-type(2) { animation: phCardIn var(--loop) var(--ease-back) infinite; animation-delay: calc(var(--loop) * 0.16); }
+
+/* Indicador de "pull to refresh" en lo alto. */
+.ph-pull {
+  position: absolute;
+  top: 70px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  border-top-color: var(--accent);
+  opacity: 0;
+  animation: phPull var(--loop) var(--ease-out) infinite;
+}
+
+/* Overlay del menu hamburguesa (sheet lateral/cubre-pantalla). */
+.ph-menu {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgba(5, 7, 15, .96);
+  backdrop-filter: blur(10px);
+  padding: 90px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: circle(0% at calc(100% - 33px) 36px);
+  animation: phMenu var(--loop) var(--ease-in-out) infinite;
+}
+.ph-menu a {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  padding: 12px 6px;
+  border-bottom: 1px solid var(--line);
+  opacity: 0;
+  transform: translateX(18px);
+}
+.ph-menu a:nth-child(1) { animation: phMenuItem var(--loop) var(--ease-out) infinite; animation-delay: calc(var(--loop) * 0.27); }
+.ph-menu a:nth-child(2) { animation: phMenuItem var(--loop) var(--ease-out) infinite; animation-delay: calc(var(--loop) * 0.29); }
+.ph-menu a:nth-child(3) { animation: phMenuItem var(--loop) var(--ease-out) infinite; animation-delay: calc(var(--loop) * 0.31); }
+.ph-menu a:nth-child(4) { animation: phMenuItem var(--loop) var(--ease-out) infinite; animation-delay: calc(var(--loop) * 0.33); }
+
+/* Barra inferior de navegacion (bottom-nav) con pildora activa que se desliza. */
+.ph-bottom {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 35;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 8px 10px calc(8px + 10px);
+  background: rgba(8, 12, 24, .9);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+}
+.ph-bottom .tab {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--muted);
+  padding: 6px 0;
+}
+.ph-bottom .tab .ti { font-size: 18px; }
+/* Pildora que se desliza bajo la pestaña activa. */
+.ph-pill {
+  position: absolute;
+  z-index: 1;
+  top: 6px; bottom: 14px;
+  left: 0;
+  width: 25%;
+  border-radius: 12px;
+  background: rgba(91, 140, 255, .16);
+  border: 1px solid rgba(91, 140, 255, .35);
+  animation: phPill var(--loop) var(--ease-back) infinite;
+}
+
+/* Sheet de waitlist que sube desde abajo (bottom sheet). */
+.ph-sheet {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 50;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 22px 22px 0 0;
+  padding: 14px 20px 26px;
+  box-shadow: 0 -20px 60px -20px rgba(0, 0, 0, .8);
+  transform: translateY(110%);
+  animation: phSheet var(--loop) var(--ease-out) infinite;
+}
+.ph-sheet .grabber {
+  width: 42px; height: 5px; border-radius: 999px;
+  background: #34406a; margin: 0 auto 14px;
+}
+.ph-sheet h3 { margin: 0 0 4px; font-size: 17px; }
+.ph-sheet p { margin: 0 0 14px; font-size: 12.5px; color: var(--muted); }
+.ph-sheet .field {
+  height: 42px; border-radius: 11px;
+  border: 1px solid var(--line);
+  background: #060a16;
+  display: flex; align-items: center;
+  padding: 0 14px; font-size: 13px; color: var(--muted);
+  margin-bottom: 10px;
+}
+.ph-sheet .field .caret {
+  width: 1.5px; height: 18px; background: var(--accent);
+  margin-left: 1px;
+  animation: phCaret 1s steps(1) infinite;
+}
+.ph-sheet .cta {
+  width: 100%;
+  border: 0; border-radius: 11px;
+  padding: 12px;
+  font-size: 14px; font-weight: 600; color: #061026;
+  background: linear-gradient(90deg, var(--accent-2), #ffe48a);
+  animation: phSheetCta var(--loop) var(--ease-out) infinite;
+}
+
+/* Velo oscuro tras el sheet. */
+.ph-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0, 0, 0, .5);
+  opacity: 0;
+  pointer-events: none;
+  animation: phScrim var(--loop) linear infinite;
+}
+
+/* Punto tactil (dedo) que toca la pantalla en el guion movil. */
+.ph-touch {
+  position: absolute;
+  z-index: 55;
+  width: 34px; height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 211, 91, .5), rgba(255, 211, 91, 0) 70%);
+  border: 2px solid rgba(255, 211, 91, .7);
+  pointer-events: none;
+  opacity: 0;
+  animation: phTouch var(--loop) var(--ease-in-out) infinite;
+}
+
+/* =========================================================================
+   KEYFRAMES — DEMO MOVIL  (~14s)
+   0-8%    pull-to-refresh + reveal del hero
+   8-22%   scroll de tarjetas
+   22-40%  tap hamburguesa -> menu cubre-pantalla con items escalonados
+   40-58%  cierra menu, recorre bottom-nav (pildora se desliza)
+   58-86%  sube el sheet de waitlist + tap en campo + CTA
+   86-100% baja el sheet, vuelve al inicio (bucle)
+   ========================================================================= */
+
+@keyframes phScroll {
+  0%, 10%  { transform: translateY(0); }
+  18%, 22% { transform: translateY(-26%); }
+  /* se congela mientras esta el menu/bottom-nav */
+  40%, 100% { transform: translateY(0); }
+}
+
+@keyframes phReveal {
+  0% { opacity: 0; transform: translateY(14px); }
+  7%, 100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes phCardIn {
+  0%, 11% { opacity: 0; transform: translateY(18px) scale(.97); }
+  20%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes phPull {
+  0%, 1% { opacity: 0; transform: translateX(-50%) translateY(-6px) rotate(0deg); }
+  3% { opacity: 1; transform: translateX(-50%) translateY(6px) rotate(120deg); }
+  6% { opacity: 1; transform: translateX(-50%) translateY(6px) rotate(360deg); }
+  8% { opacity: 0; transform: translateX(-50%) translateY(-6px) rotate(420deg); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+}
+
+/* Hamburguesa -> X en la ventana 22-40%, vuelve en 40-44%. */
+@keyframes phBurgerTop {
+  0%, 23% { top: 3px; transform: rotate(0); }
+  30%, 40% { top: 10px; transform: rotate(45deg); }
+  45%, 100% { top: 3px; transform: rotate(0); }
+}
+@keyframes phBurgerMid {
+  0%, 23% { opacity: 1; }
+  30%, 40% { opacity: 0; }
+  45%, 100% { opacity: 1; }
+}
+@keyframes phBurgerBot {
+  0%, 23% { top: 17px; transform: rotate(0); }
+  30%, 40% { top: 10px; transform: rotate(-45deg); }
+  45%, 100% { top: 17px; transform: rotate(0); }
+}
+
+@keyframes phMenu {
+  0%, 23% { opacity: 0; clip-path: circle(0% at calc(100% - 33px) 36px); }
+  30%, 39% { opacity: 1; clip-path: circle(150% at calc(100% - 33px) 36px); }
+  44%, 100% { opacity: 0; clip-path: circle(0% at calc(100% - 33px) 36px); }
+}
+@keyframes phMenuItem {
+  0%, 26% { opacity: 0; transform: translateX(18px); }
+  33%, 39% { opacity: 1; transform: translateX(0); }
+  43%, 100% { opacity: 0; transform: translateX(18px); }
+}
+
+/* Pildora del bottom-nav: posiciones por pestaña (4 columnas = 0/25/50/75%). */
+@keyframes phPill {
+  0%, 46% { left: 0; }
+  52%, 56% { left: 25%; }
+  60%, 64% { left: 50%; }
+  /* la 4a (waitlist) abre el sheet */
+  70%, 86% { left: 75%; }
+  92%, 100% { left: 0; }
+}
+
+@keyframes phSheet {
+  0%, 64% { transform: translateY(110%); }
+  72%, 86% { transform: translateY(0); }
+  92%, 100% { transform: translateY(110%); }
+}
+@keyframes phScrim {
+  0%, 64% { opacity: 0; }
+  72%, 86% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+@keyframes phSheetCta {
+  0%, 80% { transform: scale(1); filter: brightness(1); }
+  84% { transform: scale(.97); filter: brightness(1.12); }
+  88%, 100% { transform: scale(1); filter: brightness(1); }
+}
+@keyframes phCaret { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+/* Recorrido del "dedo" movil. */
+@keyframes phTouch {
+  0%, 20% { opacity: 0; left: 50%; top: 50%; transform: scale(.6); }
+  /* tap en hamburguesa */
+  23% { opacity: .9; left: calc(100% - 33px); top: 36px; transform: scale(1); }
+  26% { opacity: 0; left: calc(100% - 33px); top: 36px; transform: scale(1.4); }
+  /* tap en pestañas del bottom-nav */
+  50% { opacity: .9; left: 37.5%; top: 95%; transform: scale(1); }
+  53% { opacity: 0; left: 37.5%; top: 95%; transform: scale(1.4); }
+  58% { opacity: .9; left: 62.5%; top: 95%; transform: scale(1); }
+  61% { opacity: 0; left: 62.5%; top: 95%; transform: scale(1.4); }
+  /* tap en la pestaña waitlist (abre sheet) */
+  66% { opacity: .9; left: 87.5%; top: 95%; transform: scale(1); }
+  69% { opacity: 0; left: 87.5%; top: 95%; transform: scale(1.4); }
+  /* tap en CTA del sheet */
+  82% { opacity: .9; left: 50%; top: 82%; transform: scale(1); }
+  85% { opacity: 0; left: 50%; top: 82%; transform: scale(1.4); }
+  100% { opacity: 0; left: 50%; top: 50%; transform: scale(.6); }
+}
+
+/* =========================================================================
+   RESPONSIVE
+   ========================================================================= */
+@media (max-width: 560px) {
+  .recorder { padding: 10px; }
+  .pc-frame { width: 96vw; }
+  .phone { width: 92vw; }
+  .clip-tag { font-size: 10px; }
+}
+
+/* =========================================================================
+   prefers-reduced-motion: FRAME FINAL ESTATICO.
+   Se cancelan todas las animaciones y se fija el estado "ya navegado":
+   header PC condensado, mega-menu cerrado; movil con hero visible,
+   menu cerrado, bottom-nav en 1a pestaña y sheet oculto.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* --- PC: estado condensado y reposado --- */
+  .pc-header {
+    padding-top: 11px; padding-bottom: 11px;
+    background: rgba(8, 12, 24, .82);
+    border-bottom-color: var(--line);
+    backdrop-filter: blur(10px);
+  }
+  .pc-brand .name { font-size: 14px; }
+  .pc-scroll { transform: translateY(0); }
+  .pc-hero h2, .pc-hero .lead { opacity: 1; transform: none; }
+  .pc-card { opacity: 1; transform: none; }
+  .pc-nav a:nth-child(1)::after { transform: scaleX(1); }
+  .pc-megamenu { opacity: 0; }
+  .pc-cursor { opacity: 0; }
+  .pc-cta::before { display: none; }
+
+  /* --- Movil: hero visible, todo en reposo --- */
+  .ph-scroll { transform: translateY(0); }
+  .ph-hero h2, .ph-hero p { opacity: 1; transform: none; }
+  .ph-card { opacity: 1; transform: none; }
+  .ph-menu { opacity: 0; }
+  .ph-pull, .ph-touch, .ph-scrim { opacity: 0; }
+  .ph-pill { left: 0; }
+  .ph-sheet { transform: translateY(110%); }
+  .ph-burger i:nth-child(1) { top: 3px; transform: none; }
+  .ph-burger i:nth-child(2) { opacity: 1; }
+  .ph-burger i:nth-child(3) { top: 17px; transform: none; }
+  .ph-sheet .field .caret { opacity: 1; }
+}

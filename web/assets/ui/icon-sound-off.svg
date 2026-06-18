@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ICC · Icono UI: Sonido apagado (silencio) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"
+     role="img" aria-label="Sonido apagado">
+  <path d="M8 19 h7 l9 -7 v24 l-9 -7 H8 z"
+        fill="#5b8cff" stroke="#1b2a55" stroke-width="1.6" stroke-linejoin="round"/>
+  <line x1="31" y1="19" x2="41" y2="29" stroke="#ffd35b" stroke-width="2.8" stroke-linecap="round"/>
+  <line x1="41" y1="19" x2="31" y2="29" stroke="#ffd35b" stroke-width="2.8" stroke-linecap="round"/>
+</svg>

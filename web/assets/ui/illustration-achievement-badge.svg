@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ICC · Ilustracion: Badge de logro (insignia desbloqueada con cinta) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="240" viewBox="0 0 200 240"
+     role="img" aria-label="Insignia de logro desbloqueado">
+  <defs>
+    <radialGradient id="abBg" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#22305a"/>
+      <stop offset="100%" stop-color="#070b18"/>
+    </radialGradient>
+    <linearGradient id="abGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff2c4"/>
+      <stop offset="50%" stop-color="#ffd35b"/>
+      <stop offset="100%" stop-color="#d99a2c"/>
+    </linearGradient>
+    <linearGradient id="abRibbon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5b8cff"/>
+      <stop offset="100%" stop-color="#2647a8"/>
+    </linearGradient>
+  </defs>
+  <!-- Cintas -->
+  <path d="M70 150 L52 224 L80 206 L92 230 L104 168 Z" fill="url(#abRibbon)" stroke="#1b2a55" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M130 150 L148 224 L120 206 L108 230 L96 168 Z" fill="url(#abRibbon)" stroke="#1b2a55" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Resplandor -->
+  <circle cx="100" cy="92" r="78" fill="none" stroke="url(#abGold)" stroke-width="2" opacity=".35"/>
+  <!-- Disco principal -->
+  <circle cx="100" cy="92" r="70" fill="url(#abBg)" stroke="url(#abGold)" stroke-width="6"/>
+  <circle cx="100" cy="92" r="58" fill="none" stroke="#5b8cff" stroke-width="2" opacity=".55"/>
+  <!-- Rayos -->
+  <g stroke="url(#abGold)" stroke-width="2.5" stroke-linecap="round" opacity=".6">
+    <line x1="100" y1="30" x2="100" y2="40"/>
+    <line x1="40" y1="92" x2="50" y2="92"/>
+    <line x1="160" y1="92" x2="150" y2="92"/>
+    <line x1="56" y1="48" x2="63" y2="55"/>
+    <line x1="144" y1="48" x2="137" y2="55"/>
+  </g>
+  <!-- Estrella central -->
+  <path d="M100 56 l11 22 24 3 -18 16 5 24 -22 -13 -22 13 5 -24 -18 -16 24 -3 z"
+        fill="url(#abGold)" stroke="#8a661d" stroke-width="1.5"/>
+  <!-- Check de desbloqueo -->
+  <path d="M90 94 l7 8 14 -16" fill="none" stroke="#0e1730" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

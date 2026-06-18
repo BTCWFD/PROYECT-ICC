@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICC · Motion · Navegación Móvil (prototipo grabable)</title>
+  <meta name="description" content="Prototipo de movimiento: navegación táctil móvil para la ICC (menú, bottom-nav, sheet de waitlist). Bucle automático grabable." />
+  <link rel="icon" type="image/png" href="../assets/logo.png" />
+  <link rel="stylesheet" href="../css/motion.css" />
+</head>
+<body>
+  <!-- Etiqueta del clip (identifica la grabación para el agente UX/UI). -->
+  <div class="clip-tag">ICC · Motion <b>/ nav-mobile · 9:16 · loop</b></div>
+
+  <!-- Escenario centrado para captura de pantalla. -->
+  <div class="recorder">
+    <!-- Marco de teléfono 9:16. -->
+    <section class="phone" aria-label="Demostración de navegación táctil móvil">
+      <div class="ph-view">
+
+        <!-- Barra superior con hamburguesa que se transforma en X. -->
+        <header class="ph-top">
+          <div class="ph-brand">
+            <span class="logo-dot" aria-hidden="true"></span>
+            <span>ICC</span>
+          </div>
+          <button class="ph-burger" aria-label="Abrir menú">
+            <i></i><i></i><i></i>
+          </button>
+        </header>
+
+        <!-- Indicador de pull-to-refresh. -->
+        <div class="ph-pull" aria-hidden="true"></div>
+
+        <!-- Contenido scrollable de la página. -->
+        <div class="ph-scroll">
+          <section class="ph-hero">
+            <div class="kicker">Primer Toque · Luna</div>
+            <h2>Fútbol robótico en la Luna.</h2>
+            <p>La gravedad es seis veces menor. El balón vuela cientos de metros. Reserva tu plaza de operador.</p>
+          </section>
+
+          <article class="ph-card">
+            <h3>🌕 Física lunar real</h3>
+            <p>Simula saques con 1/6 g y compara la trayectoria con la Tierra.</p>
+          </article>
+          <article class="ph-card">
+            <h3>🏆 Clasificatorias</h3>
+            <p>Tu club entra al Top 5 con el mejor alcance de la temporada.</p>
+          </article>
+        </div>
+
+        <!-- Overlay del menú hamburguesa (cubre-pantalla, círculo expansivo). -->
+        <nav class="ph-menu" aria-label="Menú móvil">
+          <a href="#">Simulador</a>
+          <a href="#">Inversionistas</a>
+          <a href="#">Prensa</a>
+          <a href="#">Lista de espera</a>
+        </nav>
+
+        <!-- Velo tras el sheet. -->
+        <div class="ph-scrim" aria-hidden="true"></div>
+
+        <!-- Sheet de waitlist que sube desde abajo. -->
+        <section class="ph-sheet" aria-label="Formulario de lista de espera">
+          <div class="grabber" aria-hidden="true"></div>
+          <h3>🚀 Sé de los primeros 1.000</h3>
+          <p>Te avisamos del Primer Toque antes que a nadie.</p>
+          <div class="field">tu@correo.com<span class="caret" aria-hidden="true"></span></div>
+          <div class="field">Club (opcional)</div>
+          <button class="cta">Unirme a la lista</button>
+        </section>
+
+        <!-- Barra inferior de navegación con píldora deslizante. -->
+        <nav class="ph-bottom" aria-label="Navegación inferior">
+          <span class="ph-pill" aria-hidden="true"></span>
+          <span class="tab"><span class="ti" aria-hidden="true">🌕</span>Simular</span>
+          <span class="tab"><span class="ti" aria-hidden="true">🏆</span>Ranking</span>
+          <span class="tab"><span class="ti" aria-hidden="true">📡</span>Liga</span>
+          <span class="tab"><span class="ti" aria-hidden="true">🚀</span>Unirme</span>
+        </nav>
+
+        <!-- Punto táctil (dedo) que recorre el guion. -->
+        <div class="ph-touch" aria-hidden="true"></div>
+
+      </div><!-- /ph-view -->
+    </section>
+  </div>
+</body>
+</html>

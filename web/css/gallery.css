@@ -1,0 +1,184 @@
+/* ICC · Galeria de assets vectoriales (revision del equipo UX/UI)
+   Tema oscuro espacial. Sin estilos inline (CSP estricta). */
+
+:root {
+  --bg: #05080f;
+  --bg-2: #0b1020;
+  --panel: #0e1730;
+  --panel-2: #121d3d;
+  --line: rgba(91, 140, 255, 0.22);
+  --accent: #5b8cff;
+  --accent-2: #ffd35b;
+  --text: #eef3ff;
+  --muted: #9aa6c0;
+  --radius: 14px;
+  --font: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 70% -10%, rgba(91, 140, 255, 0.12), transparent 60%),
+    radial-gradient(900px 500px at 10% 110%, rgba(255, 211, 91, 0.08), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ---------- Encabezado ---------- */
+.gallery-header {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 48px 24px 16px;
+  text-align: center;
+}
+
+.gallery-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.gallery-brand img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.gallery-brand span {
+  font-weight: 800;
+  letter-spacing: 4px;
+  font-size: 18px;
+  color: var(--accent);
+}
+
+.gallery-header h1 {
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: 0.5px;
+}
+
+.gallery-header p {
+  color: var(--muted);
+  margin: 0 auto;
+  max-width: 640px;
+}
+
+/* ---------- Secciones ---------- */
+.gallery-section {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 28px 24px;
+}
+
+.gallery-section h2 {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin: 0 0 4px;
+}
+
+.gallery-section .section-sub {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 20px;
+}
+
+/* ---------- Rejilla ---------- */
+.gallery-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.gallery-grid.cols-wide {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+/* ---------- Tarjeta ---------- */
+.asset-card {
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.asset-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(91, 140, 255, 0.25);
+}
+
+.asset-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 96px;
+  background:
+    radial-gradient(120px 80px at 50% 35%, rgba(91, 140, 255, 0.1), transparent 70%),
+    rgba(2, 4, 12, 0.55);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.asset-thumb img {
+  display: block;
+  max-width: 100%;
+  max-height: 140px;
+  height: auto;
+}
+
+.asset-thumb.tall img {
+  max-height: 220px;
+}
+
+.asset-name {
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text);
+}
+
+.asset-file {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: "Cascadia Code", Consolas, monospace;
+  word-break: break-all;
+  text-align: center;
+}
+
+/* ---------- Pie ---------- */
+.gallery-footer {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  border-top: 1px solid var(--line);
+}
+
+/* ---------- Accesibilidad ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .asset-card { transition: none; }
+  .asset-card:hover { transform: none; }
+}

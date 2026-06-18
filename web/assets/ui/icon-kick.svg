@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ICC · Icono UI: Patear (bota + balon con trayectoria) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"
+     role="img" aria-label="Patear">
+  <defs>
+    <linearGradient id="kBoot" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7fa6ff"/>
+      <stop offset="100%" stop-color="#3a63d6"/>
+    </linearGradient>
+  </defs>
+  <!-- Trayectoria -->
+  <path d="M14 34 Q26 8 42 12" fill="none" stroke="#ffd35b" stroke-width="2.4"
+        stroke-linecap="round" stroke-dasharray="1 5" opacity=".85"/>
+  <!-- Bota -->
+  <path d="M6 26 h10 q4 0 5 4 l1 4 q1 4 5 4 h2 v4 H10 q-4 0 -4 -4 z"
+        fill="url(#kBoot)" stroke="#1b2a55" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M6 40 h22" stroke="#0c1430" stroke-width="2" stroke-linecap="round"/>
+  <!-- Balon impulsado -->
+  <g transform="translate(36 16)">
+    <circle r="6" fill="#eef3ff" stroke="#1b2a55" stroke-width="1.4"/>
+    <path d="M0 -6 L4 -2 L2 4 L-2 4 L-4 -2 Z" fill="#1b2a55"/>
+  </g>
+</svg>

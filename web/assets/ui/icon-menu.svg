@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ICC · Icono UI: Menu (hamburguesa) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"
+     role="img" aria-label="Menu">
+  <line x1="10" y1="15" x2="38" y2="15" stroke="#eef3ff" stroke-width="3.2" stroke-linecap="round"/>
+  <line x1="10" y1="24" x2="38" y2="24" stroke="#5b8cff" stroke-width="3.2" stroke-linecap="round"/>
+  <line x1="10" y1="33" x2="30" y2="33" stroke="#ffd35b" stroke-width="3.2" stroke-linecap="round"/>
+</svg>

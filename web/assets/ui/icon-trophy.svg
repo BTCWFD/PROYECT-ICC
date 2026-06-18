@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ICC · Icono UI: Trofeo -->
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"
+     role="img" aria-label="Trofeo">
+  <defs>
+    <linearGradient id="tpCup" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe08a"/>
+      <stop offset="100%" stop-color="#e0a93a"/>
+    </linearGradient>
+  </defs>
+  <!-- Asas -->
+  <path d="M14 12 H8 a4 4 0 0 0 4 8 h2" fill="none" stroke="#e0a93a" stroke-width="2.6"/>
+  <path d="M34 12 h6 a4 4 0 0 1 -4 8 h-2" fill="none" stroke="#e0a93a" stroke-width="2.6"/>
+  <!-- Copa -->
+  <path d="M14 8 h20 v8 a10 10 0 0 1 -20 0 z" fill="url(#tpCup)" stroke="#8a661d" stroke-width="1.6" stroke-linejoin="round"/>
+  <!-- Pie -->
+  <rect x="22" y="28" width="4" height="6" fill="#e0a93a"/>
+  <rect x="16" y="34" width="16" height="5" rx="2" fill="#c8902c"/>
+  <!-- Brillo estrella -->
+  <path d="M24 14 l1.6 3.4 3.6 .4 -2.7 2.4 .8 3.6 -3.3 -1.9 -3.3 1.9 .8 -3.6 -2.7 -2.4 3.6 -.4 z"
+        fill="#fff7e0" opacity=".9"/>
+</svg>
