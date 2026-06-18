@@ -25,11 +25,18 @@
   padding: 14px;
   border: 1px solid var(--hud-line);
   border-radius: 16px;
+  /* El HUD se superpone al lienzo: una base semiopaca + blur garantiza
+     legibilidad sobre cualquier zona de la escena (cielo, suelo, estrellas). */
   background:
-    linear-gradient(180deg, rgba(91, 140, 255, 0.06), rgba(0, 0, 0, 0)),
-    var(--hud-panel);
+    linear-gradient(180deg, rgba(91, 140, 255, 0.08), rgba(0, 0, 0, 0) 55%),
+    rgba(10, 15, 28, 0.82);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  backdrop-filter: blur(8px) saturate(1.1);
   color: var(--hud-text);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  /* Elevación: proyección + hairline interior superior para despegar del fondo. */
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
 }
 
@@ -88,14 +95,17 @@
 .hud-rank-name {
   font-weight: 700;
   font-size: 14px;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Sombra de texto sutil: refuerza el contraste sobre zonas claras del lienzo. */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 .hud-level {
   font-size: 12px;
   color: var(--hud-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 /* Chip de combo. */
@@ -122,6 +132,7 @@
   font-weight: 800;
   line-height: 1;
   color: var(--hud-text);
+  font-variant-numeric: tabular-nums;
 }
 .hud-combo.is-hot {
   border-color: rgba(255, 211, 91, 0.6);
@@ -148,6 +159,8 @@
   border-radius: 999px;
   background: var(--hud-panel-2);
   border: 1px solid var(--hud-line);
+  /* Canal hundido: refuerza la sensación de "depósito" que se va llenando. */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
   overflow: hidden;
 }
 .hud-xp-fill {
@@ -155,7 +168,9 @@
   width: 0%;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--hud-accent), var(--hud-accent-2));
-  box-shadow: 0 0 14px rgba(91, 140, 255, 0.5);
+  box-shadow:
+    0 0 14px rgba(91, 140, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .hud-xp-text {
@@ -163,6 +178,7 @@
   color: var(--hud-muted);
   text-align: right;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* ---------- Reto diario ---------- */
@@ -190,6 +206,7 @@
   border-radius: 999px;
   background: var(--hud-panel-2);
   border: 1px solid var(--hud-line);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
   overflow: hidden;
 }
 .hud-daily-fill {
@@ -271,7 +288,9 @@
 .icc-overlay--level .ovl-title {
   font-size: 40px;
   font-weight: 900;
+  letter-spacing: -0.5px;
   margin: 6px 0 2px;
+  font-variant-numeric: tabular-nums;
   background: linear-gradient(90deg, #5b8cff, #ffd35b);
   -webkit-background-clip: text;
   background-clip: text;
@@ -324,6 +343,49 @@
   font-size: 12.5px;
   color: var(--hud-muted, #aab8d8);
   max-width: 260px;
+}
+
+/* ---------- Chip de nivel activo (modo misión) ----------
+   Si el motor de niveles inyecta un indicador del nivel en curso dentro del
+   HUD, se viste como una pastilla coherente con el resto. Defensivo: si no
+   existe, no afecta a nada. */
+.hud-mission {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(91, 140, 255, 0.45);
+  background: rgba(91, 140, 255, 0.12);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--hud-text);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.hud-mission-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--hud-accent);
+}
+
+/* ---------- Legibilidad del HUD en móvil ----------
+   Sobre el lienzo y con poco espacio: HUD más compacto pero igual de legible. */
+@media (max-width: 600px) {
+  .icc-hud {
+    gap: 9px;
+    padding: 11px;
+    border-radius: 14px;
+  }
+  .hud-emblem { width: 34px; height: 34px; font-size: 17px; border-radius: 10px; }
+  .hud-rank-name { font-size: 13px; }
+  .hud-level { font-size: 11px; }
+  .hud-combo { padding: 5px 10px; }
+  .hud-combo-val { font-size: 15px; }
+  .hud-xp-bar { height: 12px; }
+  /* El reto diario es secundario: en pantallas pequeñas se compacta. */
+  .hud-daily { padding: 8px 10px; }
 }
 
 /* ===================== Movimiento reducido ===================== */

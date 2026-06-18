@@ -71,7 +71,16 @@
     leaderboardList: document.getElementById("leaderboardList"),
     // Lienzo (para la sacudida de impacto).
     sim: canvas,
+    // Modo de juego por niveles (degradación elegante si ICCLevels falta).
+    levelsBlock: document.getElementById("levels-block"),
+    levelsToggle: document.getElementById("levelsToggle"),
+    levelsFree: document.getElementById("levelsFree"),
+    levelsPanel: document.getElementById("levels-panel"),
   };
+
+  // Nivel actualmente activo (objeto de ICCLevels o null = juego libre).
+  // Se mantiene en una variable local sincronizada vía ICCLevels.onChange.
+  let activeLevel = null;
 
   // Etiqueta original del botón de saque (para restaurarla tras el vuelo).
   const KICK_LABEL = els.kick.textContent;
@@ -88,6 +97,12 @@
     '<div class="celebration-range"></div>' +
     '<div class="celebration-club"></div>' +
     '<div class="celebration-record" hidden>★ Nuevo récord personal</div>' +
+    // Resultado de misión (estrellas + mensaje). Oculto en juego libre; lo
+    // rellena evaluateLevel() tras el impacto cuando hay un nivel activo.
+    '<div class="celebration-level" hidden>' +
+    '<div class="level-stars" aria-hidden="true"></div>' +
+    '<div class="level-msg"></div>' +
+    "</div>" +
     '<button id="share" class="share-btn" type="button">📣 Compartir mi hazaña</button>';
   stage.appendChild(celebration);
   els.celebration = celebration;
@@ -95,6 +110,9 @@
   els.celebRange = celebration.querySelector(".celebration-range");
   els.celebClub = celebration.querySelector(".celebration-club");
   els.celebRecord = celebration.querySelector(".celebration-record");
+  els.celebLevel = celebration.querySelector(".celebration-level");
+  els.levelStars = celebration.querySelector(".level-stars");
+  els.levelMsg = celebration.querySelector(".level-msg");
   els.share = celebration.querySelector("#share");
   // Referencias de los estados del leaderboard (vacío / error).
   els.leaderboardEmpty = document.getElementById("leaderboardEmpty");
@@ -141,6 +159,63 @@
       /* la progresión jamás interrumpe el simulador */
     }
     return null;
+  }
+
+  // ----- Integración de NIVELES (ICCLevels) — degradación elegante -----
+  // Todas las llamadas al motor de niveles y al simulador van protegidas: si
+  // ICCLevels o los métodos del simulador no existen, el juego libre sigue.
+
+  /** True si el motor de niveles está disponible y bien formado. */
+  function hasLevels() {
+    return !!(window.ICCLevels && typeof window.ICCLevels.init === "function");
+  }
+
+  /** Pasa objetivos al simulador de forma segura (si soporta setTargets). */
+  function applyTargets(targets) {
+    try {
+      if (typeof sim.setTargets === "function") {
+        sim.setTargets(Array.isArray(targets) ? targets : []);
+      }
+    } catch (_err) {
+      /* los objetivos jamás interrumpen el simulador */
+    }
+  }
+
+  /** Limpia los objetivos del simulador de forma segura. */
+  function clearTargets() {
+    try {
+      if (typeof sim.clearTargets === "function") {
+        sim.clearTargets();
+      } else if (typeof sim.setTargets === "function") {
+        sim.setTargets([]);
+      }
+    } catch (_err) {
+      /* la limpieza jamás interrumpe el simulador */
+    }
+  }
+
+  /**
+   * Selecciona un mundo desde código (cuando un nivel lo fija) y, opcionalmente,
+   * bloquea el selector de mundo para que el operador no lo cambie en misión.
+   * Reutiliza la misma lógica visual que el clic manual del usuario.
+   */
+  function selectWorld(worldKey, { lock } = {}) {
+    if (!WORLDS[worldKey]) return;
+    state.world = worldKey;
+    els.worldBtns.forEach((b) => {
+      const active = b.dataset.world === worldKey;
+      b.classList.toggle("active", active);
+      b.setAttribute("aria-checked", String(active));
+      // En misión con mundo fijo deshabilitamos el cambio de mundo.
+      b.disabled = !!lock;
+    });
+  }
+
+  /** Reactiva el selector de mundo (al volver a juego libre o a misión libre). */
+  function unlockWorld() {
+    els.worldBtns.forEach((b) => {
+      b.disabled = false;
+    });
   }
 
   function trajectoryFor(worldKey, { withGhostColor } = {}) {
@@ -224,6 +299,14 @@
           `Vuelo lunar de ${traj.range.toFixed(0)} m en ${traj.flightTime.toFixed(1)} s.${compare}`;
 
         celebrate(traj);
+
+        // Modo niveles: evaluar la misión activa contra el resultado físico.
+        // El overlay de celebración ya muestra el bloque de estrellas/mensaje.
+        evaluateLevel({
+          range: traj.range,
+          hangTime: traj.flightTime,
+          maxHeight: traj.maxHeight,
+        });
       },
     });
 
@@ -309,6 +392,67 @@
     els.celebration.classList.remove("show");
     void els.celebration.offsetWidth;
     els.celebration.classList.add("show");
+  }
+
+  /**
+   * Evalúa el disparo contra el nivel activo (si lo hay) y muestra el resultado
+   * — estrellas y mensaje — integrado en el overlay de celebración. Defensivo:
+   * si ICCLevels.evaluate falta o lanza, oculta el bloque y no rompe nada.
+   * @param {{range:number, hangTime:number, maxHeight:number}} metrics
+   */
+  function evaluateLevel(metrics) {
+    // Sin nivel activo o sin motor: el bloque de misión queda oculto.
+    if (!activeLevel || !window.ICCLevels ||
+        typeof window.ICCLevels.evaluate !== "function") {
+      if (els.celebLevel) els.celebLevel.hidden = true;
+      return;
+    }
+
+    let result = null;
+    try {
+      result = window.ICCLevels.evaluate({
+        range: metrics.range,
+        hangTime: metrics.hangTime,
+        maxHeight: metrics.maxHeight,
+        world: state.world,
+      });
+    } catch (_err) {
+      // La evaluación nunca interrumpe el simulador.
+      if (els.celebLevel) els.celebLevel.hidden = true;
+      return;
+    }
+
+    if (!result || !els.celebLevel) {
+      if (els.celebLevel) els.celebLevel.hidden = true;
+      return;
+    }
+
+    const stars = Math.max(0, Math.min(3, Number(result.stars) || 0));
+    // Estrellas: ★ ganadas + ☆ vacías hasta 3. Decorativo (aria-hidden en HTML).
+    if (els.levelStars) {
+      els.levelStars.textContent = "★".repeat(stars) + "☆".repeat(3 - stars);
+      els.levelStars.classList.toggle("is-failed", !result.passed);
+    }
+    if (els.levelMsg) {
+      els.levelMsg.textContent = String(result.mensaje || "");
+    }
+    els.celebLevel.hidden = false;
+
+    // Audio: fanfarria si se superó la misión / desbloqueó el siguiente nivel;
+    // sonido de récord para 3 estrellas. Degrada si ICCSfx no existe.
+    if (result.passed) {
+      if (stars >= 3) sfx("record");
+      else sfx("achievement");
+      if (result.unlockedNext) sfx("levelup");
+    }
+
+    // Analítica: resultado de la misión (sin PII).
+    track("level_evaluated", {
+      level: activeLevel.id,
+      world: state.world,
+      passed: !!result.passed,
+      stars,
+    });
   }
 
   /** Activa/desactiva el botón de patear según haya un envío en curso. */
@@ -551,6 +695,114 @@
       }
     } catch (_err) {
       /* la progresión jamás interrumpe el simulador */
+    }
+  })();
+
+  // ----- Inicialización del modo NIVELES (ICCLevels) -----
+  // Monta el selector de misiones y sincroniza el nivel activo con la UI y el
+  // simulador. Defensivo: si ICCLevels no existe, oculta el bloque de niveles
+  // por completo y el juego libre continúa sin cambios.
+  (function initLevels() {
+    // Sin motor de niveles: ocultamos el bloque y salimos (juego libre puro).
+    if (!hasLevels()) {
+      if (els.levelsBlock) els.levelsBlock.hidden = true;
+      return;
+    }
+
+    // El bloque solo se muestra si el motor está disponible.
+    if (els.levelsBlock) els.levelsBlock.hidden = false;
+
+    // Renderiza la rejilla de niveles en su contenedor.
+    try {
+      window.ICCLevels.init({ mount: els.levelsPanel });
+    } catch (_err) {
+      // Si init falla, ocultamos el bloque y seguimos en juego libre.
+      if (els.levelsBlock) els.levelsBlock.hidden = true;
+      return;
+    }
+
+    /**
+     * Aplica un nivel (o null) a la UI y al simulador. Centraliza el efecto de
+     * cambiar de misión: fija/desbloquea mundo, pasa/limpia objetivos y refresca
+     * el lienzo en reposo para que los objetivos se vean de inmediato.
+     */
+    function applyLevel(level) {
+      activeLevel = level || null;
+
+      if (activeLevel) {
+        // Mostrar el botón de salida a juego libre.
+        if (els.levelsFree) els.levelsFree.hidden = false;
+
+        // Si el nivel fija un mundo, lo seleccionamos y bloqueamos el selector.
+        const fixed = activeLevel.mundo;
+        if (fixed === "moon" || fixed === "earth") {
+          selectWorld(fixed, { lock: true });
+        } else {
+          // Misión de mundo libre: el operador puede elegir mundo.
+          unlockWorld();
+        }
+
+        // Objetivos de la misión al simulador (diana sobre el suelo).
+        applyTargets(activeLevel.targets || []);
+
+        const nombre = activeLevel.nombre || `Nivel ${activeLevel.id}`;
+        els.status.textContent = `Misión: ${nombre}. ${activeLevel.descripcion || ""}`.trim();
+      } else {
+        // Volver a juego libre: desbloquear mundo y limpiar objetivos.
+        if (els.levelsFree) els.levelsFree.hidden = true;
+        unlockWorld();
+        clearTargets();
+        els.status.textContent = "Juego libre. Ajusta potencia y ángulo y patea.";
+      }
+
+      // Refrescar el lienzo en reposo para reflejar mundo/objetivos al instante.
+      refreshIdle();
+    }
+
+    // Estado inicial: respeta el nivel activo persistido por ICCLevels.
+    try {
+      if (typeof window.ICCLevels.getActiveLevel === "function") {
+        applyLevel(window.ICCLevels.getActiveLevel());
+      }
+    } catch (_err) {
+      /* si falla la lectura inicial, seguimos en juego libre */
+    }
+
+    // Suscripción a cambios de nivel desde el selector.
+    try {
+      if (typeof window.ICCLevels.onChange === "function") {
+        window.ICCLevels.onChange((level) => {
+          applyLevel(level || null);
+        });
+      }
+    } catch (_err) {
+      /* la suscripción jamás interrumpe el simulador */
+    }
+
+    // Botón "Modo Niveles": abre/cierra el selector de misiones.
+    if (els.levelsToggle && els.levelsPanel) {
+      els.levelsToggle.addEventListener("click", () => {
+        sfx("ui");
+        const open = els.levelsPanel.hidden;
+        els.levelsPanel.hidden = !open;
+        els.levelsToggle.setAttribute("aria-expanded", String(open));
+      });
+    }
+
+    // Botón "Salir a juego libre": vuelve al modo libre vía el motor.
+    if (els.levelsFree) {
+      els.levelsFree.addEventListener("click", () => {
+        sfx("ui");
+        try {
+          if (typeof window.ICCLevels.clearActiveLevel === "function") {
+            window.ICCLevels.clearActiveLevel();
+          }
+        } catch (_err) {
+          /* la salida jamás interrumpe el simulador */
+        }
+        // Por si onChange no se dispara, aplicamos el estado libre localmente.
+        applyLevel(null);
+      });
     }
   })();
 

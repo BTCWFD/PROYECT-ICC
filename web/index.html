@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="css/styles.css" />
   <!-- Estilos del HUD de gamificación (los crea el agente de progresión). -->
   <link rel="stylesheet" href="css/game.css" />
+  <!-- Estilos del selector de niveles (los crea el agente de niveles). Si el
+       archivo no existe, el navegador lo ignora y el juego libre sigue igual. -->
+  <link rel="stylesheet" href="css/levels.css" />
 </head>
 <body>
   <header class="topbar">
@@ -48,6 +51,25 @@
 
     <!-- Panel de control -->
     <aside class="panel">
+      <!-- Modo de juego por niveles. El botón abre/cierra el selector de
+           misiones que renderiza window.ICCLevels.init({mount:#levels-panel}).
+           Si js/levels.js no se carga, main.js oculta este bloque y el juego
+           libre continúa sin cambios (degradación elegante). -->
+      <div class="levels-block" id="levels-block" hidden>
+        <div class="levels-bar">
+          <button id="levelsToggle" class="ghost-btn levels-toggle" type="button"
+                  aria-expanded="false" aria-controls="levels-panel">
+            🎯 Modo Niveles
+          </button>
+          <button id="levelsFree" class="ghost-btn levels-free" type="button" hidden>
+            Salir a juego libre
+          </button>
+        </div>
+        <!-- Aquí ICCLevels.init pinta la rejilla de misiones (estado bloqueado/
+             estrellas). Empieza colapsado para no estorbar el juego libre. -->
+        <div id="levels-panel" class="levels-panel" hidden aria-live="polite"></div>
+      </div>
+
       <div class="control-group">
         <label for="club">Club (clasificatorias virtuales)</label>
         <input type="text" id="club" class="text-input" maxlength="32"
@@ -178,6 +200,10 @@
        alguno no está disponible. -->
   <script src="js/sfx.js"></script>
   <script src="js/game.js"></script>
+  <!-- Motor de niveles (misiones, objetivos, estrellas). Debe cargar ANTES de
+       main.js para que la integración lo detecte. Si falta, main.js degrada con
+       elegancia y el juego libre sigue intacto. -->
+  <script src="js/levels.js"></script>
   <script src="js/main.js"></script>
   <!-- Componente de waitlist: auto-cablea los <form class="waitlist-form">. -->
   <script src="js/waitlist.js"></script>

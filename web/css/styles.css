@@ -11,15 +11,44 @@
   --moon: #d9dde6;
   --earth: #4ea1ff;
   --ok: #46d39a;
+
+  /* --- Sistema de profundidad: una escala de elevación coherente ---
+     Sombras encadenadas (ambiente + proyección) para superficies oscuras,
+     más una hairline interior que separa el panel del fondo sin durezas. */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-2: 0 6px 18px -8px rgba(0, 0, 0, .55), 0 2px 6px -2px rgba(0, 0, 0, .35);
+  --shadow-3: 0 16px 40px -12px rgba(0, 0, 0, .65), 0 4px 12px -4px rgba(0, 0, 0, .4);
+  /* Hairline interior superior: un punto de luz tenue en el borde alto. */
+  --edge-light: inset 0 1px 0 rgba(255, 255, 255, .04);
+  /* Glow de marca para acentos azul/dorado. */
+  --glow-accent: 0 6px 18px -8px rgba(91, 140, 255, .8);
+  --glow-gold: 0 6px 18px -8px rgba(255, 211, 91, .8);
+
+  /* --- Superficie con gradiente sutil (paneles/tarjetas) --- */
+  --surface: linear-gradient(180deg, rgba(255, 255, 255, .025), rgba(255, 255, 255, 0) 42%), var(--panel);
+  --surface-2: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, 0) 50%), var(--panel-2);
+
+  /* --- Tipografía: escala y tracking coherentes --- */
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  /* Numerales tabulares: una sola palanca para toda la telemetría/HUD. */
+  --num: tabular-nums;
 }
 
 * { box-sizing: border-box; }
 
 html, body {
   margin: 0;
-  background: radial-gradient(1200px 600px at 70% -10%, #11203f 0%, var(--bg) 55%);
+  /* Cielo profundo: una segunda capa azul fría aporta volumen al fondo. */
+  background:
+    radial-gradient(900px 500px at 12% 110%, rgba(91, 140, 255, .07) 0%, rgba(5, 7, 15, 0) 60%),
+    radial-gradient(1200px 600px at 70% -10%, #11203f 0%, var(--bg) 55%);
+  background-attachment: fixed;
   color: var(--text);
-  font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   min-height: 100vh;
 }
 
@@ -71,15 +100,18 @@ html, body {
   border-radius: 10px;
   filter: drop-shadow(0 0 14px rgba(255, 211, 91, .35));
 }
-.topbar h1 { font-size: 18px; margin: 0; letter-spacing: .3px; }
-.subtitle { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+.topbar h1 { font-size: 18px; margin: 0; letter-spacing: .2px; font-weight: 700; }
+.subtitle { margin: 3px 0 0; font-size: 12.5px; color: var(--muted); letter-spacing: .15px; }
 .badge {
-  font-size: 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .3px;
   color: var(--accent-2);
   border: 1px solid rgba(255, 211, 91, .35);
   border-radius: 999px;
   padding: 5px 12px;
   background: rgba(255, 211, 91, .07);
+  box-shadow: var(--edge-light);
 }
 
 /* ---------- Layout ---------- */
@@ -98,11 +130,11 @@ html, body {
 /* ---------- Stage ---------- */
 .stage {
   position: relative;
-  background: var(--panel);
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, .6);
+  box-shadow: var(--shadow-3), var(--edge-light);
 }
 #sim {
   display: block;
@@ -121,11 +153,12 @@ html, body {
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 10px 16px;
+  padding: 11px 16px;
   font-size: 13px;
+  letter-spacing: .15px;
   color: var(--muted);
   border-top: 1px solid var(--line);
-  background: rgba(255, 255, 255, .02);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, 0));
 }
 .status-dot {
   width: 8px; height: 8px;
@@ -184,6 +217,29 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 .celebration-club { font-size: 14px; color: var(--muted); }
+
+/* Resultado de nivel dentro de la celebración: fila de estrellas + mensaje.
+   El motor de niveles/main.js puede inyectar estos elementos al evaluar un
+   nivel. Sin nivel activo no aparecen (celebración de juego libre intacta). */
+.celebration-stars {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: clamp(22px, 4vw, 32px);
+  line-height: 1;
+  color: rgba(255, 211, 91, .22);
+}
+.celebration-stars .star.is-on,
+.celebration-stars .icc-star.is-on {
+  color: var(--accent-2);
+  text-shadow: 0 0 18px rgba(255, 211, 91, .6);
+}
+.celebration-msg {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text);
+  letter-spacing: .15px;
+}
 .celebration-record {
   margin-top: 6px;
   font-size: 12px;
@@ -216,24 +272,32 @@ html, body {
 
 /* ---------- Panel ---------- */
 .panel {
-  background: var(--panel);
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 18px;
   align-self: start;
+  box-shadow: var(--shadow-2), var(--edge-light);
 }
 .control-group { display: flex; flex-direction: column; gap: 8px; }
 .control-group > label {
   font-size: 13px;
   color: var(--muted);
+  letter-spacing: .15px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
 }
-.control-group output { color: var(--text); font-weight: 600; }
+/* Los valores numéricos en vivo (potencia/ángulo) con numerales tabulares
+   evitan el "salto" del ancho mientras se arrastra el slider. */
+.control-group output {
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: var(--num);
+}
 
 input[type="range"] {
   -webkit-appearance: none;
@@ -246,34 +310,47 @@ input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 24px; height: 24px;
   border-radius: 50%;
-  background: #fff;
+  background: radial-gradient(circle at 38% 32%, #fff, #d6def5);
   cursor: pointer;
-  box-shadow: 0 0 0 4px rgba(91, 140, 255, .25);
-  transition: box-shadow .15s ease;
+  box-shadow: 0 0 0 4px rgba(91, 140, 255, .25), 0 2px 6px rgba(0, 0, 0, .5);
+  transition: box-shadow .15s ease, transform .12s ease;
 }
-input[type="range"]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(91, 140, 255, .3); }
+input[type="range"]:hover::-webkit-slider-thumb { box-shadow: 0 0 0 6px rgba(91, 140, 255, .3), 0 2px 8px rgba(0, 0, 0, .55); }
+input[type="range"]:active::-webkit-slider-thumb { transform: scale(.94); }
+input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(91, 140, 255, .55), 0 2px 8px rgba(0, 0, 0, .55); }
 input[type="range"]::-moz-range-thumb {
   width: 24px; height: 24px; border: none; border-radius: 50%;
-  background: #fff; cursor: pointer;
+  background: radial-gradient(circle at 38% 32%, #fff, #d6def5); cursor: pointer;
+  box-shadow: 0 0 0 4px rgba(91, 140, 255, .25), 0 2px 6px rgba(0, 0, 0, .5);
 }
 
 /* Segmented control */
-.segmented { display: flex; gap: 6px; }
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .2);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, .35);
+}
 .segmented button {
   flex: 1;
   padding: 9px 8px;
   font-size: 12.5px;
-  border: 1px solid var(--line);
-  background: var(--panel-2);
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--muted);
-  border-radius: 9px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all .15s ease;
+  transition: color .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
 }
 .segmented button.active {
   color: var(--text);
   border-color: var(--accent);
-  background: rgba(91, 140, 255, .15);
+  background: var(--surface-2);
+  box-shadow: 0 2px 8px -3px rgba(91, 140, 255, .5), var(--edge-light);
 }
 
 /* Toggles */
@@ -300,7 +377,9 @@ input[type="range"]::-moz-range-thumb {
 .primary {
   background: linear-gradient(90deg, var(--accent), #7aa2ff);
   color: #03102e;
-  box-shadow: 0 6px 18px -8px rgba(91, 140, 255, .8);
+  font-weight: 700;
+  letter-spacing: .2px;
+  box-shadow: var(--glow-accent), var(--edge-light);
 }
 .primary:hover:not(:disabled) { filter: brightness(1.08); }
 .ghost-btn { background: transparent; border-color: var(--line); color: var(--muted); }
@@ -314,11 +393,12 @@ input[type="range"]::-moz-range-thumb {
   flex-direction: column;
   gap: 9px;
 }
-.metrics h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0 0 4px; }
-.metric { display: flex; justify-content: space-between; font-size: 13.5px; }
+.metrics h2 { font-size: 11.5px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 700; color: var(--muted); margin: 0 0 4px; }
+.metric { display: flex; justify-content: space-between; align-items: baseline; font-size: 13.5px; }
 .metric span { color: var(--muted); }
-/* Dorado reservado para logros/marca: las métricas usan color de texto normal. */
-.metric strong { color: var(--text); font-variant-numeric: tabular-nums; font-size: 15px; }
+/* Dorado reservado para logros/marca: las métricas usan color de texto normal.
+   Numerales tabulares para que la columna de cifras quede perfectamente alineada. */
+.metric strong { color: var(--text); font-variant-numeric: var(--num); font-size: 15px; font-weight: 700; }
 .metric strong.flash { animation: flash-metric .6s ease; }
 @keyframes flash-metric {
   0% { color: var(--accent-2); text-shadow: 0 0 16px rgba(255, 211, 91, .7); }
@@ -362,8 +442,9 @@ input[type="range"]::-moz-range-thumb {
 }
 .latency-head strong {
   color: var(--accent-2);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: var(--num);
   font-size: 15px;
+  font-weight: 700;
 }
 .latency-bar {
   height: 6px;
@@ -395,9 +476,10 @@ input[type="range"]::-moz-range-thumb {
   gap: 8px;
 }
 .leaderboard h2 {
-  font-size: 12px;
+  font-size: 11.5px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
+  font-weight: 700;
   color: var(--muted);
   margin: 0 0 4px;
 }
@@ -417,10 +499,13 @@ input[type="range"]::-moz-range-thumb {
   align-items: baseline;
   gap: 8px;
   font-size: 13px;
-  padding: 6px 9px;
-  border-radius: 8px;
-  background: var(--panel-2);
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  transition: border-color .15s ease, transform .12s ease;
 }
+.leaderboard-list li:hover { border-color: rgba(91, 140, 255, .35); transform: translateX(2px); }
 .leaderboard-list li::before {
   content: counter(pos);
   color: var(--muted);
@@ -430,7 +515,9 @@ input[type="range"]::-moz-range-thumb {
 /* El líder (#1) es el único con tratamiento dorado: "dorado = logro". */
 .leaderboard-list li:first-child {
   background: linear-gradient(90deg, rgba(255, 211, 91, .12), rgba(255, 255, 255, .03));
+  border-color: rgba(255, 211, 91, .35);
 }
+.leaderboard-list li:first-child:hover { border-color: rgba(255, 211, 91, .55); }
 .leaderboard-list li:first-child::before { color: var(--accent-2); }
 .leaderboard-list .lb-club {
   flex: 1;
@@ -440,8 +527,8 @@ input[type="range"]::-moz-range-thumb {
 }
 .leaderboard-list .lb-range {
   color: var(--text);
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-variant-numeric: var(--num);
+  font-weight: 700;
 }
 .leaderboard-list li:first-child .lb-range { color: var(--accent-2); }
 .leaderboard-list .lb-world { color: var(--muted); font-size: 11px; }
@@ -504,9 +591,10 @@ input[type="range"]::-moz-range-thumb {
   gap: 8px;
 }
 .waitlist h2 {
-  font-size: 12px;
+  font-size: 11.5px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
+  font-weight: 700;
   color: var(--accent-2);
   margin: 0 0 2px;
 }
@@ -792,3 +880,187 @@ input[type="range"]::-moz-range-thumb {
   /* La telemetría dentro del acordeón conserva su separador superior. */
   .acc-body .metrics:first-child { border-top: none; padding-top: 0; }
 }
+
+/* ---------- Selector de niveles (window.ICCLevels.init({mount})) ----------
+   El motor de niveles (js/levels.js) inyecta su rejilla de misiones dentro de
+   un punto de montaje. Estos estilos visten ese DOM con el mismo lenguaje
+   visual del simulador (profundidad, dorado=logro, numerales tabulares).
+   Son defensivos: si el motor no monta nada (degradación elegante), no afectan
+   a nada. El namespace `.icc-levels` evita colisiones con clases del panel. */
+.icc-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.icc-levels h2,
+.icc-levels-title {
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Rejilla de tarjetas de nivel: se adapta de 1 a N columnas según el ancho. */
+.icc-levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 10px;
+}
+
+/* Tarjeta de nivel: superficie con profundidad y estados claros. */
+.icc-level {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: var(--shadow-1), var(--edge-light);
+  transition: border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+}
+.icc-level:hover {
+  border-color: rgba(91, 140, 255, .45);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2), var(--edge-light);
+}
+.icc-level:active { transform: translateY(0) scale(.99); }
+
+/* Numeración / orden del nivel: cifra tabular y discreta. */
+.icc-level-num {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: var(--muted);
+  font-variant-numeric: var(--num);
+}
+.icc-level-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: .15px;
+  line-height: 1.25;
+}
+.icc-level-desc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* Estado activo (nivel seleccionado): acento azul de marca. */
+.icc-level.is-active,
+.icc-level[aria-current="true"],
+.icc-level[aria-pressed="true"] {
+  border-color: var(--accent);
+  background:
+    linear-gradient(180deg, rgba(91, 140, 255, .14), rgba(255, 255, 255, 0) 60%),
+    var(--panel-2);
+  box-shadow: 0 0 0 1px rgba(91, 140, 255, .4), var(--glow-accent);
+}
+
+/* Estado completado: borde dorado discreto (dorado = logro). */
+.icc-level.is-complete,
+.icc-level[data-complete="true"] {
+  border-color: rgba(255, 211, 91, .4);
+}
+
+/* Estado bloqueado: atenuado y no interactivo. El JS añade la clase/atributo. */
+.icc-level.is-locked,
+.icc-level[aria-disabled="true"],
+.icc-level:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  filter: saturate(.6);
+}
+.icc-level.is-locked:hover,
+.icc-level[aria-disabled="true"]:hover,
+.icc-level:disabled:hover {
+  transform: none;
+  border-color: var(--line);
+  box-shadow: var(--shadow-1), var(--edge-light);
+}
+/* Candado: el JS puede inyectar un elemento .icc-level-lock o un emoji. */
+.icc-level-lock {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1;
+}
+
+/* Estrellas de puntuación (0..3). El JS marca las ganadas con .is-on. */
+.icc-level-stars {
+  display: flex;
+  gap: 3px;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--line);
+}
+.icc-level-stars .star,
+.icc-level-stars .icc-star { color: var(--line); transition: color .15s ease; }
+.icc-level-stars .star.is-on,
+.icc-level-stars .icc-star.is-on {
+  color: var(--accent-2);
+  text-shadow: 0 0 8px rgba(255, 211, 91, .45);
+}
+
+/* "Par" / objetivo del nivel: etiqueta discreta con cifra tabular. */
+.icc-level-par {
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: var(--num);
+}
+
+/* ---------- Resultado de misión dentro del overlay de celebración ---------- */
+/* main.js inyecta .celebration-level con .level-stars (★/☆) y .level-msg. */
+.celebration-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.level-stars {
+  font-size: clamp(26px, 5vw, 40px);
+  letter-spacing: 4px;
+  line-height: 1;
+  color: var(--accent-2);
+  text-shadow: 0 0 18px rgba(255, 211, 91, .5);
+}
+.level-stars.is-failed {
+  color: var(--muted);
+  text-shadow: none;
+}
+.level-msg {
+  font-size: 13.5px;
+  color: var(--text);
+  max-width: 32ch;
+}
+
+/* ---------- Modo campaña: barra y panel del selector de niveles ---------- */
+.levels-block {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.levels-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.levels-bar .ghost-btn { flex: 1; min-height: 40px; }
+.levels-panel {
+  background: var(--surface, rgba(255, 255, 255, .03));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+}
+.levels-panel[hidden] { display: none; }
