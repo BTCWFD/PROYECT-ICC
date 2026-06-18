@@ -20,7 +20,7 @@
     </a>
 
     <nav class="nav" aria-label="Navegación principal">
-      <ul class="nav-links">
+      <ul class="nav-links" id="nav-links">
         <li><a href="#problema">Problema</a></li>
         <li><a href="#solucion">Solución</a></li>
         <li><a href="#mvp">MVP</a></li>
@@ -34,8 +34,26 @@
       </ul>
     </nav>
 
-    <!-- CTA al simulador en vivo (mismo dominio: "/"). -->
-    <a class="btn btn-primary" href="/">Probar simulador</a>
+    <!-- CTA al simulador en vivo (mismo dominio: "/"). Solo visible en PC. -->
+    <a class="btn btn-primary header-cta" href="/">Probar simulador</a>
+
+    <!-- ============================================================= -->
+    <!-- BOTON HAMBURGUESA (solo movil <=760px): abre el overlay nav.   -->
+    <!-- El icono cambia a X via CSS al ganar el .nav-links la clase    -->
+    <!-- "open" (JS sincroniza aria-expanded). aria-controls -> lista.  -->
+    <!-- ============================================================= -->
+    <button
+      class="nav-toggle"
+      type="button"
+      aria-label="Abrir menú de navegación"
+      aria-expanded="false"
+      aria-controls="nav-links"
+    >
+      <!-- Trazos de la hamburguesa: el CSS los anima a una X al abrir. -->
+      <span class="nav-toggle-bars" aria-hidden="true">
+        <i></i><i></i><i></i>
+      </span>
+    </button>
   </header>
 
   <main>
@@ -667,6 +685,33 @@
       </div>
     </section>
   </main>
+
+  <!-- ============================================================= -->
+  <!-- BOTTOM-NAV MOVIL: barra inferior fija con accesos rapidos.     -->
+  <!-- Solo visible en movil (<=760px, via CSS). La pildora deslizante -->
+  <!-- y el estado activo (.is-active) los gestiona investors.js segun -->
+  <!-- la seccion visible (IntersectionObserver). Iconos SVG same-origin. -->
+  <!-- ============================================================= -->
+  <nav class="bottom-nav" aria-label="Navegación rápida">
+    <!-- Pildora que se desliza bajo la pestaña activa (decorativa). -->
+    <span class="bottom-nav-pill" aria-hidden="true"></span>
+    <a class="bottom-nav-item" href="#hero" data-section="hero">
+      <img class="bottom-nav-icon" src="assets/ui/icon-moon.svg" alt="" aria-hidden="true" />
+      <span class="bottom-nav-label">Inicio</span>
+    </a>
+    <a class="bottom-nav-item" href="#viabilidad" data-section="viabilidad">
+      <img class="bottom-nav-icon" src="assets/ui/icon-ball.svg" alt="" aria-hidden="true" />
+      <span class="bottom-nav-label">Viabilidad</span>
+    </a>
+    <a class="bottom-nav-item" href="#oportunidad" data-section="oportunidad">
+      <img class="bottom-nav-icon" src="assets/ui/icon-trophy.svg" alt="" aria-hidden="true" />
+      <span class="bottom-nav-label">Oportunidad</span>
+    </a>
+    <a class="bottom-nav-item" href="/" data-section="simulador">
+      <img class="bottom-nav-icon" src="assets/ui/icon-rocket.svg" alt="" aria-hidden="true" />
+      <span class="bottom-nav-label">Simulador</span>
+    </a>
+  </nav>
 
   <!-- ============================================================= -->
   <!-- FOOTER                                                         -->

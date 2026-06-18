@@ -97,6 +97,10 @@
         <p class="latency-note">Intención transmitida. Esperando confirmación del robot…</p>
       </div>
 
+      <!-- NOTA: el texto de #kick lo MUTA main.js vía textContent ("Volando…" /
+           restaurar). Por eso NO insertamos un <img> dentro de #kick (lo
+           borraría). El icono de patada se usa en el botón flotante móvil que
+           crea ui-mobile.js, que sí es seguro de decorar. -->
       <div class="actions">
         <button id="kick" class="primary">⚽ Ejecutar saque lunar</button>
         <button id="reset" class="ghost-btn">Reiniciar</button>
@@ -120,7 +124,9 @@
            responde o aún no hay disparos, muestra un estado vacío/de error en
            lugar de ocultarse (degradación elegante; funciona con file://). -->
       <div id="leaderboard" class="leaderboard">
-        <h2>🏆 Top 5 · Clasificatorias</h2>
+        <!-- Icono de trofeo same-origin junto al título (texto conservado para
+             accesibilidad; el icono es decorativo). -->
+        <h2><img class="h-icon" src="assets/ui/icon-trophy.svg" alt="" aria-hidden="true" />Top 5 · Clasificatorias</h2>
         <ol id="leaderboardList" class="leaderboard-list"></ol>
         <!-- Estado vacío: invitación a ser el primer club registrado. -->
         <p id="leaderboardEmpty" class="leaderboard-empty">
@@ -137,7 +143,8 @@
            POST /api/waitlist con {email, club, source=data-source}. Degrada
            con elegancia en file:// (try/catch dentro del componente). -->
       <div class="waitlist">
-        <h2>🚀 Sé de los primeros 1.000 operadores</h2>
+        <!-- Icono de cohete same-origin junto al título (texto conservado). -->
+        <h2><img class="h-icon" src="assets/ui/icon-rocket.svg" alt="" aria-hidden="true" />Sé de los primeros 1.000 operadores</h2>
         <p class="waitlist-lead">
           Reserva tu plaza en la lista de espera y te avisaremos del
           <em>Primer Toque</em> antes que a nadie.
@@ -174,5 +181,9 @@
   <script src="js/main.js"></script>
   <!-- Componente de waitlist: auto-cablea los <form class="waitlist-form">. -->
   <script src="js/waitlist.js"></script>
+  <!-- Ergonomía de UI móvil (acordeón del panel + botón flotante "Patear").
+       IIFE defensivo: no duplica la lógica de disparo (reutiliza #kick), no
+       toca main.js y degrada con elegancia en escritorio. Carga al final. -->
+  <script src="js/ui-mobile.js"></script>
 </body>
 </html>

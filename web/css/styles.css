@@ -663,3 +663,132 @@ input[type="range"]::-moz-range-thumb {
 @media (max-width: 380px) {
   .actions button { flex: 1 1 100%; }
 }
+
+/* ---------- Iconos same-origin junto a títulos/botones ----------
+   Decorativos (aria-hidden en el HTML); el texto siempre se conserva. */
+.h-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: -3px;
+  margin-right: 7px;
+  flex-shrink: 0;
+}
+/* Las h2 con icono alinean icono + texto en la misma línea base. */
+.leaderboard h2,
+.waitlist h2 {
+  display: flex;
+  align-items: center;
+}
+
+/* ---------- Acordeón del panel (móvil) ----------
+   ui-mobile.js envuelve grupos del panel en <details class="panel-accordion">
+   con un <summary>. En ESCRITORIO el acordeón se neutraliza (siempre abierto y
+   sin cabecera) para no alterar la experiencia de PC. */
+.panel-accordion {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .02);
+  overflow: hidden;
+}
+.panel-accordion > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 14px;
+  min-height: 48px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  user-select: none;
+}
+/* Oculta el triángulo nativo del <summary> (usamos un chevron propio). */
+.panel-accordion > summary::-webkit-details-marker { display: none; }
+.panel-accordion > summary::marker { content: ""; }
+.panel-accordion > summary:hover { background: rgba(91, 140, 255, .06); }
+.acc-title { display: flex; align-items: center; gap: 9px; }
+.acc-title .h-icon { margin-right: 0; }
+/* Chevron que rota al abrir/cerrar (movimiento sutil, respeta reduce-motion). */
+.acc-chevron {
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg);
+  transition: transform .2s ease;
+  margin-right: 4px;
+}
+.panel-accordion[open] > summary .acc-chevron { transform: rotate(225deg); }
+/* Contenido del acordeón: respeta el gap interno del panel. */
+.acc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0 14px 16px;
+}
+
+/* En ESCRITORIO el acordeón es transparente: sin marco, cabecera oculta y
+   contenido siempre visible (no colapsable). */
+@media (min-width: 601px) {
+  .panel-accordion {
+    border: none;
+    border-radius: 0;
+    background: none;
+  }
+  .panel-accordion > summary { display: none; }
+  .acc-body { padding: 0; }
+}
+
+/* ---------- Botón flotante "Patear" (FAB, solo móvil) ----------
+   Lo crea ui-mobile.js. Reutiliza el click de #kick (no duplica lógica).
+   Fijo cerca del pulgar, respeta el área segura inferior (notch/gestos). */
+.kick-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+  display: none; /* visible solo en móvil vía media query */
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 20px 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #03102e;
+  background: linear-gradient(90deg, var(--accent), #7aa2ff);
+  border: 1px solid rgba(91, 140, 255, .6);
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 10px 26px -8px rgba(91, 140, 255, .9);
+  transition: transform .12s ease, filter .12s ease, opacity .2s ease;
+}
+.kick-fab img {
+  width: 26px; height: 26px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.kick-fab:hover { filter: brightness(1.08); }
+.kick-fab:active { transform: translateY(1px) scale(.98); }
+/* Estado deshabilitado (mientras hay un disparo en curso): lo sincroniza JS. */
+.kick-fab:disabled,
+.kick-fab.is-busy {
+  opacity: .55;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  /* El FAB solo aparece en móvil. */
+  .kick-fab { display: inline-flex; }
+
+  /* Reservamos hueco al final del panel para que el FAB no tape el último
+     contenido (waitlist) al hacer scroll hasta abajo. */
+  .panel { padding-bottom: 84px; }
+
+  /* La telemetría dentro del acordeón conserva su separador superior. */
+  .acc-body .metrics:first-child { border-top: none; padding-top: 0; }
+}

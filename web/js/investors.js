@@ -282,12 +282,29 @@
   var navToggleEl = null;
   var navLinksEl = null;
 
+  // Aplica el estado del menu movil (abierto/cerrado) de forma centralizada:
+  // clase "open" en la lista, aria-expanded + aria-label en el boton y
+  // bloqueo del scroll del body mientras el overlay esta abierto.
+  function setMobileMenu(open) {
+    if (!navLinksEl || !navToggleEl) {
+      return;
+    }
+    navLinksEl.classList.toggle("open", open);
+    navToggleEl.setAttribute("aria-expanded", open ? "true" : "false");
+    // La etiqueta accesible refleja la accion que ejecutara el boton.
+    navToggleEl.setAttribute(
+      "aria-label",
+      open ? "Cerrar menú de navegación" : "Abrir menú de navegación"
+    );
+    // Bloqueamos el scroll de fondo solo cuando el overlay cubre la pantalla.
+    if (document.body) {
+      document.body.classList.toggle("nav-open", open);
+    }
+  }
+
   function closeMobileMenu() {
     if (navLinksEl && navLinksEl.classList.contains("open")) {
-      navLinksEl.classList.remove("open");
-      if (navToggleEl) {
-        navToggleEl.setAttribute("aria-expanded", "false");
-      }
+      setMobileMenu(false);
     }
   }
 
@@ -300,19 +317,123 @@
       return;
     }
 
-    // Estado ARIA inicial.
-    navToggleEl.setAttribute("aria-expanded", "false");
+    // Estado ARIA inicial (cerrado).
+    setMobileMenu(false);
 
+    // Alterna el overlay al pulsar la hamburguesa.
     navToggleEl.addEventListener("click", function () {
-      var isOpen = navLinksEl.classList.toggle("open");
-      navToggleEl.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      setMobileMenu(!navLinksEl.classList.contains("open"));
     });
 
-    // Cerrar con la tecla Escape para accesibilidad.
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" || event.key === "Esc") {
+    // Cerrar al pulsar cualquier ancla del overlay (ademas del smooth scroll,
+    // que tambien cierra; esto cubre anclas sin destino interceptado).
+    navLinksEl.addEventListener("click", function (event) {
+      var anchor = event.target.closest ? event.target.closest("a") : null;
+      if (anchor) {
         closeMobileMenu();
       }
+    });
+
+    // Cerrar con la tecla Escape para accesibilidad; al cerrar, devolvemos el
+    // foco al boton hamburguesa para no perder el contexto del teclado.
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" || event.key === "Esc") {
+        var wasOpen = navLinksEl.classList.contains("open");
+        closeMobileMenu();
+        if (wasOpen) {
+          try {
+            navToggleEl.focus();
+          } catch (err) {
+            /* sin foco: no es critico */
+          }
+        }
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Bottom-nav movil: resalta la pestaña de la seccion visible y desliza la
+  // pildora (--i). Degrada sin error si la barra no esta en el DOM.
+  // ---------------------------------------------------------------------------
+
+  function initBottomNav() {
+    var bottomNav = document.querySelector(".bottom-nav");
+    if (!bottomNav) {
+      return;
+    }
+
+    var items = Array.prototype.slice.call(
+      bottomNav.querySelectorAll(".bottom-nav-item")
+    );
+    var pill = bottomNav.querySelector(".bottom-nav-pill");
+    if (!items.length) {
+      return;
+    }
+
+    // Marca una pestaña como activa y desliza la pildora a su columna (indice).
+    function activate(index) {
+      items.forEach(function (item, i) {
+        item.classList.toggle("is-active", i === index);
+      });
+      if (pill && index >= 0) {
+        // La pildora lee --i para su translateX (ver CSS).
+        pill.style.setProperty("--i", String(index));
+      }
+    }
+
+    // Mapa seccion -> indice de pestaña, segun data-section de cada item.
+    // (El item "Simulador" apunta a "/", no a una seccion; no se observa.)
+    var sectionToIndex = {};
+    var observedSections = [];
+    items.forEach(function (item, i) {
+      var key = item.getAttribute("data-section");
+      var section = key ? document.getElementById(key) : null;
+      if (section) {
+        sectionToIndex[key] = i;
+        observedSections.push(section);
+      }
+    });
+
+    // Estado inicial: primera pestaña activa.
+    activate(0);
+
+    if (
+      typeof window.IntersectionObserver !== "function" ||
+      !observedSections.length
+    ) {
+      return; // Sin IO: dejamos la primera pestaña marcada.
+    }
+
+    // Elegimos como activa la seccion observada mas centrada en el viewport.
+    var visibility = {};
+    var sectionObserver = new window.IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          visibility[entry.target.id] = entry.isIntersecting
+            ? entry.intersectionRatio
+            : 0;
+        });
+
+        // Buscamos la seccion observada con mayor ratio visible.
+        var bestId = null;
+        var bestRatio = 0;
+        observedSections.forEach(function (section) {
+          var ratio = visibility[section.id] || 0;
+          if (ratio > bestRatio) {
+            bestRatio = ratio;
+            bestId = section.id;
+          }
+        });
+
+        if (bestId !== null && bestId in sectionToIndex) {
+          activate(sectionToIndex[bestId]);
+        }
+      },
+      { root: null, threshold: [0.15, 0.4, 0.65] }
+    );
+
+    observedSections.forEach(function (section) {
+      sectionObserver.observe(section);
     });
   }
 
@@ -323,6 +444,7 @@
   function init() {
     initHeaderScroll();
     initMobileMenu();
+    initBottomNav();
     initReveal();
     initSmoothScroll();
   }
