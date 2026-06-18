@@ -115,6 +115,20 @@ app.http("waitlist", {
           ? result.total
           : await store.waitlistCount();
 
+      // Tras un alta correcta (nueva o existente) emitimos el evento de analítica
+      // 'waitlist_signup' para que el embudo del panel admin refleje altas reales.
+      // El store.addEvent(event, props) firma posicional; pasamos 'source' en props.
+      // Envuelto en try/catch que NUNCA afecta a la respuesta: la analítica jamás
+      // debe romper el alta.
+      try {
+        await store.addEvent("waitlist_signup", { source: entry.source });
+      } catch (analyticsError) {
+        context.warn(
+          "Fallo al emitir evento 'waitlist_signup' (no afecta al alta):",
+          analyticsError
+        );
+      }
+
       return {
         status: 201,
         jsonBody: { ok: true, total },

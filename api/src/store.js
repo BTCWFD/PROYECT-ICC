@@ -87,9 +87,26 @@ function createMemoryStore() {
     return shots.length;
   }
 
-  async function addEvent() {
-    // No-op: en memoria no persistimos analítica.
+  // Array en memoria con todos los eventos de analítica. Volátil.
+  const events = [];
+
+  async function addEvent(event) {
+    // En memoria sí registramos el evento para poder agregarlo en el panel.
+    if (event) events.push({ event });
     return;
+  }
+
+  /**
+   * Agrega todos los eventos por su campo 'event' y devuelve un mapa de conteos.
+   * @returns {Promise<Object<string, number>>}
+   */
+  async function eventCounts() {
+    const counts = {};
+    for (const e of events) {
+      if (!e || !e.event) continue;
+      counts[e.event] = (counts[e.event] || 0) + 1;
+    }
+    return counts;
   }
 
   // Mapa de la waitlist: clave = email saneado, valor = entrada almacenada.
@@ -114,14 +131,35 @@ function createMemoryStore() {
     return waitlist.size;
   }
 
+  /**
+   * Devuelve las entradas más recientes de la waitlist (más nuevas primero).
+   * @param {number} limit
+   * @returns {Promise<Array<{email:string, club:string, source:string}>>}
+   */
+  async function listWaitlist(limit = 50) {
+    const n = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 50;
+    // El Map preserva el orden de inserción; invertimos para "más recientes primero".
+    const all = Array.from(waitlist.values());
+    return all
+      .reverse()
+      .slice(0, n)
+      .map((e) => ({
+        email: e.email,
+        club: e.club || "",
+        source: e.source || "",
+      }));
+  }
+
   return {
     addShot,
     getTopShots,
     rankForRange,
     totalShots,
     addEvent,
+    eventCounts,
     addWaitlist,
     waitlistCount,
+    listWaitlist,
   };
 }
 
@@ -224,6 +262,24 @@ function createTableStore(connectionString) {
     return;
   }
 
+  /**
+   * Agrega todas las entidades de "events" por su campo 'event'.
+   * Solo lectura: recorre la partición global y cuenta por tipo de evento.
+   * @returns {Promise<Object<string, number>>}
+   */
+  async function eventCounts() {
+    await ensureEventsTable();
+    const counts = {};
+    const iter = eventsClient.listEntities({
+      queryOptions: { filter: `PartitionKey eq '${PARTITION_KEY}'` },
+    });
+    for await (const e of iter) {
+      if (!e || !e.event) continue;
+      counts[e.event] = (counts[e.event] || 0) + 1;
+    }
+    return counts;
+  }
+
   async function addWaitlist(entry) {
     await ensureWaitlistTable();
     const rowKey = sanitizeEmailKey(entry.email);
@@ -261,14 +317,47 @@ function createTableStore(connectionString) {
     return count;
   }
 
+  /**
+   * Lee las entradas de la waitlist y devuelve las más recientes primero.
+   * Como referencia de recencia usamos el Timestamp del sistema de Table Storage.
+   * @param {number} limit
+   * @returns {Promise<Array<{email:string, club:string, source:string}>>}
+   */
+  async function listWaitlist(limit = 50) {
+    await ensureWaitlistTable();
+    const n = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 50;
+    const all = [];
+    const iter = waitlistClient.listEntities({
+      queryOptions: { filter: `PartitionKey eq '${PARTITION_KEY}'` },
+    });
+    for await (const e of iter) {
+      all.push({
+        email: e.email,
+        club: e.club || "",
+        source: e.source || "",
+        // 'timestamp' es la propiedad del sistema (Date) que usamos para ordenar.
+        _ts: e.timestamp ? new Date(e.timestamp).getTime() : 0,
+      });
+    }
+    // Más recientes primero y limitamos al tamaño solicitado.
+    all.sort((a, b) => b._ts - a._ts);
+    return all.slice(0, n).map((e) => ({
+      email: e.email,
+      club: e.club,
+      source: e.source,
+    }));
+  }
+
   return {
     addShot,
     getTopShots,
     rankForRange,
     totalShots,
     addEvent,
+    eventCounts,
     addWaitlist,
     waitlistCount,
+    listWaitlist,
   };
 }
 
@@ -287,6 +376,8 @@ module.exports = {
   rankForRange: backend.rankForRange,
   totalShots: backend.totalShots,
   addEvent: backend.addEvent,
+  eventCounts: backend.eventCounts,
   addWaitlist: backend.addWaitlist,
   waitlistCount: backend.waitlistCount,
+  listWaitlist: backend.listWaitlist,
 };

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICC · Panel de Administración</title>
+  <meta name="description" content="Panel privado de administración de la Interplanetary Champions Cup." />
+  <!-- Zona privada: no debe indexarse ni seguirse por buscadores. -->
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="admin-body">
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo-img" src="assets/logo.png" alt="Logo ICC" />
+      <div>
+        <h1>Interplanetary Champions Cup</h1>
+        <p class="subtitle">Panel de Administración · Zona privada</p>
+      </div>
+    </div>
+    <span class="badge">Admin</span>
+  </header>
+
+  <main class="admin-main">
+    <!-- ============================================================
+         Pantalla de acceso: visible hasta autenticar correctamente.
+         ============================================================ -->
+    <section id="loginScreen" class="login-screen">
+      <form id="loginForm" class="login-card">
+        <h2 class="login-title">Acceso restringido</h2>
+        <p class="login-lead">
+          Introduce la clave de administración para ver las métricas de la
+          <em>Operación Primer Toque</em>.
+        </p>
+        <div class="control-group">
+          <label for="adminKey">Clave de administración</label>
+          <input type="password" id="adminKey" class="text-input"
+                 autocomplete="current-password"
+                 placeholder="••••••••••" aria-label="Clave de administración" />
+        </div>
+        <button type="submit" id="loginBtn" class="btn primary login-btn">Entrar</button>
+        <!-- Mensaje de estado/errores de acceso. -->
+        <p id="loginMsg" class="login-msg" role="status" aria-live="polite" hidden></p>
+      </form>
+    </section>
+
+    <!-- ============================================================
+         Dashboard: oculto hasta autenticar (atributo hidden).
+         ============================================================ -->
+    <section id="dashboard" class="dashboard" hidden>
+      <div class="dash-head">
+        <div>
+          <h2 class="dash-title">Métricas en vivo</h2>
+          <p id="dashStatus" class="dash-status" role="status" aria-live="polite">
+            Cargando datos…
+          </p>
+        </div>
+        <div class="dash-actions">
+          <button type="button" id="refreshBtn" class="btn ghost-btn">Actualizar</button>
+          <button type="button" id="logoutBtn" class="btn ghost-btn">Salir</button>
+        </div>
+      </div>
+
+      <!-- KPIs principales -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-label">Total waitlist</span>
+          <strong id="kpiWaitlist" class="kpi-value">—</strong>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Total disparos</span>
+          <strong id="kpiShots" class="kpi-value">—</strong>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Total eventos</span>
+          <strong id="kpiEvents" class="kpi-value">—</strong>
+        </div>
+      </div>
+
+      <!-- Embudo de conversión -->
+      <section class="card funnel-card">
+        <h3 class="card-title">Embudo de conversión</h3>
+        <ol id="funnelList" class="funnel-list">
+          <li class="funnel-step" data-step="page_view">
+            <div class="funnel-row">
+              <span class="funnel-name">Visitas (page_view)</span>
+              <span class="funnel-figures">
+                <strong class="funnel-count">—</strong>
+                <span class="funnel-pct">—</span>
+              </span>
+            </div>
+            <div class="funnel-track"><div class="funnel-fill"></div></div>
+          </li>
+          <li class="funnel-step" data-step="shot_executed">
+            <div class="funnel-row">
+              <span class="funnel-name">Disparos (shot_executed)</span>
+              <span class="funnel-figures">
+                <strong class="funnel-count">—</strong>
+                <span class="funnel-pct">—</span>
+              </span>
+            </div>
+            <div class="funnel-track"><div class="funnel-fill"></div></div>
+          </li>
+          <li class="funnel-step" data-step="share_clicked">
+            <div class="funnel-row">
+              <span class="funnel-name">Compartidos (share_clicked)</span>
+              <span class="funnel-figures">
+                <strong class="funnel-count">—</strong>
+                <span class="funnel-pct">—</span>
+              </span>
+            </div>
+            <div class="funnel-track"><div class="funnel-fill"></div></div>
+          </li>
+          <li class="funnel-step" data-step="waitlist_signup">
+            <div class="funnel-row">
+              <span class="funnel-name">Altas waitlist (waitlist_signup)</span>
+              <span class="funnel-figures">
+                <strong class="funnel-count">—</strong>
+                <span class="funnel-pct">—</span>
+              </span>
+            </div>
+            <div class="funnel-track"><div class="funnel-fill"></div></div>
+          </li>
+        </ol>
+        <p class="funnel-note">
+          Porcentajes calculados respecto a las visitas (page_view) como base del embudo.
+        </p>
+      </section>
+
+      <!-- Bloque de dos columnas: waitlist + leaderboard -->
+      <div class="dash-grid">
+        <!-- Últimos leads de la waitlist -->
+        <section class="card table-card">
+          <h3 class="card-title">Últimos leads · Waitlist</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">Correo</th>
+                  <th scope="col">Club</th>
+                  <th scope="col">Origen</th>
+                </tr>
+              </thead>
+              <tbody id="waitlistBody">
+                <tr><td colspan="3" class="table-empty">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Top 10 del leaderboard -->
+        <section class="card table-card">
+          <h3 class="card-title">Top 10 · Leaderboard</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Club</th>
+                  <th scope="col">Mundo</th>
+                  <th scope="col">Alcance</th>
+                  <th scope="col">Vuelo</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardBody">
+                <tr><td colspan="5" class="table-empty">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- Desglose de eventos por tipo -->
+      <section class="card table-card">
+        <h3 class="card-title">Eventos por tipo</h3>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Evento</th>
+                <th scope="col">Conteo</th>
+              </tr>
+            </thead>
+            <tbody id="eventsBody">
+              <tr><td colspan="2" class="table-empty">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer class="bottombar">
+    <span>Interplanetary Champions Cup</span>
+    <span>Panel privado · Acceso restringido</span>
+  </footer>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

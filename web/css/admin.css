@@ -1,0 +1,264 @@
+/* ============================================================
+   admin.css — Estilos del Panel de Administración ICC.
+   Reutiliza las variables de marca definidas en styles.css
+   (:root). Todo el CSS vive aquí; sin estilos inline (CSP).
+   ============================================================ */
+
+.admin-body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* El contenido principal crece para empujar el footer al fondo. */
+.admin-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* ---------- Pantalla de acceso ---------- */
+.login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 26px;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, .6);
+}
+.login-title {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: .3px;
+}
+.login-lead {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.login-lead em { color: var(--text); font-style: normal; font-weight: 600; }
+
+/* Botones genéricos del panel (coherentes con .actions de styles.css). */
+.btn {
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.btn:active { transform: translateY(1px) scale(.99); }
+.btn:disabled { opacity: .5; cursor: not-allowed; filter: none; transform: none; }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); }
+.login-btn { margin-top: 4px; }
+
+/* Mensaje de la pantalla de acceso. */
+.login-msg {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  padding: 9px 11px;
+  border-radius: 8px;
+  text-align: center;
+  color: var(--accent-2);
+  border: 1px solid rgba(255, 211, 91, .4);
+  background: rgba(255, 211, 91, .08);
+}
+.login-msg.is-error {
+  color: var(--accent-2);
+  border-color: rgba(255, 211, 91, .4);
+  background: rgba(255, 211, 91, .08);
+}
+.login-msg.is-info {
+  color: var(--muted);
+  border-color: var(--line);
+  background: rgba(255, 255, 255, .02);
+}
+
+/* ---------- Dashboard ---------- */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.dash-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.dash-title { margin: 0; font-size: 20px; letter-spacing: .3px; }
+.dash-status { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+.dash-status.is-error { color: var(--accent-2); }
+.dash-actions { display: flex; gap: 10px; }
+
+/* ---------- KPIs ---------- */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.kpi-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, .6);
+}
+.kpi-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+.kpi-value {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Tarjetas genéricas ---------- */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, .6);
+}
+.card-title {
+  margin: 0 0 14px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+/* ---------- Embudo ---------- */
+.funnel-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.funnel-step { display: flex; flex-direction: column; gap: 6px; }
+.funnel-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+}
+.funnel-name { color: var(--muted); }
+.funnel-figures { display: flex; align-items: baseline; gap: 10px; }
+.funnel-count {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+}
+.funnel-pct {
+  color: var(--accent-2);
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+  font-weight: 600;
+  min-width: 48px;
+  text-align: right;
+}
+.funnel-track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.funnel-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width .4s ease;
+}
+.funnel-note {
+  margin: 14px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ---------- Bloque de dos columnas ---------- */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* ---------- Tablas ---------- */
+.table-wrap { overflow-x: auto; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+.data-table thead th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.data-table tbody tr:hover { background: rgba(91, 140, 255, .06); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table .num {
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  font-weight: 600;
+}
+/* Fila del líder (#1) con tratamiento dorado = logro. */
+.data-table tbody tr.is-leader td { color: var(--accent-2); }
+
+.table-empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 18px;
+  font-size: 12.5px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .dash-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .admin-main { padding: 16px; }
+  .dash-actions { width: 100%; }
+  .dash-actions .btn { flex: 1; }
+}

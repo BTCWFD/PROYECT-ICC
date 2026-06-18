@@ -1,0 +1,454 @@
+/* =============================================================
+   ICC · One-Pager para Inversores (imprimible, A4-friendly)
+   - Tema CLARO y legible (optimizado para impresion y lectura densa)
+   - Acentos de marca ICC: azul #5b8cff + dorado #ffd35b
+   - Layout de 1-2 columnas, tipografia compacta
+   - 100% same-origin, sin CDNs, sin inline, sin fuentes externas
+   - @media print: asegura caber en 1-2 paginas A4
+   - prefers-reduced-motion respetado
+   ============================================================= */
+
+/* ---------- Variables de marca (tema claro) ---------- */
+:root {
+  --op-bg: #eef1f8;          /* fondo de pantalla (fuera de la hoja) */
+  --op-sheet: #ffffff;       /* papel */
+  --op-ink: #0c1322;         /* texto principal */
+  --op-muted: #44506b;       /* texto secundario */
+  --op-faint: #6b7794;       /* texto terciario / notas */
+  --op-line: #d4dbec;        /* lineas suaves */
+  --op-line-soft: #e6ebf6;
+
+  /* Acentos de marca ICC (coherentes con investors.css). */
+  --op-accent: #2c5bd6;      /* azul (oscurecido para contraste sobre blanco) */
+  --op-accent-2: #b8860b;    /* dorado tinta (legible sobre blanco) */
+  --op-gold-soft: #fff7e0;   /* fondo dorado suave */
+  --op-blue-soft: #eef3ff;   /* fondo azul suave */
+
+  /* Semaforo de viabilidad. */
+  --op-hi: #1f8f57;          /* verde */
+  --op-mid: #c08a00;         /* ambar */
+  --op-lo: #c0392b;          /* rojo */
+
+  --op-font: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --op-radius: 10px;
+}
+
+/* ---------- Reset / base ---------- */
+* { box-sizing: border-box; }
+
+.op-body {
+  margin: 0;
+  background: var(--op-bg);
+  color: var(--op-ink);
+  font-family: var(--op-font);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: 24px;
+}
+
+img { max-width: 100%; display: block; }
+a { color: var(--op-accent); text-decoration: none; }
+a:hover, a:focus-visible { text-decoration: underline; }
+
+:focus-visible {
+  outline: 2px solid var(--op-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* =============================================================
+   HOJA A4  (210 x 297 mm). En pantalla simula el papel centrado.
+   ============================================================= */
+.op-sheet {
+  width: 210mm;
+  max-width: 100%;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: var(--op-sheet);
+  color: var(--op-ink);
+  padding: 14mm 13mm 11mm;
+  box-shadow: 0 18px 48px -22px rgba(12, 19, 34, .5);
+  border-top: 4px solid var(--op-accent);
+  display: flex;
+  flex-direction: column;
+}
+
+/* =============================================================
+   CABECERA  marca + tagline + meta
+   ============================================================= */
+.op-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--op-line);
+  margin-bottom: 14px;
+}
+.op-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.op-logo {
+  width: 46px; height: 46px;
+  object-fit: contain;
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+.op-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: var(--op-ink);
+}
+.op-tag {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  color: var(--op-muted);
+}
+.op-head-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+  text-align: right;
+}
+.op-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--op-accent);
+  border-radius: 999px;
+  padding: 4px 11px;
+  white-space: nowrap;
+}
+.op-head-date {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  color: var(--op-faint);
+}
+
+/* =============================================================
+   REJILLA  dos columnas (principal + lateral)
+   ============================================================= */
+.op-grid {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 14px;
+  flex: 1;
+}
+.op-col { min-width: 0; }
+.op-col--main { display: flex; flex-direction: column; gap: 11px; }
+.op-col--side { display: flex; flex-direction: column; gap: 11px; }
+
+/* ---------- Bloques de la columna principal ---------- */
+.op-block { break-inside: avoid; }
+.op-h2 {
+  margin: 0 0 5px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--op-accent);
+  padding-left: 9px;
+  border-left: 3px solid var(--op-accent-2);
+}
+.op-h2-note {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--op-faint);
+  font-size: 10.5px;
+}
+.op-p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--op-muted);
+  line-height: 1.45;
+}
+.op-p strong { color: var(--op-ink); font-weight: 700; }
+.op-p em { color: var(--op-ink); font-style: italic; }
+
+/* ---------- Tracción: mini-stats ---------- */
+.op-stats {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+.op-stat {
+  text-align: center;
+  padding: 8px 4px;
+  border: 1px solid var(--op-line);
+  border-radius: 8px;
+  background: var(--op-blue-soft);
+}
+.op-stat-v {
+  display: block;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .2px;
+  color: var(--op-accent);
+  font-variant-numeric: tabular-nums;
+}
+.op-stat-l {
+  display: block;
+  margin-top: 4px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--op-faint);
+}
+
+/* ---------- Viabilidad por fase ---------- */
+.op-phases {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.op-phase {
+  border: 1px solid var(--op-line);
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: #fbfcff;
+}
+.op-phase-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.op-phase-name {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: var(--op-ink);
+}
+.op-score {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: .3px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.op-score--hi { color: var(--op-hi); }
+.op-score--mid { color: var(--op-mid); }
+.op-score--lo { color: var(--op-lo); }
+.op-phase-txt {
+  margin: 3px 0 0;
+  font-size: 10px;
+  color: var(--op-muted);
+  line-height: 1.4;
+}
+
+/* Nota honesta destacada (validado vs aspiracional). */
+.op-honest {
+  margin: 9px 0 0;
+  padding: 8px 11px;
+  font-size: 10px;
+  line-height: 1.45;
+  color: var(--op-muted);
+  background: var(--op-gold-soft);
+  border: 1px solid #f0dca0;
+  border-left: 3px solid var(--op-accent-2);
+  border-radius: 8px;
+}
+.op-honest strong { color: var(--op-ink); font-weight: 800; }
+
+/* =============================================================
+   COLUMNA LATERAL  tarjetas
+   ============================================================= */
+.op-card {
+  border: 1px solid var(--op-line);
+  border-radius: var(--op-radius);
+  padding: 11px 12px;
+  break-inside: avoid;
+}
+.op-card--accent {
+  background: var(--op-blue-soft);
+  border-color: #c5d4ff;
+}
+.op-card--links { background: #fbfcff; }
+.op-h3 {
+  margin: 0 0 8px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--op-ink);
+}
+
+/* ---------- Financials (figuras) ---------- */
+.op-figs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.op-fig { border-bottom: 1px dashed var(--op-line); padding-bottom: 8px; }
+.op-fig:last-child { border-bottom: 0; padding-bottom: 0; }
+.op-fig-v {
+  display: block;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .3px;
+  color: var(--op-accent);
+  font-variant-numeric: tabular-nums;
+}
+.op-fig-l {
+  display: block;
+  margin-top: 3px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  color: var(--op-muted);
+}
+
+/* ---------- Uso de fondos (barras) ---------- */
+.op-funds { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.op-fund-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--op-muted);
+}
+.op-fund-pct {
+  color: var(--op-accent-2);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.op-fund-bar {
+  position: relative;
+  height: 5px;
+  margin-top: 3px;
+  border-radius: 999px;
+  background: var(--op-line-soft);
+  overflow: hidden;
+}
+.op-fund-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  /* --op-pct lo fija la clase modificadora (sin estilos inline, CSP-safe). */
+  width: var(--op-pct, 0%);
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--op-accent), var(--op-accent-2));
+}
+/* Porcentajes de uso de fondos: mantener sincronizado con el HTML. */
+.op-fund--3  { --op-pct: 3%; }
+.op-fund--4  { --op-pct: 4%; }
+.op-fund--6  { --op-pct: 6%; }
+.op-fund--7  { --op-pct: 7%; }
+.op-fund--12 { --op-pct: 12%; }
+.op-fund--13 { --op-pct: 13%; }
+.op-fund--55 { --op-pct: 55%; }
+
+/* ---------- Enlaces ---------- */
+.op-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.op-links li {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 10px;
+}
+.op-link-k {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--op-faint);
+}
+.op-links a { font-weight: 600; word-break: break-all; }
+
+/* =============================================================
+   PIE  disclaimer
+   ============================================================= */
+.op-foot {
+  margin-top: 12px;
+  padding-top: 9px;
+  border-top: 2px solid var(--op-line);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.op-foot-brand {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--op-muted);
+}
+.op-foot-note {
+  font-size: 8.5px;
+  line-height: 1.4;
+  color: var(--op-faint);
+  font-style: italic;
+}
+
+/* =============================================================
+   RESPONSIVE  (solo pantalla; la impresion usa su propio bloque)
+   ============================================================= */
+@media (max-width: 800px) {
+  .op-body { padding: 12px; }
+  .op-sheet {
+    width: 100%;
+    min-height: auto;
+    padding: 20px 16px;
+  }
+  .op-grid { grid-template-columns: 1fr; }
+  .op-stats { grid-template-columns: repeat(2, 1fr); }
+  .op-head { flex-wrap: wrap; }
+}
+
+/* =============================================================
+   IMPRESION  asegura caber en A4 limpio y legible
+   ============================================================= */
+@page { size: A4; margin: 10mm; }
+
+@media print {
+  .op-body {
+    background: #fff;
+    padding: 0;
+  }
+  .op-sheet {
+    width: auto;
+    min-height: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border-top: 3px solid var(--op-accent);
+    padding-top: 6mm;
+  }
+  /* Forzar impresion de fondos/colores de acento (Chromium/WebKit/Firefox). */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* Evitar cortes feos de bloques entre paginas. */
+  .op-block, .op-card, .op-phase, .op-stat { break-inside: avoid; }
+  .op-foot { break-inside: avoid; }
+  a { color: var(--op-ink); text-decoration: none; }
+}
+
+/* =============================================================
+   PREFERS-REDUCED-MOTION  (WCAG 2.3.3)
+   Este one-pager no anima; se neutraliza por coherencia.
+   ============================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}

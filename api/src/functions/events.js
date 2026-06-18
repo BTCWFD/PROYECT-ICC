@@ -26,6 +26,7 @@ const VALID_EVENTS = [
   "record_beaten",
   "club_named",
   "share_clicked",
+  "waitlist_signup",
 ];
 
 app.http("events", {

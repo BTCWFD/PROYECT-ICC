@@ -25,6 +25,7 @@
         <li><a href="#solucion">Solución</a></li>
         <li><a href="#mvp">MVP</a></li>
         <li><a href="#tecnologia">Tecnología</a></li>
+        <li><a href="#viabilidad">Viabilidad</a></li>
         <li><a href="#traccion">Tracción</a></li>
         <li><a href="#negocio">Negocio</a></li>
         <li><a href="#roadmap">Roadmap</a></li>
@@ -170,6 +171,123 @@
           </ul>
         </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- VIABILIDAD — Honestidad tecnológica: validado vs aspiracional -->
+    <!-- TRL por subsistema + puntuación por fase. Sin inline (CSP). -->
+    <!-- ========================================================= -->
+    <section class="section" id="viabilidad">
+      <div class="section-inner">
+        <p class="kicker reveal">La letra pequeña que sí contamos</p>
+        <h2 class="section-title reveal">Honestidad tecnológica: lo validado vs lo aspiracional</h2>
+        <div class="section-body reveal">
+          <p>
+            No vendemos ciencia-ficción como si fuera ingeniería de mañana. Separamos
+            con claridad <strong>lo que ya está validado</strong> (latencia, arquitectura
+            Split-Brain, el simulador en producción, la patada aislada, el alunizaje logrado
+            al menos una vez) de <strong>lo aspiracional</strong> (fútbol 4v4 autónomo y el
+            domo presurizado). Cada subsistema lleva su nivel de madurez tecnológica
+            (<strong>TRL</strong>, escala 1-9 de la NASA) y un veredicto sin maquillaje.
+          </p>
+        </div>
+
+        <!-- ===== Tarjetas de subsistemas con TRL y veredicto (badge de color) ===== -->
+        <!-- Leyenda de badges: verde viable-hoy, ámbar viable-corto, naranja viable-largo, rojo especulativo. -->
+        <ul class="trl-legend reveal" aria-hidden="true">
+          <li><span class="trl-badge is-hoy">Viable hoy</span></li>
+          <li><span class="trl-badge is-corto">Viable a corto</span></li>
+          <li><span class="trl-badge is-largo">Viable a largo</span></li>
+          <li><span class="trl-badge is-spec">Especulativo</span></li>
+        </ul>
+
+        <div class="trl-grid reveal">
+          <article class="trl-card">
+            <div class="trl-card-head">
+              <h3>Simulador de física lunar</h3>
+              <span class="trl-badge is-hoy">TRL 9 · Viable hoy</span>
+            </div>
+            <p>En producción sobre Azure, con API real y anti-trampas. Es nuestra Fase 1,
+              ya entregada y operando.</p>
+          </article>
+          <article class="trl-card">
+            <div class="trl-card-head">
+              <h3>Control de supervisión (Split-Brain)</h3>
+              <span class="trl-badge is-corto">TRL 6-7 · Viable a corto</span>
+            </div>
+            <p>Separar intención (Tierra) de ejecución (Luna) está validado en latencia.
+              Maduro para vuelo a corto plazo.</p>
+          </article>
+          <article class="trl-card">
+            <div class="trl-card-head">
+              <h3>Edge AI on-device (RL)</h3>
+              <span class="trl-badge is-corto">TRL 6-8 · Viable a corto</span>
+            </div>
+            <p>Inteligencia local que ejecuta reflejos sin latencia. Tecnología demostrada
+              en robótica terrestre, adaptable al borde lunar.</p>
+          </article>
+          <article class="trl-card">
+            <div class="trl-card-head">
+              <h3>Alunizaje (entrega a superficie)</h3>
+              <span class="trl-badge is-corto">TRL 7-9 · Fiabilidad 20-40%</span>
+            </div>
+            <p>Logrado más de una vez, pero el cuello de botella real: la tasa de éxito de
+              alunizaje suave sigue entre el <strong>20% y el 40%</strong>. Se mitiga con seguro.</p>
+          </article>
+          <article class="trl-card">
+            <div class="trl-card-head">
+              <h3>Robot jugador autónomo</h3>
+              <span class="trl-badge is-largo">TRL 3-4 · Viable a largo</span>
+            </div>
+            <p>Jugar fútbol de forma autónoma (no solo patear) es investigación abierta.
+              La habilidad atlética aislada —patear— sí está más madura (TRL 7-8).</p>
+          </article>
+          <article class="trl-card">
+            <div class="trl-card-head">
+              <h3>Domo presurizado para liga</h3>
+              <span class="trl-badge is-spec">TRL 1-2 · Especulativo</span>
+            </div>
+            <p>El estadio geodésico presurizado en la Luna es visión a 2035+. Hoy es un
+              concepto, no un programa de ingeniería.</p>
+          </article>
+        </div>
+
+        <!-- ===== Puntuación de viabilidad por fase (barras via --score) ===== -->
+        <h3 class="subhead reveal">Puntuación de viabilidad por fase</h3>
+        <ul class="phase-score reveal">
+          <li class="score--9">
+            <div class="score-row">
+              <strong>Fase 1 · Simulador + hype</strong>
+              <span class="score-val">9<span class="score-max">/10</span></span>
+            </div>
+            <div class="score-bar"></div>
+            <span class="score-note">Entregada y en producción. El valor real está aquí, hoy.</span>
+          </li>
+          <li class="score--6">
+            <div class="score-row">
+              <strong>Fase 2 · Primer Toque</strong>
+              <span class="score-val">6<span class="score-max">/10</span></span>
+            </div>
+            <div class="score-bar"></div>
+            <span class="score-note">7/10 con seguro. Cuello de botella: fiabilidad de alunizaje (20-40%).</span>
+          </li>
+          <li class="score--3">
+            <div class="score-row">
+              <strong>Fase 3 · Liga en domo</strong>
+              <span class="score-val">3<span class="score-max">/10</span></span>
+            </div>
+            <div class="score-bar"></div>
+            <span class="score-note">Horizonte ~2035. Fútbol autónomo y domo son visión, no plan inmediato.</span>
+          </li>
+        </ul>
+
+        <!-- Frase de cierre honesta. -->
+        <p class="viab-closer reveal">
+          La liga es ciencia-ficción hasta ~2035, pero el <strong>primer saque
+          interplanetario podría patearse en menos de 2 años</strong>. El valor real está
+          en la Fase 1 (hoy) y en el Primer Toque; la liga y el domo son visión 2035+.
+        </p>
       </div>
     </section>
 
@@ -560,6 +678,7 @@
         <span>Interplanetary Champions Cup</span>
       </div>
       <nav class="footer-nav" aria-label="Enlaces del pie de página">
+        <a href="#viabilidad">Viabilidad</a>
         <a href="#oportunidad">Oportunidad</a>
         <a href="#contacto">Contacto</a>
         <a href="/">Simulador en vivo</a>

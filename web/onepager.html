@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICC · One-Pager para Inversores — Operación Primer Toque</title>
+  <meta name="description" content="Interplanetary Champions Cup: fútbol robótico lunar. One-pager imprimible de inversión: problema, solución Split-Brain, tracción, viabilidad por fase, financials y uso de fondos." />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <!-- Toda la CSS vive en onepager.css (CSP: style-src 'self', sin inline). -->
+  <link rel="stylesheet" href="css/onepager.css" />
+</head>
+<body class="op-body">
+  <!-- =============================================================
+       ONE-PAGER imprimible (A4). Una sola pagina densa y elegante.
+       Sin estilos inline, sin scripts; todo same-origin.
+       ============================================================= -->
+  <main class="op-sheet">
+
+    <!-- ===== Cabecera: marca + tagline + meta ===== -->
+    <header class="op-head">
+      <div class="op-brand">
+        <img class="op-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup" />
+        <div class="op-brand-text">
+          <p class="op-name">Interplanetary Champions Cup</p>
+          <p class="op-tag">El Apolo 11 del entretenimiento · Fútbol robótico en la Luna</p>
+        </div>
+      </div>
+      <div class="op-head-meta">
+        <span class="op-badge">Operación Primer Toque</span>
+        <span class="op-head-date">One-pager · jun 2026</span>
+      </div>
+    </header>
+
+    <!-- ===== Cuerpo a dos columnas ===== -->
+    <div class="op-grid">
+
+      <!-- ---------- Columna principal ---------- -->
+      <div class="op-col op-col--main">
+
+        <!-- Problema -->
+        <section class="op-block">
+          <h2 class="op-h2">El problema · la barrera de los 3 segundos</h2>
+          <p class="op-p">
+            La latencia de ida y vuelta Tierra-Luna es de <strong>~2,5-3 s</strong>. En un
+            deporte de reacción, el control directo en tiempo real es <strong>físicamente
+            imposible</strong>: cuando el operador ve el balón, ya se ha movido. Por eso nadie
+            ha construido todavía un espectáculo deportivo en otro mundo. Es, también, la barrera
+            de entrada que nos protege.
+          </p>
+        </section>
+
+        <!-- Solución -->
+        <section class="op-block">
+          <h2 class="op-h2">La solución · arquitectura «Split-Brain»</h2>
+          <p class="op-p">
+            Diseñamos alrededor de la física en vez de luchar contra ella. El <strong>Control de
+            Supervisión «Split-Brain»</strong> separa la <em>intención</em> de la <em>ejecución</em>:
+            el humano en Tierra transmite intenciones de alto nivel por VR («presiona», «dispara a
+            la izquierda»); el robot <strong>L-Striker</strong> en la Luna, con <strong>Edge AI
+            (RL on-device)</strong>, las ejecuta localmente con <strong>cero milisegundos</strong>
+            de latencia en el terreno. El humano aporta estrategia; la máquina, reflejos. Es el
+            paradigma ya validado en analogía espacial (ISS, satellite servicing).
+          </p>
+        </section>
+
+        <!-- Tracción -->
+        <section class="op-block">
+          <h2 class="op-h2">Tracción · el producto ya está vivo</h2>
+          <p class="op-p">
+            No es una diapositiva: nuestro <strong>simulador de física lunar</strong> corre hoy en
+            <strong>producción sobre Azure</strong> (API real, persistencia, anti-trampas y CI/CD
+            completo) a un coste de infraestructura cercano a <strong>0 USD/mes</strong>.
+            <strong>Fase 1 entregada al 100%.</strong>
+          </p>
+          <ul class="op-stats">
+            <li class="op-stat"><span class="op-stat-v">~0 USD</span><span class="op-stat-l">Coste infra / mes</span></li>
+            <li class="op-stat"><span class="op-stat-v">1/6 g</span><span class="op-stat-l">Gravedad lunar simulada</span></li>
+            <li class="op-stat"><span class="op-stat-v">3 s</span><span class="op-stat-l">Latencia modelada</span></li>
+            <li class="op-stat"><span class="op-stat-v">100%</span><span class="op-stat-l">Fase 1 entregada</span></li>
+          </ul>
+        </section>
+
+        <!-- Viabilidad por fase (con la nota honesta) -->
+        <section class="op-block">
+          <h2 class="op-h2">Viabilidad por fase <span class="op-h2-note">(análisis técnico jun 2026)</span></h2>
+          <ul class="op-phases">
+            <li class="op-phase">
+              <div class="op-phase-head">
+                <span class="op-phase-name">Fase 1 · Simulador + hype</span>
+                <span class="op-score op-score--hi">9/10</span>
+              </div>
+              <p class="op-phase-txt">Sin brecha técnica (TRL 9). Activo a explotar hoy: reto de producto y marketing.</p>
+            </li>
+            <li class="op-phase">
+              <div class="op-phase-head">
+                <span class="op-phase-name">Fase 2 · Primer Toque</span>
+                <span class="op-score op-score--mid">6/10</span>
+              </div>
+              <p class="op-phase-txt">Sube a 7 con seguro. Cuello de botella: fiabilidad de alunizaje 20-40%. La patada aislada es TRL 7-8.</p>
+            </li>
+            <li class="op-phase">
+              <div class="op-phase-head">
+                <span class="op-phase-name">Fase 3 · Liga en domo</span>
+                <span class="op-score op-score--lo">3/10</span>
+              </div>
+              <p class="op-phase-txt">El subsistema más débil (domo TRL 1-2; fútbol autónomo TRL 3-4). Horizonte ~2035+.</p>
+            </li>
+          </ul>
+          <p class="op-honest">
+            <strong>Mensaje honesto:</strong> separamos lo <strong>validado</strong> (latencia /
+            Split-Brain, simulador, patada aislada, alunizaje una vez) de lo
+            <strong>aspiracional</strong> (fútbol 4v4 autónomo, domo). La liga es ciencia-ficción
+            hasta ~2035, pero el primer saque interplanetario podría patearse en &lt;2 años.
+          </p>
+        </section>
+
+      </div>
+
+      <!-- ---------- Columna lateral ---------- -->
+      <aside class="op-col op-col--side">
+
+        <!-- Financials -->
+        <section class="op-card op-card--accent">
+          <h2 class="op-h3">La oportunidad de inversión</h2>
+          <ul class="op-figs">
+            <li class="op-fig">
+              <span class="op-fig-v">≈ $70 M</span>
+              <span class="op-fig-l">Ronda Seed / Serie A deep-tech (rango $55-90 M)</span>
+            </li>
+            <li class="op-fig">
+              <span class="op-fig-v">$52-180 M</span>
+              <span class="op-fig-l">Presupuesto «Operación Primer Toque» (caso base ride-share ≈ $52-70 M)</span>
+            </li>
+            <li class="op-fig">
+              <span class="op-fig-v">$90-160 B</span>
+              <span class="op-fig-l">TAM · patrocinio deportivo global (≈$91,7 B en 2025)</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Uso de fondos -->
+        <section class="op-card">
+          <h2 class="op-h3">Uso de fondos</h2>
+          <ul class="op-funds">
+            <li class="op-fund">
+              <div class="op-fund-row"><span>Misión lunar / entrega</span><span class="op-fund-pct">55%</span></div>
+              <div class="op-fund-bar op-fund--55"></div>
+            </li>
+            <li class="op-fund">
+              <div class="op-fund-row"><span>Ingeniería, integración y qualification</span><span class="op-fund-pct">13%</span></div>
+              <div class="op-fund-bar op-fund--13"></div>
+            </li>
+            <li class="op-fund">
+              <div class="op-fund-row"><span>Robot lunar-grade</span><span class="op-fund-pct">12%</span></div>
+              <div class="op-fund-bar op-fund--12"></div>
+            </li>
+            <li class="op-fund">
+              <div class="op-fund-row"><span>Marketing / broadcast</span><span class="op-fund-pct">7%</span></div>
+              <div class="op-fund-bar op-fund--7"></div>
+            </li>
+            <li class="op-fund">
+              <div class="op-fund-row"><span>Operaciones, seguro y comms</span><span class="op-fund-pct">6%</span></div>
+              <div class="op-fund-bar op-fund--6"></div>
+            </li>
+            <li class="op-fund">
+              <div class="op-fund-row"><span>Reserva / contingencia</span><span class="op-fund-pct">4%</span></div>
+              <div class="op-fund-bar op-fund--4"></div>
+            </li>
+            <li class="op-fund">
+              <div class="op-fund-row"><span>G&amp;A / legal / regulatorio</span><span class="op-fund-pct">3%</span></div>
+              <div class="op-fund-bar op-fund--3"></div>
+            </li>
+          </ul>
+        </section>
+
+        <!-- Enlaces -->
+        <section class="op-card op-card--links">
+          <h2 class="op-h3">Explora el proyecto</h2>
+          <ul class="op-links">
+            <li><span class="op-link-k">Simulador en vivo</span><a href="/">white-stone-07846b60f.7.azurestaticapps.net</a></li>
+            <li><span class="op-link-k">Landing inversores</span><a href="/investors.html">/investors.html</a></li>
+            <li><span class="op-link-k">Repositorio</span><a href="https://github.com/wilfredocaro/ICC">github.com/wilfredocaro/ICC</a></li>
+            <li><span class="op-link-k">Contacto</span><a href="mailto:inversores@icc.space">inversores@icc.space</a></li>
+          </ul>
+        </section>
+
+      </aside>
+    </div>
+
+    <!-- ===== Pie con disclaimer ===== -->
+    <footer class="op-foot">
+      <span class="op-foot-brand">Interplanetary Champions Cup · Camino a los Campeones del Sistema Solar</span>
+      <span class="op-foot-note">
+        Estimaciones a junio de 2026 con investigación pública; rangos sujetos a revalidación
+        antes de cerrar la ronda. Estado del arte sujeto a evolución rápida.
+      </span>
+    </footer>
+
+  </main>
+</body>
+</html>
