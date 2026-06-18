@@ -23,7 +23,7 @@
     </a>
 
     <nav class="nav" aria-label="Navegación de la sala de prensa">
-      <ul class="nav-links">
+      <ul class="nav-links" id="nav-links">
         <li><a href="#boilerplate">Quiénes somos</a></li>
         <li><a href="#datos">Datos clave</a></li>
         <li><a href="#nota">Nota de prensa</a></li>
@@ -34,7 +34,22 @@
     </nav>
 
     <!-- CTA al simulador en vivo (mismo dominio: "/"). -->
-    <a class="btn btn-primary" href="/">Probar simulador</a>
+    <a class="btn btn-primary header-cta" href="/">Probar simulador</a>
+
+    <!-- Botón hamburguesa (solo móvil <=760px): abre el overlay del menú.
+         Mismo contrato que investors.html; investors.js cablea cualquier
+         .nav-toggle y el icono pasa a X vía CSS al abrir .nav-links. -->
+    <button
+      class="nav-toggle"
+      type="button"
+      aria-label="Abrir menú de navegación"
+      aria-expanded="false"
+      aria-controls="nav-links"
+    >
+      <span class="nav-toggle-bars" aria-hidden="true">
+        <i></i><i></i><i></i>
+      </span>
+    </button>
   </header>
 
   <main>

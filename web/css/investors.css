@@ -1333,7 +1333,11 @@ a { color: inherit; text-decoration: none; }
     clip-path: circle(0% at calc(100% - 36px) 40px);
     opacity: 0;
     pointer-events: none;
-    transition: clip-path .45s var(--ease), opacity .3s var(--ease);
+    /* Cerrado: lo sacamos del orden de tabulacion (no focusable con teclado).
+       visibility se retrasa para no cortar la animacion de cierre. */
+    visibility: hidden;
+    transition: clip-path .45s var(--ease), opacity .3s var(--ease),
+      visibility 0s linear .45s;
     /* Permite scroll si el menu no cabe en pantallas muy bajas. */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -1342,6 +1346,10 @@ a { color: inherit; text-decoration: none; }
     clip-path: circle(150% at calc(100% - 36px) 40px);
     opacity: 1;
     pointer-events: auto;
+    /* Abierto: visible al instante (sin retardo) y de nuevo focusable. */
+    visibility: visible;
+    transition: clip-path .45s var(--ease), opacity .3s var(--ease),
+      visibility 0s linear 0s;
   }
   .nav-links li { width: 100%; }
   .nav-links a {
