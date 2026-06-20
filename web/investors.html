@@ -3,8 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ICC · Operación Primer Toque — Oportunidad de Inversión</title>
-  <meta name="description" content="Interplanetary Champions Cup: fútbol robótico en la Luna. El Apolo 11 del entretenimiento. Producto ya vivo en producción. Oportunidad de inversión pre-seed." />
+  <meta name="theme-color" content="#05070f" />
+  <title>ICC · Oportunidad de Inversión — Operación Primer Toque</title>
+  <meta name="description" content="Interplanetary Champions Cup: fútbol robótico en la Luna, el Apolo 11 del entretenimiento. Producto ya vivo en producción y ronda Seed / Serie A deep-tech para la Operación Primer Toque." />
+  <!-- URL canónica absoluta (dominio live en Azure). -->
+  <link rel="canonical" href="https://white-stone-07846b60f.7.azurestaticapps.net/investors.html" />
+  <!-- Open Graph. -->
+  <meta property="og:title" content="ICC · Invierte en el primer gol fuera de la Tierra" />
+  <meta property="og:description" content="Fútbol robótico en la Luna. Producto ya vivo en producción y ronda Seed / Serie A deep-tech para la Operación Primer Toque." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://white-stone-07846b60f.7.azurestaticapps.net/investors.html" />
+  <!-- TODO(seo): el SVG de OG no lo soportan todos los scrapers; generar un PNG 1200x630 (assets/og-cover.png) y apuntar aquí. -->
+  <meta property="og:image" content="https://white-stone-07846b60f.7.azurestaticapps.net/assets/og-cover.svg" />
+  <meta property="og:image:alt" content="Interplanetary Champions Cup — balón sobre la Luna con la Tierra al fondo." />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:site_name" content="Interplanetary Champions Cup" />
+  <!-- Twitter Card. -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ICC · Invierte en el primer gol fuera de la Tierra" />
+  <meta name="twitter:description" content="Fútbol robótico en la Luna. Producto ya vivo y ronda deep-tech para la Operación Primer Toque." />
+  <meta name="twitter:image" content="https://white-stone-07846b60f.7.azurestaticapps.net/assets/og-cover.svg" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <!-- Toda la CSS vive en investors.css (CSP: style-src 'self', sin inline). -->
   <link rel="stylesheet" href="css/investors.css" />
@@ -15,7 +33,9 @@
   <!-- ============================================================= -->
   <header class="site-header">
     <a class="brand" href="#hero" aria-label="Interplanetary Champions Cup — inicio">
-      <img class="brand-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup" />
+      <!-- Logo del header: carga inmediata (no lazy) con dimensiones intrínsecas. -->
+      <img class="brand-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup"
+           width="40" height="40" loading="eager" decoding="async" />
       <span class="brand-name">ICC</span>
     </a>
 
@@ -109,7 +129,10 @@
     <section class="section" id="solucion">
       <div class="split section-inner">
         <div class="split-media reveal" aria-hidden="true">
-          <img src="assets/hero-1.png" alt="" />
+          <!-- Imagen pesada y decorativa: lazy + dimensiones 4:3 (coinciden con el
+               aspect-ratio del CSS) para reservar espacio y evitar layout shift. -->
+          <img src="assets/hero-1.png" alt="" width="1200" height="900"
+               loading="lazy" decoding="async" />
         </div>
         <div class="split-content">
         <p class="kicker reveal">La arquitectura</p>
@@ -166,7 +189,10 @@
     <section class="section" id="tecnologia">
       <div class="split split--reverse section-inner">
         <div class="split-media reveal" aria-hidden="true">
-          <img src="assets/hero-2.png" alt="" />
+          <!-- Imagen pesada y decorativa: lazy + dimensiones 4:3 (coinciden con el
+               aspect-ratio del CSS) para reservar espacio y evitar layout shift. -->
+          <img src="assets/hero-2.png" alt="" width="1200" height="900"
+               loading="lazy" decoding="async" />
         </div>
         <div class="split-content">
         <p class="kicker reveal">El atleta</p>
@@ -696,19 +722,19 @@
     <!-- Pildora que se desliza bajo la pestaña activa (decorativa). -->
     <span class="bottom-nav-pill" aria-hidden="true"></span>
     <a class="bottom-nav-item" href="#hero" data-section="hero">
-      <img class="bottom-nav-icon" src="assets/ui/icon-moon.svg" alt="" aria-hidden="true" />
+      <img class="bottom-nav-icon" src="assets/ui/icon-moon.svg" alt="" aria-hidden="true" width="24" height="24" loading="lazy" decoding="async" />
       <span class="bottom-nav-label">Inicio</span>
     </a>
     <a class="bottom-nav-item" href="#viabilidad" data-section="viabilidad">
-      <img class="bottom-nav-icon" src="assets/ui/icon-ball.svg" alt="" aria-hidden="true" />
+      <img class="bottom-nav-icon" src="assets/ui/icon-ball.svg" alt="" aria-hidden="true" width="24" height="24" loading="lazy" decoding="async" />
       <span class="bottom-nav-label">Viabilidad</span>
     </a>
     <a class="bottom-nav-item" href="#oportunidad" data-section="oportunidad">
-      <img class="bottom-nav-icon" src="assets/ui/icon-trophy.svg" alt="" aria-hidden="true" />
+      <img class="bottom-nav-icon" src="assets/ui/icon-trophy.svg" alt="" aria-hidden="true" width="24" height="24" loading="lazy" decoding="async" />
       <span class="bottom-nav-label">Oportunidad</span>
     </a>
     <a class="bottom-nav-item" href="/" data-section="simulador">
-      <img class="bottom-nav-icon" src="assets/ui/icon-rocket.svg" alt="" aria-hidden="true" />
+      <img class="bottom-nav-icon" src="assets/ui/icon-rocket.svg" alt="" aria-hidden="true" width="24" height="24" loading="lazy" decoding="async" />
       <span class="bottom-nav-label">Simulador</span>
     </a>
   </nav>
@@ -719,7 +745,8 @@
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-brand">
-        <img class="footer-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup" />
+        <img class="footer-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup"
+             width="32" height="32" loading="lazy" decoding="async" />
         <span>Interplanetary Champions Cup</span>
       </div>
       <nav class="footer-nav" aria-label="Enlaces del pie de página">

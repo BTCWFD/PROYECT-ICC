@@ -6,8 +6,25 @@
        en móvil sin bloquear el zoom de accesibilidad. -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#05070f" />
-  <title>ICC · Simulador de Física Lunar</title>
-  <meta name="description" content="Simulador de física lunar de la Interplanetary Champions Cup — Operación Primer Toque." />
+  <title>ICC · Simulador de Física Lunar — Operación Primer Toque</title>
+  <meta name="description" content="Juega al simulador de física lunar de la Interplanetary Champions Cup: dispara un balón bajo 1/6 de gravedad, mide alcance y hang-time y compite en las clasificatorias. El Apolo 11 del entretenimiento." />
+  <!-- URL canónica absoluta (dominio live en Azure). -->
+  <link rel="canonical" href="https://white-stone-07846b60f.7.azurestaticapps.net/" />
+  <!-- Open Graph (compartir en redes / mensajería). -->
+  <meta property="og:title" content="ICC · Simulador de Física Lunar" />
+  <meta property="og:description" content="Dispara un balón en la Luna (1/6 g), mide el alcance y compite en las clasificatorias. El Apolo 11 del entretenimiento." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://white-stone-07846b60f.7.azurestaticapps.net/" />
+  <!-- TODO(seo): el SVG de OG no lo soportan todos los scrapers; generar un PNG 1200x630 (assets/og-cover.png) y apuntar aquí. -->
+  <meta property="og:image" content="https://white-stone-07846b60f.7.azurestaticapps.net/assets/og-cover.svg" />
+  <meta property="og:image:alt" content="Interplanetary Champions Cup — balón sobre la Luna con la Tierra al fondo." />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:site_name" content="Interplanetary Champions Cup" />
+  <!-- Twitter Card. -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ICC · Simulador de Física Lunar" />
+  <meta name="twitter:description" content="Dispara un balón en la Luna (1/6 g), mide el alcance y compite en las clasificatorias." />
+  <meta name="twitter:image" content="https://white-stone-07846b60f.7.azurestaticapps.net/assets/og-cover.svg" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <link rel="stylesheet" href="css/styles.css" />
   <!-- Estilos del HUD de gamificación (los crea el agente de progresión). -->
@@ -19,7 +36,10 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <img class="logo-img" src="assets/logo.png" alt="Logo ICC" />
+      <!-- Logo del header: debe cargar de inmediato (no lazy). width/height
+           intrínsecos para evitar layout shift. -->
+      <img class="logo-img" src="assets/logo.png" alt="Logo ICC"
+           width="48" height="48" loading="eager" decoding="async" />
       <div>
         <h1>Interplanetary Champions Cup</h1>
         <p class="subtitle">Simulador de Física Lunar · Operación «Primer Toque»</p>
@@ -148,7 +168,7 @@
       <div id="leaderboard" class="leaderboard">
         <!-- Icono de trofeo same-origin junto al título (texto conservado para
              accesibilidad; el icono es decorativo). -->
-        <h2><img class="h-icon" src="assets/ui/icon-trophy.svg" alt="" aria-hidden="true" />Top 5 · Clasificatorias</h2>
+        <h2><img class="h-icon" src="assets/ui/icon-trophy.svg" alt="" aria-hidden="true" width="24" height="24" loading="lazy" decoding="async" />Top 5 · Clasificatorias</h2>
         <ol id="leaderboardList" class="leaderboard-list"></ol>
         <!-- Estado vacío: invitación a ser el primer club registrado. -->
         <p id="leaderboardEmpty" class="leaderboard-empty">
@@ -166,7 +186,7 @@
            con elegancia en file:// (try/catch dentro del componente). -->
       <div class="waitlist">
         <!-- Icono de cohete same-origin junto al título (texto conservado). -->
-        <h2><img class="h-icon" src="assets/ui/icon-rocket.svg" alt="" aria-hidden="true" />Sé de los primeros 1.000 operadores</h2>
+        <h2><img class="h-icon" src="assets/ui/icon-rocket.svg" alt="" aria-hidden="true" width="24" height="24" loading="lazy" decoding="async" />Sé de los primeros 1.000 operadores</h2>
         <p class="waitlist-lead">
           Reserva tu plaza en la lista de espera y te avisaremos del
           <em>Primer Toque</em> antes que a nadie.

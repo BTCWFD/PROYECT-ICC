@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ICC · OG COVER (portada social 1200x630)
+  Portada de marca para Open Graph / Twitter Card. Encuadre horizontal
+  coherente con el teaser-poster: cielo espacial, Tierra al fondo, balon
+  flotando sobre regolito lunar y la marca ICC + claim.
+  Autocontenido: sin recursos externos, sin fuentes externas (stack del
+  sistema), sin <script>. Paleta de marca: azul #5b8cff, dorado #ffd35b.
+  NOTA: og:image en SVG no lo soportan todos los scrapers; conviene
+  generar tambien una version PNG 1200x630 (ver TODO en cada .html).
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"
+     viewBox="0 0 1200 630" role="img"
+     aria-label="Interplanetary Champions Cup. El Apolo 11 del entretenimiento. Un balon de futbol flota sobre la superficie lunar con la Tierra al fondo.">
+  <defs>
+    <!-- Cielo espacial profundo (negro azulado). -->
+    <radialGradient id="og-sky" cx="42%" cy="30%" r="95%">
+      <stop offset="0%" stop-color="#0a1226" />
+      <stop offset="55%" stop-color="#05080f" />
+      <stop offset="100%" stop-color="#02030a" />
+    </radialGradient>
+
+    <!-- Tierra: azul oceanico con terminador. -->
+    <radialGradient id="og-earth" cx="38%" cy="36%" r="75%">
+      <stop offset="0%" stop-color="#7fc2ff" />
+      <stop offset="38%" stop-color="#2f7fe6" />
+      <stop offset="70%" stop-color="#143e8c" />
+      <stop offset="100%" stop-color="#04122e" />
+    </radialGradient>
+    <!-- Halo atmosferico de la Tierra. -->
+    <radialGradient id="og-earthGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="62%" stop-color="rgba(91,140,255,0)" />
+      <stop offset="86%" stop-color="rgba(91,140,255,.34)" />
+      <stop offset="100%" stop-color="rgba(91,140,255,0)" />
+    </radialGradient>
+
+    <!-- Regolito lunar. -->
+    <linearGradient id="og-regolith" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a3d4a" />
+      <stop offset="40%" stop-color="#24262f" />
+      <stop offset="100%" stop-color="#0c0d12" />
+    </linearGradient>
+
+    <!-- Esfera del balon: sombreado para volumen. -->
+    <radialGradient id="og-ball" cx="38%" cy="34%" r="72%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="58%" stop-color="#dfe5f2" />
+      <stop offset="88%" stop-color="#9aa6c0" />
+      <stop offset="100%" stop-color="#5a6280" />
+    </radialGradient>
+
+    <!-- Vineta para enfocar y dar contraste al texto. -->
+    <radialGradient id="og-vignette" cx="46%" cy="46%" r="78%">
+      <stop offset="52%" stop-color="rgba(0,0,0,0)" />
+      <stop offset="100%" stop-color="rgba(0,0,0,.74)" />
+    </radialGradient>
+
+    <!-- Recorte para que los paneles queden dentro del balon. -->
+    <clipPath id="og-ballClip">
+      <circle cx="330" cy="330" r="128" />
+    </clipPath>
+  </defs>
+
+  <!-- Fondo espacial -->
+  <rect x="0" y="0" width="1200" height="630" fill="url(#og-sky)" />
+
+  <!-- Estrellas (estaticas) -->
+  <g fill="#ffffff">
+    <circle cx="120" cy="70"  r="2.2" opacity=".9" />
+    <circle cx="280" cy="40"  r="1.5" opacity=".6" />
+    <circle cx="430" cy="95"  r="1.9" opacity=".8" />
+    <circle cx="600" cy="55"  r="1.3" opacity=".55" />
+    <circle cx="760" cy="110" r="2.4" opacity=".95" />
+    <circle cx="180" cy="180" r="1.5" opacity=".6" />
+    <circle cx="90"  cy="300" r="1.7" opacity=".65" />
+    <circle cx="340" cy="220" r="1.3" opacity=".5" />
+    <circle cx="500" cy="200" r="1.5" opacity=".6" />
+    <circle cx="220" cy="430" r="1.6" opacity=".55" />
+    <circle cx="120" cy="500" r="1.4" opacity=".5" />
+    <circle cx="60"  cy="160" r="1.8" opacity=".7" />
+  </g>
+
+  <!-- Tierra al fondo (arriba a la derecha) -->
+  <g>
+    <circle cx="1010" cy="150" r="220" fill="url(#og-earthGlow)" />
+    <circle cx="1010" cy="150" r="170" fill="url(#og-earth)" />
+    <g fill="#2f6f4e" opacity=".55">
+      <path d="M945 80 q40 -22 78 -6 q22 28 -4 52 q-46 18 -86 -8 q-12 -24 12 -38 z" />
+      <path d="M1020 190 q34 -10 60 14 q10 28 -22 40 q-40 6 -56 -22 q-2 -24 18 -32 z" />
+      <path d="M930 190 q20 -6 30 14 q4 22 -18 28 q-22 0 -26 -20 q0 -16 14 -22 z" />
+    </g>
+    <g fill="#dfeaff" opacity=".22">
+      <ellipse cx="970" cy="115" rx="56" ry="16" />
+      <ellipse cx="1048" cy="220" rx="44" ry="13" />
+    </g>
+  </g>
+
+  <!-- Suelo lunar (regolito) -->
+  <g>
+    <path d="M0 470 Q 300 420 600 450 T 1200 440 L 1200 630 L 0 630 Z" fill="url(#og-regolith)" />
+    <ellipse cx="200" cy="560" rx="110" ry="28" fill="#15171f" />
+    <ellipse cx="200" cy="555" rx="110" ry="28" fill="none" stroke="#4a4e5d" stroke-width="3" opacity=".5" />
+    <ellipse cx="640" cy="600" rx="150" ry="36" fill="#101218" />
+    <ellipse cx="900" cy="540" rx="70" ry="20" fill="#181a22" />
+  </g>
+
+  <!-- Sombra del balon -->
+  <ellipse cx="330" cy="492" rx="78" ry="18" fill="#000000" opacity=".34" />
+
+  <!-- Balon de futbol suspendido (izquierda) -->
+  <g>
+    <circle cx="330" cy="330" r="128" fill="url(#og-ball)" />
+    <g clip-path="url(#og-ballClip)" stroke="#11151f" stroke-width="5" stroke-linejoin="round">
+      <!-- Pentagono central. -->
+      <polygon points="330,289 367,316 353,360 307,360 293,316" fill="#161a24" />
+      <!-- Pentagonos perifericos. -->
+      <polygon points="277,238 315,224 341,255 320,292 281,287" fill="#161a24" />
+      <polygon points="383,238 421,255 418,296 379,296 362,259" fill="#161a24" />
+      <polygon points="255,352 294,367 289,410 248,415 230,377" fill="#161a24" />
+      <polygon points="408,355 447,377 432,420 391,413 386,371" fill="#161a24" />
+      <polygon points="330,415 373,432 361,478 299,478 287,432" fill="#161a24" />
+      <!-- Costuras hacia el borde. -->
+      <g stroke="#aeb6cc" stroke-width="4" fill="none" opacity=".7">
+        <line x1="293" y1="316" x2="236" y2="290" />
+        <line x1="367" y1="316" x2="424" y2="290" />
+        <line x1="307" y1="360" x2="270" y2="406" />
+        <line x1="353" y1="360" x2="392" y2="406" />
+        <line x1="330" y1="289" x2="330" y2="230" />
+      </g>
+    </g>
+    <!-- Brillo especular suave. -->
+    <ellipse cx="290" cy="283" rx="36" ry="24" fill="#ffffff" opacity=".5" />
+  </g>
+
+  <!-- Vineta encima de la escena -->
+  <rect x="0" y="0" width="1200" height="630" fill="url(#og-vignette)" />
+
+  <!-- Marca y claim (texto "baked", stack del sistema) -->
+  <g font-family="system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <!-- Kicker / operacion -->
+    <text x="556" y="232" fill="#ffd35b" font-size="26" font-weight="700"
+          letter-spacing="5">OPERACION PRIMER TOQUE</text>
+    <!-- Marca ICC -->
+    <text x="554" y="318" fill="#eef3ff" font-size="78" font-weight="800"
+          letter-spacing="2">INTERPLANETARY</text>
+    <text x="554" y="396" fill="#eef3ff" font-size="78" font-weight="800"
+          letter-spacing="2">CHAMPIONS CUP</text>
+    <!-- Claim -->
+    <text x="556" y="462" fill="#5b8cff" font-size="38" font-weight="800"
+          letter-spacing="1">El Apolo 11 del entretenimiento</text>
+    <!-- Subclaim -->
+    <text x="556" y="508" fill="#aeb6cc" font-size="24" font-weight="500"
+          letter-spacing="1">Futbol robotico en la Luna · El juego cambia de cancha. 2026.</text>
+  </g>
+</svg>

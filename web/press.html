@@ -3,8 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#05070f" />
   <title>ICC · Sala de Prensa — Press Kit</title>
   <meta name="description" content="Sala de prensa de la Interplanetary Champions Cup (ICC): boilerplate, hoja de datos, descargas (whitepapers, cartel teaser, logo), FAQ y contacto. El Apolo 11 del entretenimiento." />
+  <!-- URL canónica absoluta (dominio live en Azure). -->
+  <link rel="canonical" href="https://white-stone-07846b60f.7.azurestaticapps.net/press.html" />
+  <!-- Open Graph. -->
+  <meta property="og:title" content="ICC · Sala de Prensa (Press Kit)" />
+  <meta property="og:description" content="Boilerplate, datos clave, nota de prensa, descargas (whitepapers, cartel teaser, logo), FAQ y contacto. El Apolo 11 del entretenimiento." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://white-stone-07846b60f.7.azurestaticapps.net/press.html" />
+  <!-- TODO(seo): el SVG de OG no lo soportan todos los scrapers; generar un PNG 1200x630 (assets/og-cover.png) y apuntar aquí. -->
+  <meta property="og:image" content="https://white-stone-07846b60f.7.azurestaticapps.net/assets/og-cover.svg" />
+  <meta property="og:image:alt" content="Interplanetary Champions Cup — balón sobre la Luna con la Tierra al fondo." />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:site_name" content="Interplanetary Champions Cup" />
+  <!-- Twitter Card. -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ICC · Sala de Prensa (Press Kit)" />
+  <meta name="twitter:description" content="Boilerplate, datos clave, nota de prensa, descargas, FAQ y contacto de la ICC." />
+  <meta name="twitter:image" content="https://white-stone-07846b60f.7.azurestaticapps.net/assets/og-cover.svg" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
   <!-- CSP estricta: toda la CSS en archivos .css (sin inline, sin <style>). -->
   <!-- Base del sistema visual reutilizada de la landing de inversores. -->
@@ -18,7 +36,9 @@
   <!-- ============================================================= -->
   <header class="site-header">
     <a class="brand" href="#press-hero" aria-label="Interplanetary Champions Cup — inicio sala de prensa">
-      <img class="brand-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup" />
+      <!-- Logo del header: carga inmediata (no lazy) con dimensiones intrínsecas. -->
+      <img class="brand-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup"
+           width="40" height="40" loading="eager" decoding="async" />
       <span class="brand-name">ICC</span>
     </a>
 
@@ -457,7 +477,8 @@
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-brand">
-        <img class="footer-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup" />
+        <img class="footer-logo" src="assets/logo.png" alt="Logo de la Interplanetary Champions Cup"
+             width="32" height="32" loading="lazy" decoding="async" />
         <span>Interplanetary Champions Cup</span>
       </div>
       <nav class="footer-nav" aria-label="Enlaces del pie de página">

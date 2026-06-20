@@ -319,6 +319,15 @@
     return Number(localStorage.getItem("icc_record") || 0);
   }
 
+  // Inyectamos el lector de récord en el simulador para que dibuje la marca
+  // "Mejor: N m" sobre el suelo sin duplicar la lógica de localStorage.
+  // Defensivo: solo si la propiedad es asignable (siempre lo es en una clase).
+  try {
+    sim.getRecord = getRecord;
+  } catch (_err) {
+    /* si no se puede inyectar, el simulador simplemente no pinta la marca */
+  }
+
   /** Muestra el overlay de celebración con un hito acorde al alcance. */
   function celebrate(traj) {
     const range = traj.range;
@@ -506,9 +515,56 @@
     }
   }
 
+  /**
+   * Dibuja la vista previa de la trayectoria PREVISTA del estado actual.
+   *
+   * Estrangulado con requestAnimationFrame: múltiples eventos 'input' seguidos
+   * (arrastrar un slider) coalescen en un único repintado por fotograma. Es
+   * defensivo en todos sus pasos: si falta el método preview en el simulador,
+   * recurre a idle(); si el cálculo de física falla, no rompe nada.
+   *
+   * Respeta el bloqueo 'sending': nunca repinta el preview durante un vuelo
+   * (la animación manda mientras hay un disparo en curso).
+   */
+  let previewRaf = null;
+  function schedulePreview() {
+    if (previewRaf != null) return; // ya hay un repintado pendiente este frame
+    previewRaf = requestAnimationFrame(() => {
+      previewRaf = null;
+      drawPreview();
+    });
+  }
+
+  /** Pinta el preview de inmediato (sin estrangular). Uso interno. */
+  function drawPreview() {
+    if (sending) return; // durante el vuelo manda animate(); no interferimos
+    const world = WORLDS[state.world];
+    try {
+      const traj = trajectoryFor(state.world);
+      const ghost = ghostTrajectory();
+      // Telemetría coherente con el arco previsto (alcance/altura/tiempo).
+      setMetrics(traj);
+      // Vista previa tenue del arco con el balón en reposo.
+      if (typeof sim.preview === "function") {
+        sim.preview(world, traj, ghost);
+      } else {
+        // Degradación elegante: simulador sin preview -> reposo clásico.
+        sim.idle(world);
+      }
+    } catch (_err) {
+      // Si la física o el render fallan, caemos al reposo sin romper la UX.
+      try {
+        sim.idle(world);
+      } catch (_e2) {
+        /* nada más que hacer; degradación total silenciosa */
+      }
+    }
+  }
+
   function refreshIdle() {
-    sim.idle(WORLDS[state.world]);
-    setMetrics(trajectoryFor(state.world));
+    // Tras reset/idle mostramos el preview del estado actual (no el lienzo
+    // vacío). drawPreview ya actualiza la telemetría y degrada con elegancia.
+    drawPreview();
   }
 
   // ----- Integración con la API (degradación elegante) -----
@@ -642,19 +698,27 @@
   els.power.addEventListener("input", () => {
     state.power = Number(els.power.value);
     els.powerVal.textContent = state.power;
+    // Preview en vivo del arco previsto (estrangulado por rAF).
+    schedulePreview();
   });
 
   els.angle.addEventListener("input", () => {
     state.angle = Number(els.angle.value);
     els.angleVal.textContent = state.angle;
+    // Preview en vivo del arco previsto (estrangulado por rAF).
+    schedulePreview();
   });
 
   els.airResistance.addEventListener("change", () => {
     state.airResistance = els.airResistance.checked;
+    // La resistencia del aire altera el arco: refrescamos el preview.
+    schedulePreview();
   });
 
   els.ghost.addEventListener("change", () => {
     state.ghost = els.ghost.checked;
+    // Mostrar/ocultar el fantasma se refleja en el preview al instante.
+    schedulePreview();
   });
 
   els.supervision.addEventListener("change", () => {

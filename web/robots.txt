@@ -1,0 +1,10 @@
+# ICC - robots.txt
+# Permite el rastreo de todo el sitio publico.
+User-agent: *
+Allow: /
+
+# El panel de administracion no debe indexarse.
+Disallow: /admin.html
+
+# Referencia al sitemap (URL absoluta del despliegue en Azure).
+Sitemap: https://white-stone-07846b60f.7.azurestaticapps.net/sitemap.xml

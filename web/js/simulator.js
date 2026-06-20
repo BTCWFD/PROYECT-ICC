@@ -618,6 +618,7 @@ class Simulator {
     this.clear(world);
     this.drawRuler(trajectory.range);
     this.drawTargets();
+    this.drawRecordMark();
     this.drawRobot();
     if (ghost) this.drawTrail(ghost.points, ghost.points.length, ghost.color, true);
     this.drawTrail(trajectory.points, frame, world.trail, false);
@@ -715,6 +716,109 @@ class Simulator {
     this.anim = requestAnimationFrame(tick);
   }
 
+  /**
+   * Vista previa estática de la trayectoria PREVISTA, sin animar.
+   *
+   * Dibuja la escena completa, el arco previsto de forma tenue (línea
+   * punteada/semitransparente), el fantasma del otro mundo (si se pasa) y el
+   * balón en reposo en el origen. Pensada para refrescarse al ajustar
+   * potencia/ángulo/mundo/resistencia mientras NO hay un disparo en curso.
+   *
+   * Reutiliza render()/drawTrail() sin alterar sus firmas: cancela cualquier
+   * bucle de reposo previo y pinta un único fotograma. Es defensiva: si la
+   * trayectoria viene vacía o malformada, degrada a un idle estático.
+   *
+   * @param {object} world  Mundo activo (WORLDS[...]).
+   * @param {object} traj   Trayectoria prevista {points, range, maxHeight, ...}.
+   * @param {object} [ghost] Trayectoria fantasma del otro mundo (opcional).
+   */
+  preview(world, traj, ghost) {
+    // Sin trayectoria utilizable: degradamos a un fotograma de reposo.
+    if (!traj || !Array.isArray(traj.points) || traj.points.length === 0) {
+      this.previewActive = false;
+      this.idle(world);
+      return;
+    }
+
+    // Detenemos cualquier animación o bucle de reposo en curso.
+    cancelAnimationFrame(this.anim);
+    this.particles = [];
+    this.rings = [];
+    this.kickAnticip = 0;
+    this.ballSpin = 0;
+    this.previewActive = true;
+
+    // Avanzamos un poco el reloj para conservar twinkle/banderines vivos
+    // cuando el preview se repinta tras un ajuste (no en reduceMotion).
+    if (!this.reduceMotion) this.clock += 0.016;
+
+    // Escalamos para que el arco previsto —y los objetivos— quepan en cuadro.
+    this.fit(traj, ghost);
+
+    // Escena + regla + objetivos + robot.
+    this.clear(world);
+    this.drawRuler(traj.range);
+    this.drawTargets();
+    this.drawRecordMark();
+    this.drawRobot();
+
+    // Fantasma del otro mundo (discontinuo) si está disponible.
+    if (ghost) this.drawTrail(ghost.points, ghost.points.length, ghost.color, true);
+
+    // Arco PREVISTO tenue: reutilizamos drawTrail en modo discontinuo y
+    // bajamos aún más la opacidad para distinguirlo de un disparo real.
+    this.ctx.save();
+    this.ctx.globalAlpha = 0.55;
+    this.drawTrail(traj.points, traj.points.length, world.trail, true);
+    this.ctx.restore();
+
+    // Balón en reposo en el origen (no en el punto de impacto).
+    this.drawBall({ x: 0, y: 0 }, world.ball);
+  }
+
+  /**
+   * Marca discreta del récord personal sobre el suelo, a su distancia.
+   *
+   * Lee el valor vía el callback opcional getRecord() inyectado por main.js
+   * (que ya gestiona localStorage 'icc_record'): así no duplicamos la lógica
+   * de récords. Degrada en silencio si no hay callback, no hay récord, o la
+   * marca cae fuera del lienzo a la escala actual.
+   */
+  drawRecordMark() {
+    if (typeof this.getRecord !== "function") return;
+    let rec = 0;
+    try {
+      rec = Number(this.getRecord()) || 0;
+    } catch (_err) {
+      rec = 0;
+    }
+    if (!(rec > 0)) return;
+
+    const px = this.originX + rec * this.scale;
+    // Fuera de cuadro a esta escala: no la dibujamos (degradación elegante).
+    if (px > this.W - 6 || px < this.originX) return;
+
+    const { ctx } = this;
+    ctx.save();
+    // Línea vertical de marca, tenue, en color de acento secundario.
+    ctx.strokeStyle = "rgba(255,211,91,0.55)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(px, this.groundY);
+    ctx.lineTo(px, this.groundY - 34);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Etiqueta "Mejor: N m" justo encima de la marca.
+    ctx.fillStyle = "rgba(255,211,91,0.9)";
+    ctx.font = "bold 10px Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(`Mejor: ${Math.round(rec)} m`, px, this.groundY - 38);
+    ctx.textAlign = "start";
+    ctx.restore();
+  }
+
   /** Dibuja el estado inicial en reposo (con twinkle/banderines vivos). */
   idle(world) {
     cancelAnimationFrame(this.anim);
@@ -723,9 +827,12 @@ class Simulator {
     this.kickAnticip = 0;
 
     // En reduceMotion: un único fotograma estático.
+    this.previewActive = false;
+
     if (this.reduceMotion) {
       this.clear(world);
       this.drawTargets();
+      this.drawRecordMark();
       this.drawRobot();
       this.drawBall({ x: 0, y: 0 }, world.ball);
       return;
@@ -740,6 +847,7 @@ class Simulator {
       this.clock += dt / 1000;
       this.clear(world);
       this.drawTargets();
+      this.drawRecordMark();
       this.drawRobot();
       this.drawBall({ x: 0, y: 0 }, world.ball);
       this.anim = requestAnimationFrame(loop);
