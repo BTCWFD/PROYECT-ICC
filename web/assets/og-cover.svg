@@ -137,19 +137,24 @@
 
   <!-- Marca y claim (texto "baked", stack del sistema) -->
   <g font-family="system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <!-- IMPORTANTE: los tamanos estan medidos para que la linea mas larga
+         ("INTERPLANETARY") quepa entre x=500 y el borde derecho dejando 40px
+         de aire. Con los valores anteriores (x=554, font-size=78) el titulo se
+         salia del lienzo ~200px y los scrapers mostraban la marca cortada.
+         Si cambias el texto o la fuente, vuelve a medir los anchos. -->
     <!-- Kicker / operacion -->
-    <text x="556" y="232" fill="#ffd35b" font-size="26" font-weight="700"
+    <text x="500" y="228" fill="#ffd35b" font-size="26" font-weight="700"
           letter-spacing="5">OPERACION PRIMER TOQUE</text>
     <!-- Marca ICC -->
-    <text x="554" y="318" fill="#eef3ff" font-size="78" font-weight="800"
-          letter-spacing="2">INTERPLANETARY</text>
-    <text x="554" y="396" fill="#eef3ff" font-size="78" font-weight="800"
-          letter-spacing="2">CHAMPIONS CUP</text>
+    <text x="500" y="312" fill="#eef3ff" font-size="62" font-weight="800"
+          letter-spacing="1">INTERPLANETARY</text>
+    <text x="500" y="380" fill="#eef3ff" font-size="62" font-weight="800"
+          letter-spacing="1">CHAMPIONS CUP</text>
     <!-- Claim -->
-    <text x="556" y="462" fill="#5b8cff" font-size="38" font-weight="800"
+    <text x="500" y="444" fill="#5b8cff" font-size="34" font-weight="800"
           letter-spacing="1">El Apolo 11 del entretenimiento</text>
     <!-- Subclaim -->
-    <text x="556" y="508" fill="#aeb6cc" font-size="24" font-weight="500"
+    <text x="500" y="486" fill="#aeb6cc" font-size="21" font-weight="500"
           letter-spacing="1">Futbol robotico en la Luna · El juego cambia de cancha. 2026.</text>
   </g>
 </svg>
