@@ -25,10 +25,21 @@ on:
 
 jobs:
   # ---------------------------------------------------------------------------
+  # GATE de calidad: reutiliza el workflow de CI (validacion sintactica de JS,
+  # JSON y YAML). Si falla, el despliegue NO se ejecuta. Antes un push a main
+  # publicaba a produccion sin pasar ninguna validacion.
+  # ---------------------------------------------------------------------------
+  validate:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    uses: ./.github/workflows/ci.yml
+
+  # ---------------------------------------------------------------------------
   # Job de construccion y despliegue.
-  # Se ejecuta en pushes y al abrir/actualizar PRs (no al cerrarlas).
+  # Se ejecuta en pushes y al abrir/actualizar PRs (no al cerrarlas), y SOLO si
+  # el gate de validacion ha pasado.
   # ---------------------------------------------------------------------------
   build_and_deploy_job:
+    needs: validate
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy Job

@@ -17,6 +17,9 @@ on:
   pull_request:
     branches:
       - main
+  # Reutilizable: el workflow de despliegue lo invoca como GATE previo, de modo
+  # que nunca se publica a produccion codigo que no pase estas validaciones.
+  workflow_call:
 
 jobs:
   validate:

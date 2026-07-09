@@ -314,9 +314,39 @@
     submitShot(traj);
   }
 
-  // Récord personal de alcance (persistente en el navegador).
+  // Récord personal de alcance. FUENTE ÚNICA: el motor de progresión (ICCGame),
+  // que ya persiste state.bestRange en metros enteros. main.js NO debe llevar su
+  // propio contador: dos almacenes acababan divergiendo (p. ej. tras limpiar
+  // 'icc_record' pero no 'icc_game') y entonces TODO disparo se marcaba como
+  // récord, regalando +30 XP y el logro "Rompe-Récords" en cada tiro.
+  // Si ICCGame no está cargado, degradamos al almacén heredado.
   function getRecord() {
-    return Number(localStorage.getItem("icc_record") || 0);
+    try {
+      if (window.ICCGame && typeof window.ICCGame.getState === "function") {
+        return Number(window.ICCGame.getState().bestRange) || 0;
+      }
+    } catch (_err) {
+      /* si la progresión falla, caemos al almacén heredado */
+    }
+    try {
+      return Number(localStorage.getItem("icc_record") || 0);
+    } catch (_err) {
+      return 0; // localStorage puede lanzar en modo privado
+    }
+  }
+
+  /**
+   * Persiste el récord en el almacén heredado SOLO cuando ICCGame no está
+   * disponible. Con ICCGame presente él es la única fuente y ya lo guarda.
+   * @param {number} range
+   */
+  function persistRecordFallback(range) {
+    try {
+      if (window.ICCGame && typeof window.ICCGame.getState === "function") return;
+      localStorage.setItem("icc_record", String(Math.round(range)));
+    } catch (_err) {
+      /* sin persistencia disponible: no rompemos la UX */
+    }
   }
 
   // Inyectamos el lector de récord en el simulador para que dibuje la marca
@@ -331,9 +361,12 @@
   /** Muestra el overlay de celebración con un hito acorde al alcance. */
   function celebrate(traj) {
     const range = traj.range;
+    // Se lee ANTES de gameOnShot(), que es quien actualizará bestRange.
     const prevRecord = getRecord();
-    const isRecord = range > prevRecord;
-    if (isRecord) localStorage.setItem("icc_record", String(Math.round(range)));
+    // Comparamos en metros enteros porque el récord se persiste redondeado: si
+    // no, un 100.3 tras un 100.4 (guardado como 100) contaría como récord nuevo.
+    const isRecord = Math.round(range) > prevRecord;
+    if (isRecord) persistRecordFallback(range);
 
     let title;
     if (range >= 300) title = "¡HAZAÑA HISTÓRICA!";

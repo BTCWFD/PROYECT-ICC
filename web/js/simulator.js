@@ -780,9 +780,9 @@ class Simulator {
    * Marca discreta del récord personal sobre el suelo, a su distancia.
    *
    * Lee el valor vía el callback opcional getRecord() inyectado por main.js
-   * (que ya gestiona localStorage 'icc_record'): así no duplicamos la lógica
-   * de récords. Degrada en silencio si no hay callback, no hay récord, o la
-   * marca cae fuera del lienzo a la escala actual.
+   * (cuya fuente única es ICCGame.getState().bestRange): así no duplicamos la
+   * lógica de récords. Degrada en silencio si no hay callback, no hay récord, o
+   * la marca cae fuera del lienzo a la escala actual.
    */
   drawRecordMark() {
     if (typeof this.getRecord !== "function") return;
