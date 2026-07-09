@@ -249,12 +249,13 @@ function createTableStore(connectionString) {
     return { ...shot, createdAt };
   }
 
-  // Columnas mínimas para el ranking: evitamos traer power/angle en cada fila.
-  const SHOT_SELECT = ["club", "world", "range", "hangTime", "createdAt"];
-  // Para contar basta la clave: no transferimos el cuerpo de la entidad.
-  const KEY_SELECT = ["rowKey"];
-  // Para calcular el rank solo hace falta el alcance.
-  const RANGE_SELECT = ["range"];
+  // NOTA (incidente 2026-07-09): aquí hubo una optimización con `select` para
+  // proyectar solo las columnas necesarias. Rompió en producción TODOS los
+  // endpoints que la usaban (leaderboard, waitlist/count y shots -> 500), y con
+  // ello se dejaron de registrar disparos. El `select` NO se puede probar contra
+  // el store en memoria, que es el que usan el dev-server y los tests, así que
+  // pasó verde en local. Queda revertida hasta poder ejercitarla contra Table
+  // Storage real o Azurite. La ganancia era de ancho de banda, no de correccion.
 
   /** Proyecta una entidad de Table Storage al shot del dominio. */
   function mapShot(e) {
@@ -271,37 +272,35 @@ function createTableStore(connectionString) {
   }
 
   /** Recorre la consulta y materializa las entidades ya proyectadas. */
-  async function collectShots(filter, select) {
+  async function collectShots(filter) {
     const out = [];
-    const iter = shotsClient.listEntities({ queryOptions: { filter, select } });
+    const iter = shotsClient.listEntities({ queryOptions: { filter } });
     for await (const e of iter) out.push(mapShot(e));
     return out;
   }
 
   /**
-   * Consulta 'shots' empujando al servicio todo lo que Table Storage admite:
-   * filtro OData y proyección de columnas (select).
+   * Consulta 'shots' empujando al servicio el filtro OData que admite.
    *
    * IMPORTANTE: Table Storage NO admite ORDER BY ni "top N por columna", así que
-   * el orden por 'range' se hace siempre en memoria sobre el conjunto ya
-   * reducido. Y como los literales numéricos OData son sensibles al tipo con el
-   * que el SDK serializó la columna (Int32 vs Double), si el filtro avanzado
-   * falla reintentamos con el escaneo simple de la partición: la corrección
-   * nunca depende del filtro, que es solo una optimización.
+   * el orden por 'range' se hace siempre en memoria. Y como los literales
+   * numéricos OData son sensibles al tipo con el que el SDK serializó la columna
+   * (Int32 vs Double), si el filtro avanzado falla reintentamos con el escaneo
+   * simple de la partición: la corrección nunca depende del filtro, que es solo
+   * una optimización.
    *
    * @param {string} extraFilter Cláusula OData adicional (sin PartitionKey).
-   * @param {string[]} select    Columnas a proyectar.
    * @returns {Promise<object[]>}
    */
-  async function queryShots(extraFilter, select) {
+  async function queryShots(extraFilter) {
     await ensureShotsTable();
     const base = `PartitionKey eq '${PARTITION_KEY}'`;
-    if (!extraFilter) return collectShots(base, select);
+    if (!extraFilter) return collectShots(base);
     try {
-      return await collectShots(`${base} and ${extraFilter}`, select);
+      return await collectShots(`${base} and ${extraFilter}`);
     } catch {
       // Fallback seguro: el llamador reaplica el predicado en memoria.
-      return collectShots(base, select);
+      return collectShots(base);
     }
   }
 
@@ -310,7 +309,7 @@ function createTableStore(connectionString) {
     // forzar comparación como Edm.Double (así se serializa un epoch en ms).
     const filter =
       sinceMs > 0 ? `createdAt ge ${Math.floor(sinceMs)}.0` : "";
-    const rows = await queryShots(filter, SHOT_SELECT);
+    const rows = await queryShots(filter);
     // Reaplicamos el predicado SIEMPRE: si el filtro OData no se aplicó (o hubo
     // fallback), el resultado sigue siendo correcto.
     const list =
@@ -322,7 +321,7 @@ function createTableStore(connectionString) {
     // Solo necesitamos CUÁNTOS tiros superan este alcance: el servicio filtra y
     // nosotros contamos. En el caso típico devuelve muy pocas filas.
     const value = Number(range);
-    const rows = await queryShots(`range gt ${value.toFixed(6)}`, RANGE_SELECT);
+    const rows = await queryShots(`range gt ${value.toFixed(6)}`);
     let better = 0;
     for (const s of rows) {
       if (s.range > value) better += 1;
@@ -334,10 +333,7 @@ function createTableStore(connectionString) {
     await ensureShotsTable();
     let count = 0;
     const iter = shotsClient.listEntities({
-      queryOptions: {
-        filter: `PartitionKey eq '${PARTITION_KEY}'`,
-        select: KEY_SELECT,
-      },
+      queryOptions: { filter: `PartitionKey eq '${PARTITION_KEY}'` },
     });
     // eslint-disable-next-line no-unused-vars
     for await (const _ of iter) count += 1;
@@ -406,11 +402,7 @@ function createTableStore(connectionString) {
     await ensureWaitlistTable();
     let count = 0;
     const iter = waitlistClient.listEntities({
-      // Para contar basta la clave: no traemos email/club de cada fila.
-      queryOptions: {
-        filter: `PartitionKey eq '${PARTITION_KEY}'`,
-        select: ["rowKey"],
-      },
+      queryOptions: { filter: `PartitionKey eq '${PARTITION_KEY}'` },
     });
     for await (const _ of iter) {
       count += 1;
@@ -434,7 +426,6 @@ function createTableStore(connectionString) {
     const iter = waitlistClient.listEntities({
       queryOptions: {
         filter: `PartitionKey eq '${PARTITION_KEY}' and ref eq '${code}'`,
-        select: ["rowKey"],
       },
     });
     for await (const _ of iter) n += 1;
