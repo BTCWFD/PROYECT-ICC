@@ -17,6 +17,7 @@
 
 const { app } = require("@azure/functions");
 const store = require("../store");
+const { sanitizeProps } = require("../sanitize");
 
 // Eventos de analítica permitidos. Se ignoran silenciosamente los desconocidos.
 const VALID_EVENTS = [
@@ -44,8 +45,10 @@ app.http("events", {
       }
 
       const event = body && typeof body.event === "string" ? body.event : null;
-      const props =
-        body && body.props && typeof body.props === "object" ? body.props : undefined;
+      // Saneamos y acotamos las props: solo primitivas, claves/valores cortos y
+      // como máximo 12 claves. Sin esto, un cliente podría engordar la tabla o
+      // inyectar caracteres de control en el JSON persistido.
+      const props = sanitizeProps(body && body.props);
 
       // Solo persistimos eventos de la lista permitida.
       if (event && VALID_EVENTS.includes(event)) {

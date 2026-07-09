@@ -219,50 +219,99 @@ function createTableStore(connectionString) {
     return { ...shot, createdAt };
   }
 
+  // Columnas mínimas para el ranking: evitamos traer power/angle en cada fila.
+  const SHOT_SELECT = ["club", "world", "range", "hangTime", "createdAt"];
+  // Para contar basta la clave: no transferimos el cuerpo de la entidad.
+  const KEY_SELECT = ["rowKey"];
+  // Para calcular el rank solo hace falta el alcance.
+  const RANGE_SELECT = ["range"];
+
+  /** Proyecta una entidad de Table Storage al shot del dominio. */
+  function mapShot(e) {
+    return {
+      club: e.club,
+      world: e.world,
+      power: e.power,
+      angle: e.angle,
+      range: e.range,
+      hangTime: e.hangTime,
+      // Tiros antiguos sin createdAt -> 0 (histórico, fuera del periodo semanal).
+      createdAt: typeof e.createdAt === "number" ? e.createdAt : 0,
+    };
+  }
+
+  /** Recorre la consulta y materializa las entidades ya proyectadas. */
+  async function collectShots(filter, select) {
+    const out = [];
+    const iter = shotsClient.listEntities({ queryOptions: { filter, select } });
+    for await (const e of iter) out.push(mapShot(e));
+    return out;
+  }
+
   /**
-   * Lee todas las entidades de tiros desde la partición global.
+   * Consulta 'shots' empujando al servicio todo lo que Table Storage admite:
+   * filtro OData y proyección de columnas (select).
+   *
+   * IMPORTANTE: Table Storage NO admite ORDER BY ni "top N por columna", así que
+   * el orden por 'range' se hace siempre en memoria sobre el conjunto ya
+   * reducido. Y como los literales numéricos OData son sensibles al tipo con el
+   * que el SDK serializó la columna (Int32 vs Double), si el filtro avanzado
+   * falla reintentamos con el escaneo simple de la partición: la corrección
+   * nunca depende del filtro, que es solo una optimización.
+   *
+   * @param {string} extraFilter Cláusula OData adicional (sin PartitionKey).
+   * @param {string[]} select    Columnas a proyectar.
    * @returns {Promise<object[]>}
    */
-  async function listAllShots() {
+  async function queryShots(extraFilter, select) {
     await ensureShotsTable();
-    const all = [];
-    const iter = shotsClient.listEntities({
-      queryOptions: { filter: `PartitionKey eq '${PARTITION_KEY}'` },
-    });
-    for await (const e of iter) {
-      all.push({
-        club: e.club,
-        world: e.world,
-        power: e.power,
-        angle: e.angle,
-        range: e.range,
-        hangTime: e.hangTime,
-        // Tiros antiguos sin createdAt -> 0 (histórico, fuera del periodo semanal).
-        createdAt: typeof e.createdAt === "number" ? e.createdAt : 0,
-      });
+    const base = `PartitionKey eq '${PARTITION_KEY}'`;
+    if (!extraFilter) return collectShots(base, select);
+    try {
+      return await collectShots(`${base} and ${extraFilter}`, select);
+    } catch {
+      // Fallback seguro: el llamador reaplica el predicado en memoria.
+      return collectShots(base, select);
     }
-    return all;
   }
 
   async function getTopShots(n = Infinity, sinceMs = 0) {
-    const all = await listAllShots();
+    // Empujamos la ventana temporal al servicio; el literal lleva decimal para
+    // forzar comparación como Edm.Double (así se serializa un epoch en ms).
+    const filter =
+      sinceMs > 0 ? `createdAt ge ${Math.floor(sinceMs)}.0` : "";
+    const rows = await queryShots(filter, SHOT_SELECT);
+    // Reaplicamos el predicado SIEMPRE: si el filtro OData no se aplicó (o hubo
+    // fallback), el resultado sigue siendo correcto.
     const list =
-      sinceMs > 0 ? all.filter((s) => (s.createdAt || 0) >= sinceMs) : all;
+      sinceMs > 0 ? rows.filter((s) => (s.createdAt || 0) >= sinceMs) : rows;
     return list.sort((a, b) => b.range - a.range).slice(0, n);
   }
 
   async function rankForRange(range) {
-    const all = await listAllShots();
+    // Solo necesitamos CUÁNTOS tiros superan este alcance: el servicio filtra y
+    // nosotros contamos. En el caso típico devuelve muy pocas filas.
+    const value = Number(range);
+    const rows = await queryShots(`range gt ${value.toFixed(6)}`, RANGE_SELECT);
     let better = 0;
-    for (const s of all) {
-      if (s.range > range) better += 1;
+    for (const s of rows) {
+      if (s.range > value) better += 1;
     }
     return better + 1;
   }
 
   async function totalShots() {
-    const all = await listAllShots();
-    return all.length;
+    await ensureShotsTable();
+    let count = 0;
+    const iter = shotsClient.listEntities({
+      queryOptions: {
+        filter: `PartitionKey eq '${PARTITION_KEY}'`,
+        select: KEY_SELECT,
+      },
+    });
+    // eslint-disable-next-line no-unused-vars
+    for await (const _ of iter) count += 1;
+    return count;
   }
 
   async function addEvent(event, props) {

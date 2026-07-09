@@ -18,6 +18,7 @@
 const { app } = require("@azure/functions");
 const store = require("../store");
 const { WORLDS, computeTrajectory } = require("../physics");
+const { sanitizeText } = require("../sanitize");
 
 /**
  * Comprueba que un valor sea un número finito (no NaN, no Infinity).
@@ -26,18 +27,6 @@ const { WORLDS, computeTrajectory } = require("../physics");
  */
 function isFiniteNumber(v) {
   return typeof v === "number" && Number.isFinite(v);
-}
-
-/**
- * Elimina caracteres de control C0/C1 y los overrides de dirección bidireccional
- * (U+202A-U+202E, U+2066-U+2069). Sin esto, un club puede inyectar saltos de
- * línea o invertir el texto del leaderboard público, que se sirve a todos.
- * @param {string} value
- * @returns {string}
- */
-function stripUnsafeChars(value) {
-  // eslint-disable-next-line no-control-regex
-  return value.replace(/[\u0000-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/g, "");
 }
 
 /**
@@ -106,7 +95,7 @@ app.http("shots", {
       // Saneamos el club ANTES de persistirlo: el leaderboard es público y
       // sirve este texto a todos los clientes. Si tras limpiar queda vacío
       // (p. ej. un club hecho solo de caracteres de control), lo rechazamos.
-      const club = stripUnsafeChars(body.club).trim();
+      const club = sanitizeText(body.club, 64);
       if (!club) {
         return {
           status: 400,

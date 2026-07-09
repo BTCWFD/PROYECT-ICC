@@ -18,6 +18,7 @@
 
 const { app } = require("@azure/functions");
 const store = require("../store");
+const { sanitizeText } = require("../sanitize");
 
 // Regex razonable para validar el formato de email (no exhaustivo según RFC, pero
 // suficiente para descartar entradas claramente inválidas). Exige un único '@',
@@ -129,11 +130,13 @@ app.http("waitlist", {
         };
       }
 
-      // Normalizamos: email en minúsculas y recortado; club/source recortados.
+      // Normalizamos: email en minúsculas y recortado. club/source se SANEAN
+      // (controles, overrides bidi, ancho cero) porque el panel admin los
+      // muestra: un club con U+202E podría falsear cómo se lee la lista.
       const entry = {
         email: body.email.trim().toLowerCase(),
-        club: typeof body.club === "string" ? body.club.trim() : "",
-        source: typeof body.source === "string" ? body.source.trim() : "",
+        club: sanitizeText(body.club, MAX_CLUB),
+        source: sanitizeText(body.source, MAX_SOURCE),
       };
 
       // El store deduplica por email y devuelve el total actualizado.
