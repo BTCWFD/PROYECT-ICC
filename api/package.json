@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@azure/data-tables": "^13",
-    "@azure/functions": "^4.5.0"
+    "@azure/functions": "^4.16.2"
   },
   "engines": {
     "node": ">=18"
