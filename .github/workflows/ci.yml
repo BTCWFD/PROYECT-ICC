@@ -27,12 +27,16 @@ jobs:
     name: Validate (lint sintactico)
     steps:
       # Clonamos el repositorio.
+      # Las acciones van fijadas por SHA, no por tag: un tag como @v4 es mutable
+      # y quien controle el repositorio de la accion podria ejecutar codigo
+      # arbitrario en el runner (que en el workflow de deploy ve el token de
+      # produccion). El comentario indica la version legible del SHA.
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       # Instalamos Node 20 (mismo runtime objetivo que las Azure Functions v4).
       - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
 
@@ -116,3 +120,20 @@ jobs:
             fi
             echo "Todos los archivos YAML son validos."
           fi
+
+      # -----------------------------------------------------------------------
+      # 4) Suite de tests (node:test, sin dependencias externas).
+      #    Cubre: fisica (incluida la PARIDAD cliente/servidor de la que depende
+      #    el anti-trampas), saneado de texto, codigos de referido y la capa de
+      #    datos en memoria. `node --test` autodescubre test/*.test.js.
+      # -----------------------------------------------------------------------
+      - name: Ejecutar tests
+        run: npm test
+
+      # -----------------------------------------------------------------------
+      # 5) Auditoria de dependencias de la API (maneja los emails de la waitlist).
+      #    Falla solo ante vulnerabilidades altas o criticas.
+      # -----------------------------------------------------------------------
+      - name: Auditar dependencias de la API
+        working-directory: api
+        run: npm audit --audit-level=high

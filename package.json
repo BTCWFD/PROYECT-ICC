@@ -6,12 +6,13 @@
   "scripts": {
     "dev": "swa start web --api-location api",
     "deploy": "echo \"El despliegue lo realiza el orquestador con el token de Azure Static Web Apps (swa deploy --deployment-token $SWA_CLI_DEPLOYMENT_TOKEN).\"",
-    "validate": "node --check web/js/physics.js && node --check web/js/simulator.js && node --check web/js/main.js && node -e \"require('./package.json')\""
+    "validate": "node --check web/js/physics.js && node --check web/js/simulator.js && node --check web/js/main.js && node -e \"require('./package.json')\"",
+    "test": "node --test"
   },
   "devDependencies": {
     "@azure/static-web-apps-cli": "^2"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }

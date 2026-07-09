@@ -57,6 +57,17 @@ function makeRowKey() {
   return `${ts}-${rand}`;
 }
 
+/**
+ * Resuelve el sello temporal de un tiro (epoch ms).
+ * Si viene un número finito lo respeta —incluido el 0, que es el centinela de
+ * "tiro antiguo sin sellar" en Table Storage—; si no, sella con la hora actual.
+ * @param {*} createdAt
+ * @returns {number}
+ */
+function stampFor(createdAt) {
+  return Number.isFinite(createdAt) ? createdAt : Date.now();
+}
+
 // ---------------------------------------------------------------------------
 // Implementación (a): almacén EN MEMORIA (fallback sin conexión).
 // ---------------------------------------------------------------------------
@@ -68,7 +79,9 @@ function createMemoryStore() {
     // Sellamos el tiro con su instante de creación (epoch ms) para poder filtrar
     // por periodo (p.ej. leaderboard semanal). Respetamos un createdAt entrante
     // si viene, para permitir migraciones/seeds deterministas.
-    const stored = { ...shot, createdAt: shot.createdAt || Date.now() };
+    // Comprobamos que sea finito (no `||`): 0 es el centinela de "tiro sin
+    // sellar" que usa la ruta de Table Storage, y debe conservarse tal cual.
+    const stored = { ...shot, createdAt: stampFor(shot.createdAt) };
     shots.push(stored);
     return stored;
   }
@@ -217,7 +230,7 @@ function createTableStore(connectionString) {
 
   async function addShot(shot) {
     await ensureShotsTable();
-    const createdAt = shot.createdAt || Date.now();
+    const createdAt = stampFor(shot.createdAt);
     const entity = {
       partitionKey: PARTITION_KEY,
       rowKey: makeRowKey(),

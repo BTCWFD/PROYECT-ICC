@@ -1,0 +1,48 @@
+# =============================================================================
+# Dependabot — actualizaciones automaticas de dependencias del proyecto ICC.
+# -----------------------------------------------------------------------------
+# Contraparte necesaria del SHA-pin de las acciones: al fijarlas por commit,
+# dejan de recibir parches solos. Dependabot abre PRs que suben el SHA y
+# actualizan el comentario de version, de modo que el pin no se pudra.
+# =============================================================================
+
+version: 2
+
+updates:
+  # ---------------------------------------------------------------------------
+  # Acciones de GitHub usadas en los workflows (.github/workflows/*.yml).
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"
+    labels:
+      - dependencies
+      - github-actions
+
+  # ---------------------------------------------------------------------------
+  # Dependencias de la API (Azure Functions). Es el paquete que maneja los
+  # emails de la lista de espera, asi que interesa mantenerlo al dia.
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: npm
+    directory: "/api"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "deps"
+    labels:
+      - dependencies
+
+  # ---------------------------------------------------------------------------
+  # Dependencias de desarrollo de la raiz (SWA CLI).
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "deps"
+    labels:
+      - dependencies
