@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#05070f" />
+  <title>ICC · Ranking Global de Clasificatorias</title>
+  <meta name="description" content="Ranking global de la Interplanetary Champions Cup: los clubes con los saques lunares más largos. Compite esta semana o mira el récord histórico." />
+  <link rel="canonical" href="https://white-stone-07846b60f.7.azurestaticapps.net/leaderboard.html" />
+  <!-- Open Graph (compartir el ranking). -->
+  <meta property="og:title" content="ICC · Ranking Global de Clasificatorias" />
+  <meta property="og:description" content="Los clubes con los saques lunares más largos. ¿Puedes llegar al Top 5?" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://white-stone-07846b60f.7.azurestaticapps.net/leaderboard.html" />
+  <meta property="og:image" content="https://white-stone-07846b60f.7.azurestaticapps.net/assets/og-cover.svg" />
+  <meta property="og:locale" content="es_ES" />
+  <meta property="og:site_name" content="Interplanetary Champions Cup" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ICC · Ranking Global de Clasificatorias" />
+  <meta name="twitter:image" content="https://white-stone-07846b60f.7.azurestaticapps.net/assets/og-cover.svg" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/leaderboard.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a href="/" class="brand-link" aria-label="Volver al simulador ICC">
+        <img class="logo-img" src="assets/logo.png" alt="Logo ICC" width="46" height="46" />
+      </a>
+      <div>
+        <h1>Interplanetary Champions Cup</h1>
+        <p class="subtitle">Ranking Global · Clasificatorias Virtuales</p>
+      </div>
+    </div>
+    <div class="topbar-end">
+      <a class="badge badge-link" href="/">← Volver al simulador</a>
+    </div>
+  </header>
+
+  <main class="lb-page">
+    <section class="lb-hero">
+      <h2 class="lb-title">🏆 Ranking Global</h2>
+      <p class="lb-lead">
+        Los clubes que han enviado el balón más lejos bajo gravedad lunar.
+        Registra tu club en el <a href="/">simulador</a> y escala posiciones.
+      </p>
+
+      <!-- Conmutador de periodo: semanal (competición viva) vs histórico. -->
+      <div class="lb-tabs" role="tablist" aria-label="Periodo del ranking">
+        <button class="lb-tab is-active" role="tab" aria-selected="true"
+                data-period="week" id="tab-week" aria-controls="lb-panel">
+          Esta semana
+        </button>
+        <button class="lb-tab" role="tab" aria-selected="false"
+                data-period="all" id="tab-all" aria-controls="lb-panel">
+          Histórico
+        </button>
+      </div>
+    </section>
+
+    <section class="lb-panel" id="lb-panel" role="tabpanel" aria-live="polite">
+      <!-- Encabezado de columnas (oculto a lectores: es decorativo). -->
+      <div class="lb-row lb-head" aria-hidden="true">
+        <span class="lb-pos">#</span>
+        <span class="lb-club">Club</span>
+        <span class="lb-world">Mundo</span>
+        <span class="lb-range">Alcance</span>
+        <span class="lb-hang">Hang-time</span>
+      </div>
+
+      <!-- Lista del ranking (la puebla leaderboard.js). -->
+      <ol id="lbList" class="lb-list"></ol>
+
+      <!-- Estados: cargando / vacío / error (degradación elegante). -->
+      <p id="lbLoading" class="lb-msg">Cargando ranking…</p>
+      <p id="lbEmpty" class="lb-msg" hidden>
+        Aún no hay saques este periodo. <a href="/">Sé el primer club en marcar →</a>
+      </p>
+      <p id="lbError" class="lb-msg lb-msg-error" hidden>
+        No pudimos cargar el ranking ahora mismo. El simulador sigue disponible.
+      </p>
+    </section>
+
+    <section class="lb-cta">
+      <h3>¿Crees que puedes con el Top 5?</h3>
+      <p>Ponle nombre a tu club, ajusta potencia y ángulo, y dispara.</p>
+      <a class="btn primary" href="/">Jugar al simulador</a>
+    </section>
+  </main>
+
+  <footer class="bottombar">
+    <span>Interplanetary Champions Cup</span>
+    <span>Camino a los Campeones del Sistema Solar</span>
+  </footer>
+
+  <script src="js/leaderboard.js"></script>
+</body>
+</html>

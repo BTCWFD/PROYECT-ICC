@@ -32,6 +32,9 @@
   <!-- Estilos del selector de niveles (los crea el agente de niveles). Si el
        archivo no existe, el navegador lo ignora y el juego libre sigue igual. -->
   <link rel="stylesheet" href="css/levels.css" />
+  <!-- Contador en vivo de la lista de espera (prueba social). Lo inyecta
+       js/waitlist-count.js; si la API no responde, no se muestra nada. -->
+  <link rel="stylesheet" href="css/waitlist-count.css" />
 </head>
 <body>
   <header class="topbar">
@@ -170,6 +173,8 @@
              accesibilidad; el icono es decorativo). -->
         <h2><img class="h-icon" src="assets/ui/icon-trophy.svg" alt="" aria-hidden="true" width="24" height="24" loading="lazy" decoding="async" />Top 5 · Clasificatorias</h2>
         <ol id="leaderboardList" class="leaderboard-list"></ol>
+        <!-- Enlace al ranking público completo (semanal + histórico). -->
+        <a class="leaderboard-more" href="leaderboard.html">Ver ranking completo →</a>
         <!-- Estado vacío: invitación a ser el primer club registrado. -->
         <p id="leaderboardEmpty" class="leaderboard-empty">
           Aún no hay disparos — sé el primer club en marcar.
@@ -227,6 +232,9 @@
   <script src="js/main.js"></script>
   <!-- Componente de waitlist: auto-cablea los <form class="waitlist-form">. -->
   <script src="js/waitlist.js"></script>
+  <!-- Contador en vivo de la waitlist (prueba social/escasez). Autoinyecta su
+       nodo tras .waitlist-lead y refresca tras cada alta. Defensivo. -->
+  <script src="js/waitlist-count.js"></script>
   <!-- Ergonomía de UI móvil (acordeón del panel + botón flotante "Patear").
        IIFE defensivo: no duplica la lógica de disparo (reutiliza #kick), no
        toca main.js y degrada con elegancia en escritorio. Carga al final. -->
