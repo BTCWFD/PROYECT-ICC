@@ -300,6 +300,52 @@
     if (document.body) {
       document.body.classList.toggle("nav-open", open);
     }
+    // Al abrir, llevamos el foco al primer enlace: sin esto, un usuario de
+    // teclado abre el overlay y el foco sigue detras, en el contenido oculto.
+    if (open) {
+      try {
+        var first = navLinksEl.querySelector("a[href]");
+        if (first) first.focus();
+      } catch (err) {
+        /* sin foco: no es critico */
+      }
+    }
+  }
+
+  /**
+   * Elementos enfocables mientras el overlay esta abierto: la hamburguesa (para
+   * poder cerrarlo) y los enlaces del menu.
+   * @returns {HTMLElement[]}
+   */
+  function mobileMenuFocusables() {
+    var links = navLinksEl ? navLinksEl.querySelectorAll("a[href]") : [];
+    return [navToggleEl].concat(Array.prototype.slice.call(links)).filter(Boolean);
+  }
+
+  /**
+   * Atrapa el Tab dentro del overlay abierto. Sin esto, tabular saca el foco al
+   * contenido de detras —que esta visualmente tapado—, dejando al usuario de
+   * teclado navegando a ciegas (WCAG 2.4.3).
+   * @param {KeyboardEvent} event
+   */
+  function trapMobileMenuTab(event) {
+    if (event.key !== "Tab") return;
+    if (!navLinksEl || !navLinksEl.classList.contains("open")) return;
+
+    var focusables = mobileMenuFocusables();
+    if (focusables.length === 0) return;
+
+    var first = focusables[0];
+    var last = focusables[focusables.length - 1];
+    var active = document.activeElement;
+
+    if (event.shiftKey && active === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && active === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 
   function closeMobileMenu() {
@@ -333,6 +379,9 @@
         closeMobileMenu();
       }
     });
+
+    // Mantiene el foco dentro del overlay mientras esta abierto.
+    document.addEventListener("keydown", trapMobileMenuTab);
 
     // Cerrar con la tecla Escape para accesibilidad; al cerrar, devolvemos el
     // foco al boton hamburguesa para no perder el contexto del teclado.
