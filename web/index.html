@@ -35,6 +35,8 @@
   <!-- Contador en vivo de la lista de espera (prueba social). Lo inyecta
        js/waitlist-count.js; si la API no responde, no se muestra nada. -->
   <link rel="stylesheet" href="css/waitlist-count.css" />
+  <!-- Panel de Misiones: reto diario + rejilla de logros. Lo monta js/missions.js. -->
+  <link rel="stylesheet" href="css/missions.css" />
 </head>
 <body>
   <header class="topbar">
@@ -235,6 +237,9 @@
   <!-- Contador en vivo de la waitlist (prueba social/escasez). Autoinyecta su
        nodo tras .waitlist-lead y refresca tras cada alta. Defensivo. -->
   <script src="js/waitlist-count.js"></script>
+  <!-- Panel de Misiones. Debe cargar DESPUÉS de game.js (lee su catálogo) y de
+       main.js (envuelve ICCGame.onShot para repintar tras cada disparo). -->
+  <script src="js/missions.js"></script>
   <!-- Ergonomía de UI móvil (acordeón del panel + botón flotante "Patear").
        IIFE defensivo: no duplica la lógica de disparo (reutiliza #kick), no
        toca main.js y degrada con elegancia en escritorio. Carga al final. -->

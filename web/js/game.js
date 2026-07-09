@@ -598,10 +598,26 @@
   }
 
   // ----- Exposición global -----
+  /**
+   * Catálogo completo de logros (copia defensiva). Lo consume el panel de
+   * Misiones para pintar también los aún BLOQUEADOS, que getState() no incluye
+   * (getState solo devuelve los ids desbloqueados).
+   * @returns {Array<{id:string,nombre:string,desc:string,icono:string}>}
+   */
+  function getAchievements() {
+    return ACHIEVEMENTS.map((a) => ({
+      id: a.id,
+      nombre: a.nombre,
+      desc: a.desc,
+      icono: a.icono,
+    }));
+  }
+
   window.ICCGame = {
     init,
     onShot,
     getState,
+    getAchievements,
     // Expuesto para pruebas/depuración (no forma parte del contrato mínimo).
     _RANKS: RANKS,
     _ACHIEVEMENTS: ACHIEVEMENTS.map((a) => ({ id: a.id, nombre: a.nombre })),

@@ -1,0 +1,106 @@
+/**
+ * missions.css — Panel de Misiones (reto diario + logros) del simulador.
+ * Reutiliza los tokens de :root definidos en styles.css. Lo monta missions.js.
+ */
+
+.missions {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel-2);
+}
+.missions h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  letter-spacing: .2px;
+}
+
+/* ---------- Reto diario ---------- */
+.mission-daily { margin-bottom: 14px; }
+
+.mission-daily-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+.mission-daily-label {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.mission-daily-count {
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-2);
+  white-space: nowrap;
+}
+
+.mission-bar {
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(35, 49, 82, .8);
+  overflow: hidden;
+}
+.mission-bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width .45s ease;
+}
+
+/* Reto completado: la barra vira a verde y el contador también. */
+.mission-daily.is-done .mission-bar-fill { background: var(--ok); }
+.mission-daily.is-done .mission-daily-count { color: var(--ok); }
+
+/* ---------- Rejilla de logros ---------- */
+.mission-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.mission-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 5px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(8, 12, 24, .45);
+  text-align: center;
+  /* Bloqueado por defecto: atenuado y sin saturación. */
+  opacity: .5;
+  filter: grayscale(1);
+  transition: opacity .25s ease, filter .25s ease, border-color .25s ease;
+}
+
+.mission-tile.is-unlocked {
+  opacity: 1;
+  filter: none;
+  border-color: rgba(255, 211, 91, .45);
+  background: rgba(255, 211, 91, .08);
+}
+
+.mission-icon { font-size: 20px; line-height: 1; }
+
+.mission-name {
+  font-size: 10.5px;
+  line-height: 1.25;
+  color: var(--muted);
+}
+.mission-tile.is-unlocked .mission-name { color: var(--text); }
+
+/* Pantallas estrechas: 4 columnas más compactas caben mejor que 3 anchas. */
+@media (max-width: 400px) {
+  .mission-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .mission-name { font-size: 9.5px; }
+  .mission-icon { font-size: 18px; }
+}
