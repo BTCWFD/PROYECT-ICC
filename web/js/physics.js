@@ -73,10 +73,18 @@ function computeTrajectory({ gravity, speed, angleDeg, airResistance }) {
     const ax = -k * v * vx;
     const ay = -gravity - k * v * vy;
 
+    // Integramos la posición con la VELOCIDAD MEDIA del paso (regla del
+    // trapecio). Es exacta para aceleración constante (vuelo sin aire) y de 2º
+    // orden con arrastre. Usar la velocidad ya actualizada (Euler semi-implícito)
+    // hacía que el balón cruzara el suelo un paso antes, restando vx·dt al
+    // alcance de forma sistemática.
+    // Debe ser IDÉNTICO a api/src/physics.js (el servidor recalcula el tiro).
+    const vxPrev = vx;
+    const vyPrev = vy;
     vx += ax * dt;
     vy += ay * dt;
-    x += vx * dt;
-    y += vy * dt;
+    x += 0.5 * (vxPrev + vx) * dt;
+    y += 0.5 * (vyPrev + vy) * dt;
     t += dt;
     steps++;
 
@@ -84,10 +92,22 @@ function computeTrajectory({ gravity, speed, angleDeg, airResistance }) {
     if (y >= 0) points.push({ x, y, t });
   }
 
-  // Interpolación lineal del punto de impacto exacto (y = 0).
+  // Interpolación lineal del punto de impacto exacto (y = 0). El bucle sale con
+  // (x, y, t) YA bajo el suelo (y < 0); ese punto no se guarda en 'points'. Sin
+  // interpolar, el alcance sería el del último paso sobre el suelo, subestimando
+  // hasta un dt entero de vuelo. Buscamos la fracción f del tramo donde y = 0:
+  //   y(f) = last.y + f·(y - last.y) = 0  ->  f = last.y / (last.y - y)
+  // IMPORTANTE: esta fórmula debe ser IDÉNTICA a la de api/src/physics.js, pues
+  // el servidor recalcula el tiro (anti-trampas) y ambos deben coincidir.
   const last = points[points.length - 1];
-  const range = last.x;
-  const flightTime = last.t;
+  let range = last.x;
+  let flightTime = last.t;
+
+  if (y < 0 && last.y >= 0) {
+    const f = last.y / (last.y - y); // en [0, 1]; denominador > 0 por las guardas
+    range = last.x + (x - last.x) * f;
+    flightTime = last.t + (t - last.t) * f;
+  }
 
   return { points, range, maxHeight, flightTime };
 }

@@ -29,6 +29,18 @@ function isFiniteNumber(v) {
 }
 
 /**
+ * Elimina caracteres de control C0/C1 y los overrides de dirección bidireccional
+ * (U+202A-U+202E, U+2066-U+2069). Sin esto, un club puede inyectar saltos de
+ * línea o invertir el texto del leaderboard público, que se sirve a todos.
+ * @param {string} value
+ * @returns {string}
+ */
+function stripUnsafeChars(value) {
+  // eslint-disable-next-line no-control-regex
+  return value.replace(/[\u0000-\u001F\u007F-\u009F\u202A-\u202E\u2066-\u2069]/g, "");
+}
+
+/**
  * Valida el cuerpo de la petición contra el contrato.
  * @param {*} body
  * @returns {{ ok: boolean, message?: string }}
@@ -91,6 +103,17 @@ app.http("shots", {
         };
       }
 
+      // Saneamos el club ANTES de persistirlo: el leaderboard es público y
+      // sirve este texto a todos los clientes. Si tras limpiar queda vacío
+      // (p. ej. un club hecho solo de caracteres de control), lo rechazamos.
+      const club = stripUnsafeChars(body.club).trim();
+      if (!club) {
+        return {
+          status: 400,
+          jsonBody: { ok: false, error: "'club' debe contener caracteres válidos." },
+        };
+      }
+
       const world = body.world;
       const power = body.power;
       const angle = body.angle;
@@ -109,7 +132,7 @@ app.http("shots", {
 
       // Normalizamos y persistimos el tiro con los valores RECALCULADOS.
       const shot = {
-        club: body.club.trim(),
+        club,
         world,
         power,
         angle,

@@ -3,9 +3,10 @@
  *
  * Contrato:
  *   GET /api/admin/stats
- *     Autenticación por clave de administrador, leída de:
- *       - cabecera "x-admin-key: <clave>"  (preferente)
- *       - query "?key=<clave>"             (alternativa)
+ *     Autenticación por clave de administrador, leída ÚNICAMENTE de:
+ *       - cabecera "x-admin-key: <clave>"
+ *     No se admite la clave por query string: las URLs se registran en logs de
+ *     Azure, proxies, Application Insights e historial del navegador.
  *
  *   Seguridad FAIL-CLOSED:
  *     - Si process.env.ADMIN_KEY NO está definido  -> 503 { ok:false, error }.
@@ -77,9 +78,10 @@ app.http("admin-stats", {
         };
       }
 
-      // Clave provista por el cliente: cabecera preferente, query como alternativa.
-      const provided =
-        request.headers.get("x-admin-key") || request.query.get("key") || "";
+      // Clave provista por el cliente: SOLO por cabecera. No se acepta ?key= en
+      // la query porque las URLs quedan registradas en logs de Azure, proxies,
+      // Application Insights e historial del navegador, filtrando la clave.
+      const provided = request.headers.get("x-admin-key") || "";
 
       // Comparación en tiempo ~constante; sin coincidencia -> 401 genérico.
       if (!timingSafeEqual(provided, adminKey)) {
