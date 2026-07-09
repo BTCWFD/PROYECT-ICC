@@ -2,10 +2,12 @@
  * leaderboard.js — Tabla de clasificación de tiros.
  *
  * Contrato:
- *   GET /api/leaderboard?top=N ->
- *     { "entries": [ { "club":string, "world":"moon"|"earth",
+ *   GET /api/leaderboard?top=N&period=week|all ->
+ *     { "period":"week"|"all",
+ *       "entries": [ { "club":string, "world":"moon"|"earth",
  *                       "range":number, "hangTime":number } ] }
  *   Orden: descendente por "range". top: default 5, máximo 50.
+ *   period: "all" (histórico, por defecto) o "week" (últimos 7 días).
  *
  * Modelo de programación v4 de Azure Functions, compatible con SWA managed functions.
  */
@@ -15,6 +17,18 @@ const store = require("../store");
 
 const DEFAULT_TOP = 5;
 const MAX_TOP = 50;
+
+// Ventana del ranking semanal: 7 días en milisegundos.
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * Normaliza ?period a "week" o "all" (por defecto "all").
+ * @param {string|null} raw
+ * @returns {"week"|"all"}
+ */
+function parsePeriod(raw) {
+  return String(raw || "").toLowerCase() === "week" ? "week" : "all";
+}
 
 /**
  * Normaliza el parámetro de query ?top=N a un entero válido dentro de [1, MAX_TOP].
@@ -34,9 +48,12 @@ app.http("leaderboard", {
   handler: async (request, context) => {
     try {
       const top = parseTop(request.query.get("top"));
+      const period = parsePeriod(request.query.get("period"));
+      // "week" acota a los últimos 7 días; "all" no aplica filtro (sinceMs=0).
+      const sinceMs = period === "week" ? Date.now() - WEEK_MS : 0;
 
       // Top N tiros ya ordenados de mayor a menor alcance por la capa de datos.
-      const sorted = await store.getTopShots(top);
+      const sorted = await store.getTopShots(top, sinceMs);
 
       // Proyectamos solo los campos del contrato (sin power/angle).
       const entries = sorted.map((s) => ({
@@ -48,7 +65,7 @@ app.http("leaderboard", {
 
       return {
         status: 200,
-        jsonBody: { entries },
+        jsonBody: { period, entries },
       };
     } catch (error) {
       context.error("Error en /api/leaderboard:", error);

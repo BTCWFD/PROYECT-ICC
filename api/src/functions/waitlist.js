@@ -75,6 +75,34 @@ function validateBody(body) {
   return { ok: true };
 }
 
+// GET /api/waitlist/count -> { ok:true, total:number, cap:number }
+// Contador público para prueba social/escasez en el hero. No expone PII (solo
+// el total agregado). Cacheable brevemente para absorber picos de tráfico.
+const WAITLIST_CAP = 1000; // meta "Primeros 1.000 operadores".
+
+app.http("waitlistCount", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  route: "waitlist/count",
+  handler: async (request, context) => {
+    try {
+      const total = await store.waitlistCount();
+      return {
+        status: 200,
+        headers: { "Cache-Control": "public, max-age=30" },
+        jsonBody: { ok: true, total, cap: WAITLIST_CAP },
+      };
+    } catch (error) {
+      // Nunca rompemos el hero: ante fallo devolvemos un total neutro.
+      context.error("Error en /api/waitlist/count:", error);
+      return {
+        status: 500,
+        jsonBody: { ok: false, total: 0, cap: WAITLIST_CAP, error: "internal_error" },
+      };
+    }
+  },
+});
+
 app.http("waitlist", {
   methods: ["POST"],
   authLevel: "anonymous", // SWA gestiona la autenticación a nivel de plataforma.

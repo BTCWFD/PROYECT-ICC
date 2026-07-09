@@ -65,13 +65,20 @@ function createMemoryStore() {
   const shots = [];
 
   async function addShot(shot) {
-    shots.push(shot);
-    return shot;
+    // Sellamos el tiro con su instante de creación (epoch ms) para poder filtrar
+    // por periodo (p.ej. leaderboard semanal). Respetamos un createdAt entrante
+    // si viene, para permitir migraciones/seeds deterministas.
+    const stored = { ...shot, createdAt: shot.createdAt || Date.now() };
+    shots.push(stored);
+    return stored;
   }
 
-  async function getTopShots(n = Infinity) {
+  async function getTopShots(n = Infinity, sinceMs = 0) {
+    // sinceMs > 0 acota a los tiros creados a partir de ese instante (periodo).
+    const list =
+      sinceMs > 0 ? shots.filter((s) => (s.createdAt || 0) >= sinceMs) : shots;
     // Copiamos antes de ordenar para no mutar el orden de inserción.
-    return [...shots].sort((a, b) => b.range - a.range).slice(0, n);
+    return [...list].sort((a, b) => b.range - a.range).slice(0, n);
   }
 
   async function rankForRange(range) {
@@ -193,6 +200,7 @@ function createTableStore(connectionString) {
 
   async function addShot(shot) {
     await ensureShotsTable();
+    const createdAt = shot.createdAt || Date.now();
     const entity = {
       partitionKey: PARTITION_KEY,
       rowKey: makeRowKey(),
@@ -202,9 +210,13 @@ function createTableStore(connectionString) {
       angle: shot.angle,
       range: shot.range,
       hangTime: shot.hangTime,
+      // Instante de creación (epoch ms) para filtrar por periodo. Los tiros
+      // antiguos sin este campo se tratan como createdAt=0 (fuera del periodo
+      // semanal, presentes en el ranking histórico).
+      createdAt,
     };
     await shotsClient.createEntity(entity);
-    return shot;
+    return { ...shot, createdAt };
   }
 
   /**
@@ -225,14 +237,18 @@ function createTableStore(connectionString) {
         angle: e.angle,
         range: e.range,
         hangTime: e.hangTime,
+        // Tiros antiguos sin createdAt -> 0 (histórico, fuera del periodo semanal).
+        createdAt: typeof e.createdAt === "number" ? e.createdAt : 0,
       });
     }
     return all;
   }
 
-  async function getTopShots(n = Infinity) {
+  async function getTopShots(n = Infinity, sinceMs = 0) {
     const all = await listAllShots();
-    return all.sort((a, b) => b.range - a.range).slice(0, n);
+    const list =
+      sinceMs > 0 ? all.filter((s) => (s.createdAt || 0) >= sinceMs) : all;
+    return list.sort((a, b) => b.range - a.range).slice(0, n);
   }
 
   async function rankForRange(range) {
