@@ -137,18 +137,32 @@ inexistente, contraste insuficiente). **Los tres eran falsos positivos**, compro
 
 ---
 
-## 5. Decisiones que necesita el humano
+## 5. Decisiones tomadas (2026-07-09)
 
-1. **Tipografía.** SpaceX usa `D-DIN`. Es una fuente concreta, con su licencia. ¿Vamos a por
-   ella, una geométrica libre equivalente (Archivo, Oswald, Barlow Condensed…), o nos quedamos
-   en el stack de sistema? Es la decisión de mayor impacto visual del plan.
-2. **Cuánto color.** ¿Monocromo total en marca (SpaceX puro) o conservamos el dorado `#ffd35b`
-   como firma de la ICC? Recomiendo conservarlo **solo** para el momento del logro.
-3. **Alcance.** ¿Rediseño completo de las 7 páginas o empezamos por `/` + `investors.html`,
-   que son las que mueven la aguja?
-4. **Media.** El lenguaje SpaceX depende de imagen/vídeo full-bleed de calidad. Hoy ICC tiene
-   SVGs generados. Sin material visual potente, el minimalismo se ve vacío, no premium.
-   **Este es el riesgo real del plan.**
+1. **Tipografía → `D-DIN`, autoalojada.**
+   Resultó que la fuente exacta de SpaceX **es libre**: Datto la encargó a Monotype y la liberó
+   bajo **SIL Open Font License 1.1** (uso comercial, modificación y autoalojado permitidos).
+   Repositorio: <https://github.com/amcchord/datto-d-din> — trae `.woff2` en Regular, Bold,
+   Condensed y Expanded, con `OFL-1.1.txt`.
+   **Restricción:** la CSP del sitio es `font-src 'self'`, así que los `.woff2` van en
+   `web/assets/fonts/` con `@font-face` local. Google Fonts por CDN quedaría **bloqueado**.
+   *Matiz:* DIN es una grotesca industrial, no una geométrica pura tipo Futura. Cumple el
+   requisito (libre, técnica, uppercase-first), pero conviene nombrarla bien.
+
+2. **Color → se conserva el dorado `#ffd35b` como firma de la ICC.**
+   Monocromo (negro `#000`, off-white `#F0F0FA`, grises) en todas las superficies, con el dorado
+   reservado a **el logro y la luz**: récord batido, logro desbloqueado, rim light de la media.
+   Nunca como color de relleno decorativo. El azul `#5b8cff` se degrada a color **funcional**
+   dentro del simulador (estado/mundo), no de marca.
+
+3. **Alcance → las 7 páginas.**
+   Con la salvedad del propio plan: `gallery.html` sale del deploy público (herramienta interna).
+
+4. **Media → generada con Google Gemini (Veo / Imagen).**
+   Prompt pack completo, con reglas, especificación técnica y criterios de aceptación, en
+   [MEDIA_PROMPTS.md](./MEDIA_PROMPTS.md).
+   Sigue siendo **el riesgo principal del plan** (ver §6): la calidad final del rediseño está
+   acotada por la calidad de esta media, no por el CSS.
 
 ---
 
