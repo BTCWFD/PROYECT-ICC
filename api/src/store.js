@@ -128,6 +128,8 @@ function createMemoryStore() {
         email: entry.email,
         club: entry.club || "",
         source: entry.source || "",
+        // 'ref' = código del operador que le invitó ("" si llegó por su cuenta).
+        ref: entry.ref || "",
         createdAt: new Date().toISOString(),
       });
     }
@@ -136,6 +138,20 @@ function createMemoryStore() {
 
   async function waitlistCount() {
     return waitlist.size;
+  }
+
+  /**
+   * Cuántas altas fueron atribuidas a un código de referido.
+   * @param {string} code
+   * @returns {Promise<number>}
+   */
+  async function referralCount(code) {
+    if (!code) return 0;
+    let n = 0;
+    for (const e of waitlist.values()) {
+      if (e.ref === code) n += 1;
+    }
+    return n;
   }
 
   /**
@@ -167,6 +183,7 @@ function createMemoryStore() {
     addWaitlist,
     waitlistCount,
     listWaitlist,
+    referralCount,
   };
 }
 
@@ -354,6 +371,8 @@ function createTableStore(connectionString) {
       email: entry.email,
       club: entry.club || "",
       source: entry.source || "",
+      // 'ref' = código del operador que le invitó ("" si llegó por su cuenta).
+      ref: entry.ref || "",
       createdAt: new Date().toISOString(),
     };
     try {
@@ -374,12 +393,39 @@ function createTableStore(connectionString) {
     await ensureWaitlistTable();
     let count = 0;
     const iter = waitlistClient.listEntities({
-      queryOptions: { filter: `PartitionKey eq '${PARTITION_KEY}'` },
+      // Para contar basta la clave: no traemos email/club de cada fila.
+      queryOptions: {
+        filter: `PartitionKey eq '${PARTITION_KEY}'`,
+        select: ["rowKey"],
+      },
     });
     for await (const _ of iter) {
       count += 1;
     }
     return count;
+  }
+
+  /**
+   * Cuántas altas fueron atribuidas a un código de referido. El filtro va al
+   * servicio (igualdad de cadena, sin ambigüedad de tipos), así que solo se
+   * transfieren las filas atribuidas a ese código.
+   * @param {string} code
+   * @returns {Promise<number>}
+   */
+  async function referralCount(code) {
+    if (!code) return 0;
+    await ensureWaitlistTable();
+    let n = 0;
+    // El código es alfanumérico validado (normalizeCode), así que no puede
+    // contener comillas ni romper el filtro OData.
+    const iter = waitlistClient.listEntities({
+      queryOptions: {
+        filter: `PartitionKey eq '${PARTITION_KEY}' and ref eq '${code}'`,
+        select: ["rowKey"],
+      },
+    });
+    for await (const _ of iter) n += 1;
+    return n;
   }
 
   /**
@@ -423,6 +469,7 @@ function createTableStore(connectionString) {
     addWaitlist,
     waitlistCount,
     listWaitlist,
+    referralCount,
   };
 }
 
@@ -445,4 +492,5 @@ module.exports = {
   addWaitlist: backend.addWaitlist,
   waitlistCount: backend.waitlistCount,
   listWaitlist: backend.listWaitlist,
+  referralCount: backend.referralCount,
 };

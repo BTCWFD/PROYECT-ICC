@@ -17,6 +17,128 @@
   // URL relativa de la API gestionada (Azure Static Web Apps expone /api).
   const ENDPOINT = "/api/waitlist";
 
+  /**
+   * Lee el codigo de referido de la URL (?ref=XXXX). Devuelve "" si no viene o
+   * no tiene forma valida (alfanumerico, 4-12 chars). El servidor revalida.
+   * @returns {string}
+   */
+  function refFromUrl() {
+    try {
+      const raw = new URLSearchParams(window.location.search).get("ref") || "";
+      const code = raw.trim().toUpperCase();
+      return /^[0-9A-Z]{4,12}$/.test(code) ? code : "";
+    } catch (_err) {
+      return ""; // entorno sin URLSearchParams / file://
+    }
+  }
+
+  /**
+   * Construye el enlace de invitacion del operador a partir de su codigo.
+   * Apunta a la raiz del sitio (el simulador), que es el mejor gancho.
+   * @param {string} code
+   * @returns {string}
+   */
+  function shareUrlFor(code) {
+    try {
+      const url = new URL("/", window.location.href);
+      url.search = "?ref=" + encodeURIComponent(code);
+      return url.toString();
+    } catch (_err) {
+      return "?ref=" + code;
+    }
+  }
+
+  /**
+   * Pinta el bloque de invitacion bajo el formulario, con el enlace propio y un
+   * boton de copiar. Idempotente: si ya existe, solo actualiza el enlace.
+   * @param {HTMLFormElement} form
+   * @param {string} code
+   * @param {number} referrals
+   */
+  function showReferral(form, code, referrals) {
+    if (!code) return;
+    try {
+      const link = shareUrlFor(code);
+
+      let box = form.querySelector(".waitlist-referral");
+      if (!box) {
+        box = document.createElement("div");
+        box.className = "waitlist-referral";
+
+        const lead = document.createElement("p");
+        lead.className = "waitlist-referral-lead";
+        box.appendChild(lead);
+
+        const row = document.createElement("div");
+        row.className = "waitlist-referral-row";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "text-input waitlist-referral-link";
+        input.readOnly = true;
+        input.setAttribute("aria-label", "Tu enlace de invitación");
+
+        const copy = document.createElement("button");
+        copy.type = "button";
+        copy.className = "btn ghost-btn waitlist-referral-copy";
+        copy.textContent = "Copiar";
+        copy.addEventListener("click", function () {
+          copyToClipboard(input.value, copy);
+        });
+
+        row.append(input, copy);
+        box.append(row);
+        form.appendChild(box);
+      }
+
+      const leadEl = box.querySelector(".waitlist-referral-lead");
+      leadEl.textContent =
+        referrals > 0
+          ? "Invita y sube en la lista. Ya has traído " +
+            referrals +
+            (referrals === 1 ? " operador." : " operadores.")
+          : "Invita a otros operadores con tu enlace:";
+
+      box.querySelector(".waitlist-referral-link").value = link;
+      box.hidden = false;
+    } catch (_err) {
+      /* el bloque de invitacion nunca debe romper el alta */
+    }
+  }
+
+  /**
+   * Copia texto al portapapeles con feedback en el boton. Degrada a select()
+   * si la Clipboard API no esta disponible (http:// o navegador antiguo).
+   * @param {string} text
+   * @param {HTMLButtonElement} button
+   */
+  function copyToClipboard(text, button) {
+    const done = function () {
+      const original = button.textContent;
+      button.textContent = "¡Copiado!";
+      setTimeout(function () {
+        button.textContent = original;
+      }, 1600);
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () {
+          /* permiso denegado: no hacemos nada ruidoso */
+        });
+        return;
+      }
+    } catch (_err) {
+      /* caemos al fallback */
+    }
+    try {
+      const input = button.parentNode.querySelector(".waitlist-referral-link");
+      input.select();
+      done();
+    } catch (_err) {
+      /* sin portapapeles: el enlace sigue visible y seleccionable a mano */
+    }
+  }
+
   // Mensajes de UI (centralizados para coherencia de marca).
   const MSG = {
     ok: "Estás en la lista. Te avisaremos del Primer Toque.",
@@ -123,7 +245,8 @@
     showMessage(msgEl, MSG.sending, "info");
 
     try {
-      const payload = { email: email, club: club, source: source };
+      // Adjuntamos el codigo de quien invito (si llegamos por un enlace ?ref=).
+      const payload = { email: email, club: club, source: source, ref: refFromUrl() };
 
       const response = await fetch(ENDPOINT, {
         method: "POST",
@@ -147,6 +270,8 @@
         } catch (_resetErr) {
           /* ignorar */
         }
+        // Le damos su enlace de invitacion: el bucle viral empieza aqui.
+        showReferral(form, data.code, Number(data.referrals) || 0);
         // Tras un alta correcta dejamos el boton inhabilitado para evitar
         // reenvios accidentales del mismo lead.
         if (button) {

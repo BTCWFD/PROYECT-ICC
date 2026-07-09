@@ -42,6 +42,28 @@
   100% { box-shadow: 0 0 0 0 rgba(70, 211, 154, 0); }
 }
 
+/* ---------- Bloque de invitación (referidos) ---------- */
+/* Lo inserta waitlist.js dentro del <form> tras un alta correcta. */
+.waitlist-referral {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.waitlist-referral-lead {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.waitlist-referral-row { display: flex; gap: 8px; }
+.waitlist-referral-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  /* El enlace es de solo lectura: lo atenuamos para que no parezca editable. */
+  color: var(--muted);
+}
+.waitlist-referral-copy { flex: 0 0 auto; white-space: nowrap; }
+
 /* Enlace "Ver ranking completo →" del panel del simulador (index.html). Vive
  * aquí —y no en styles.css— para no colisionar con edición concurrente; ambos
  * son elementos de captación del hero. */

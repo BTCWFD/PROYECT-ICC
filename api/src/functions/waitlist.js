@@ -3,8 +3,14 @@
  *
  * Contrato:
  *   POST /api/waitlist
- *     body { "email":string, "club":string(opcional), "source":string(opcional) }
- *     -> { "ok":true, "total":number }  (status 201)
+ *     body { "email":string, "club":string(opcional), "source":string(opcional),
+ *            "ref":string(opcional) }
+ *     -> { "ok":true, "total":number, "code":string, "referrals":number }  (201)
+ *
+ *   'ref' es el código de referido de QUIEN INVITA. Si es inválido, se ignora
+ *   (no rompe el alta). 'code' es el código propio del operador, derivado de su
+ *   email (ver referral.js): estable y apto para construir su enlace de
+ *   invitación. 'referrals' son las altas ya atribuidas a ese código.
  *
  *   Si el email es inválido -> 400 { "ok":false, "error":string }.
  *   Si hay un fallo interno -> 500 { "ok":false, "error":"internal_error" }
@@ -19,6 +25,7 @@
 const { app } = require("@azure/functions");
 const store = require("../store");
 const { sanitizeText } = require("../sanitize");
+const { codeForEmail, normalizeCode } = require("../referral");
 
 // Regex razonable para validar el formato de email (no exhaustivo según RFC, pero
 // suficiente para descartar entradas claramente inválidas). Exige un único '@',
@@ -133,10 +140,18 @@ app.http("waitlist", {
       // Normalizamos: email en minúsculas y recortado. club/source se SANEAN
       // (controles, overrides bidi, ancho cero) porque el panel admin los
       // muestra: un club con U+202E podría falsear cómo se lee la lista.
+      const email = body.email.trim().toLowerCase();
+      // 'ref' es el código de QUIEN INVITÓ. Un ?ref basura se ignora (""), no
+      // es un error: el alta debe completarse igual.
+      const ref = normalizeCode(body.ref);
+      // Nadie puede auto-atribuirse una invitación.
+      const ownCode = codeForEmail(email);
+
       const entry = {
-        email: body.email.trim().toLowerCase(),
+        email,
         club: sanitizeText(body.club, MAX_CLUB),
         source: sanitizeText(body.source, MAX_SOURCE),
+        ref: ref === ownCode ? "" : ref,
       };
 
       // El store deduplica por email y devuelve el total actualizado.
@@ -160,9 +175,18 @@ app.http("waitlist", {
         );
       }
 
+      // Devolvemos el código propio del operador para que el cliente pueda
+      // construir su enlace de invitación, y cuántas altas ha traído ya.
+      let referrals = 0;
+      try {
+        referrals = await store.referralCount(ownCode);
+      } catch (refError) {
+        context.warn("No se pudo contar referidos (no afecta al alta):", refError);
+      }
+
       return {
         status: 201,
-        jsonBody: { ok: true, total },
+        jsonBody: { ok: true, total, code: ownCode, referrals },
       };
     } catch (error) {
       // Nunca exponemos el error crudo: solo un código genérico.
