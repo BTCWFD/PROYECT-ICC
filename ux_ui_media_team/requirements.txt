@@ -1,0 +1,10 @@
+# Core Dependencies for Media Automation
+google-generativeai>=0.8.0
+python-dotenv>=1.0.0
+Pillow>=10.0.0
+numpy>=1.24.0
+opencv-python>=4.8.0
+
+# Testing Dependencies
+pytest>=7.4.0
+pytest-socket>=0.6.0

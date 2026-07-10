@@ -1,0 +1,48 @@
+{
+  "timestamp": "2026-07-10T03:53:08Z",
+  "status": "success",
+  "dry_run": false,
+  "pages_processed": [
+    {
+      "page": "/",
+      "status": "success",
+      "output": "web/assets\\homepage.mp4"
+    },
+    {
+      "page": "investors.html",
+      "status": "success",
+      "output": "web/assets\\investors.png"
+    },
+    {
+      "page": "leaderboard.html",
+      "status": "success",
+      "output": "web/assets\\leaderboard.png"
+    },
+    {
+      "page": "press.html",
+      "status": "success",
+      "output": "web/assets\\press.png"
+    },
+    {
+      "page": "onepager.html",
+      "status": "success",
+      "output": "web/assets\\onepager.png"
+    },
+    {
+      "page": "teaser.html",
+      "status": "success",
+      "output": "web/assets\\teaser.mp4"
+    },
+    {
+      "page": "gallery.html",
+      "status": "success",
+      "output": "web/assets\\gallery.png"
+    },
+    {
+      "page": "og-cover",
+      "status": "success",
+      "output": "web/assets\\og-cover.png"
+    }
+  ],
+  "errors": []
+}

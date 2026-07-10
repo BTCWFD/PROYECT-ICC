@@ -34,3 +34,12 @@ api/local.settings.json
 # Azure / Static Web Apps CLI
 .azure/
 swa-cli.config.json
+
+# UX/UI Media Team
+ux_ui_media_team/raw_cache/
+ux_ui_media_team/run.lock
+*.lock
+
+# Python Cache
+__pycache__/
+*.pyc
