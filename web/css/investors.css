@@ -10,30 +10,30 @@
 /* ---------- Variables de marca ---------- */
 :root {
   /* Paleta oscura espacial (coherente con styles.css del simulador). */
-  --bg: #04060d;
+  --bg: var(--icc-bg);
   --bg-2: #070b16;
-  --panel: #0c1322;
-  --panel-2: #131c30;
-  --line: #20304f;
+  --panel: var(--icc-panel);
+  --panel-2: var(--icc-panel-2);
+  --line: var(--icc-line);
   --line-soft: rgba(91, 140, 255, .14);
-  --text: #eef3ff;
-  --muted: #a9b7d6;
+  --text: var(--icc-text);
+  --muted: var(--icc-muted);
   --muted-2: #7f8db0;
 
   /* Acentos de marca ICC. */
-  --accent: #5b8cff;   /* azul */
-  --accent-2: #ffd35b; /* dorado */
-  --accent-ink: #03102e; /* tinta sobre boton azul */
-  --gold-ink: #2a1d00;   /* tinta sobre boton dorado */
+  --accent: var(--icc-accent);   /* azul */
+  --accent-2: var(--icc-gold); /* dorado */
+  --accent-ink: var(--icc-accent-ink); /* tinta sobre boton azul */
+  --gold-ink: var(--icc-gold-ink);   /* tinta sobre boton dorado */
 
   /* Tipografia: SOLO stack del sistema (CSP font-src 'self'). */
-  --font: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font: var(--icc-font);
 
   /* Ritmo / medidas. */
   --header-h: 72px;
   --maxw: 1240px;
-  --radius: 14px;
-  --ease: cubic-bezier(.22, .61, .36, 1);
+  --radius: var(--icc-radius);
+  --ease: var(--icc-ease);
 
   /* Velo oscuro reutilizable para imagenes de fondo (legibilidad del texto). */
   --scrim: linear-gradient(

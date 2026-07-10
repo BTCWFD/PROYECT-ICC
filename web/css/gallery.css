@@ -2,17 +2,17 @@
    Tema oscuro espacial. Sin estilos inline (CSP estricta). */
 
 :root {
-  --bg: #05080f;
+  --bg: var(--icc-bg);
   --bg-2: #0b1020;
-  --panel: #0e1730;
-  --panel-2: #121d3d;
+  --panel: var(--icc-panel);
+  --panel-2: var(--icc-panel-2);
   --line: rgba(91, 140, 255, 0.22);
-  --accent: #5b8cff;
-  --accent-2: #ffd35b;
-  --text: #eef3ff;
+  --accent: var(--icc-accent);
+  --accent-2: var(--icc-gold);
+  --text: var(--icc-text);
   --muted: #9aa6c0;
-  --radius: 14px;
-  --font: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --radius: var(--icc-radius);
+  --font: var(--icc-font);
 }
 
 * { box-sizing: border-box; }

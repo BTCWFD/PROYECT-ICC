@@ -13,9 +13,9 @@
 /* ---------- Variables ---------- */
 :root {
   --bg-space: #02030a;        /* negro espacial */
-  --text: #eef3ff;
-  --accent: #5b8cff;          /* azul ICC */
-  --font: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --text: var(--icc-text);
+  --accent: var(--icc-accent);          /* azul ICC */
+  --font: var(--icc-font);
 
   /* Duracion del loop completo del teaser. */
   --loop: 9s;

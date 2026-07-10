@@ -8,6 +8,10 @@
   <!-- Zona privada: no debe indexarse ni seguirse por buscadores. -->
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/png" href="assets/logo.png" />
+  <!-- Sistema de diseño: DEBE cargar antes que cualquier otra hoja, porque el
+       resto aliasan sus tokens (--bg, --accent, --font…) contra los de aquí. -->
+  <link rel="preload" href="assets/fonts/D-DIN.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/admin.css" />
 </head>

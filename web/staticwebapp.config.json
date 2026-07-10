@@ -31,7 +31,11 @@
   },
   "mimeTypes": {
     ".json": "application/json",
-    ".js": "text/javascript"
+    ".js": "text/javascript",
+    ".css": "text/css",
+    ".svg": "image/svg+xml",
+    ".woff2": "font/woff2",
+    ".woff": "font/woff"
   },
   "responseOverrides": {
     "404": {

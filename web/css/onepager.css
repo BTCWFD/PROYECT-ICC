@@ -29,7 +29,7 @@
   --op-mid: #c08a00;         /* ambar */
   --op-lo: #c0392b;          /* rojo */
 
-  --op-font: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --op-font: var(--icc-font);
   --op-radius: 10px;
 }
 
