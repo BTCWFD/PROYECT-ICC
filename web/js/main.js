@@ -103,9 +103,22 @@
     '<div class="level-stars" aria-hidden="true"></div>' +
     '<div class="level-msg"></div>' +
     "</div>" +
-    '<button id="share" class="share-btn" type="button">📣 Compartir mi hazaña</button>';
+    // Captura del club EN EL MOMENTO del logro. Sin club, el disparo no se
+    // registra en las clasificatorias (submitShot lo descarta) y hasta ahora
+    // nadie se lo pedía al usuario: se perdía el récord y el lead.
+    '<form class="celebration-claim" hidden>' +
+    '<label class="sr-only" for="celebClub">Nombre de tu club</label>' +
+    '<input id="celebClub" class="text-input celebration-claim-input" type="text" ' +
+    'maxlength="32" autocomplete="off" placeholder="Nombre de tu club" />' +
+    '<button class="share-btn celebration-claim-btn" type="submit">Fijar mi récord</button>' +
+    "</form>" +
+    '<button id="share" class="share-btn" type="button">📣 Compartir mi hazaña</button>' +
+    '<button class="celebration-close" type="button" aria-label="Cerrar">×</button>';
   stage.appendChild(celebration);
   els.celebration = celebration;
+  els.celebClose = celebration.querySelector(".celebration-close");
+  els.celebClaim = celebration.querySelector(".celebration-claim");
+  els.celebClaimInput = celebration.querySelector(".celebration-claim-input");
   els.celebTitle = celebration.querySelector(".celebration-title");
   els.celebRange = celebration.querySelector(".celebration-range");
   els.celebClub = celebration.querySelector(".celebration-club");
@@ -118,6 +131,9 @@
   els.leaderboardEmpty = document.getElementById("leaderboardEmpty");
   els.leaderboardError = document.getElementById("leaderboardError");
 
+  // Trayectoria del último disparo. La guardamos para poder REGISTRARLO a
+  // posteriori si el usuario nombra su club desde la tarjeta de celebración.
+  let lastTraj = null;
   // Datos del último disparo (para la tarjeta compartible y los eventos).
   let lastShot = null;
   // Bandera: el evento club_named se emite solo la primera vez que hay club.
@@ -253,6 +269,11 @@
     const traj = trajectoryFor(state.world);
     const ghost = ghostTrajectory();
 
+    // La tarjeta del disparo anterior persiste hasta que el usuario la cierra;
+    // al patear de nuevo, la retiramos para no tapar el vuelo nuevo.
+    hideCelebration();
+    lastTraj = traj;
+
     // Analítica: disparo ejecutado (sin PII, solo parámetros de juego).
     track("shot_executed", {
       world: state.world,
@@ -312,6 +333,39 @@
 
     // Intento de integración con la API (no bloquea ni rompe el simulador).
     submitShot(traj);
+  }
+
+  /** Retira la tarjeta de celebración (por cierre, reinicio o nuevo disparo). */
+  function hideCelebration() {
+    if (!els.celebration) return;
+    els.celebration.classList.remove("show");
+    if (els.celebClaim) els.celebClaim.hidden = true;
+  }
+
+  /**
+   * Registra a posteriori el disparo que acaba de ocurrir, una vez el usuario
+   * ha nombrado su club desde la tarjeta. Sin esto, un disparo épico hecho sin
+   * club se perdía para siempre: submitShot lo descartaba en silencio.
+   * @param {string} club
+   */
+  function claimShotWithClub(club) {
+    const name = (club || "").trim();
+    if (!name || !lastTraj) return;
+
+    // Propagamos el club al estado y al input del panel, para que los
+    // siguientes disparos ya se registren sin volver a preguntar.
+    state.club = name;
+    if (els.club) els.club.value = name;
+    if (!clubNamedTracked) {
+      clubNamedTracked = true;
+      track("club_named");
+    }
+
+    if (els.celebClaim) els.celebClaim.hidden = true;
+    if (els.celebClub) els.celebClub.textContent = `${name} · L-Striker 01`;
+    if (lastShot) lastShot.club = name;
+
+    submitShot(lastTraj);
   }
 
   // Récord personal de alcance. FUENTE ÚNICA: el motor de progresión (ICCGame),
@@ -378,6 +432,14 @@
     els.celebRange.textContent = `${range.toFixed(0)} m`;
     els.celebClub.textContent = club ? `${club} · L-Striker 01` : "L-Striker 01";
     els.celebRecord.hidden = !isRecord;
+
+    // Si no hay club, el disparo NO se ha registrado en las clasificatorias.
+    // Se lo pedimos aquí, en el instante de máxima intención, en vez de
+    // dejar que el récord se pierda en silencio.
+    if (els.celebClaim) {
+      els.celebClaim.hidden = !!club;
+      if (!club && els.celebClaimInput) els.celebClaimInput.value = "";
+    }
 
     // Guarda el último disparo para la tarjeta compartible y el botón #share.
     lastShot = {
@@ -698,6 +760,22 @@
   });
 
   // Botón "Compartir mi hazaña": genera la tarjeta del último disparo.
+  // Cierre de la tarjeta: ahora persiste hasta que el usuario decide.
+  if (els.celebClose) {
+    els.celebClose.addEventListener("click", () => {
+      sfx("ui");
+      hideCelebration();
+    });
+  }
+
+  // "Fijar mi récord": nombra el club y registra el disparo ya ejecutado.
+  if (els.celebClaim) {
+    els.celebClaim.addEventListener("submit", (event) => {
+      event.preventDefault();
+      claimShotWithClub(els.celebClaimInput ? els.celebClaimInput.value : "");
+    });
+  }
+
   els.share.addEventListener("click", () => {
     track("share_clicked", lastShot ? { world: lastShot.world } : {});
     const data = lastShot || {
@@ -773,7 +851,7 @@
     clearTimeout(latencyTimeout);
     els.latency.hidden = true;
     els.latencyFill.style.width = "0%";
-    els.celebration.classList.remove("show");
+    hideCelebration();
     els.kick.textContent = KICK_LABEL;
     setSending(false);
     refreshIdle();

@@ -9,9 +9,16 @@
 
 class Simulator {
   constructor(canvas) {
+    this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
+    // Espacio LÓGICO de dibujo. Se congela en los atributos originales del
+    // <canvas> (960x540) y no cambia nunca: toda la escena está compuesta en
+    // estas coordenadas. Lo que escalamos por DPR es el búfer real de píxeles.
     this.W = canvas.width;
     this.H = canvas.height;
+    this._dpr = 0;
+    this._applyDpr();
+
     this.groundY = this.H - 60;      // línea de suelo en píxeles
     this.originX = 90;               // posición horizontal del robot
     this.scale = 4;                  // píxeles por metro (se recalcula)
@@ -23,12 +30,106 @@ class Simulator {
     this.clock = 0;                  // reloj interno para twinkle/parallax/spin
     this.kickAnticip = 0;            // 0..1 anticipación/retroceso del robot al patear
     this.ballSpin = 0;               // rotación acumulada del balón en vuelo
+
+    // Estado del bucle: distinguimos "reposo" (se puede pausar sin consecuencia)
+    // de "disparo en vuelo" (jamás se pausa: rompería el onComplete).
+    this._idleWorld = null;
+    this._idleRunning = false;
+    this._shotRunning = false;
+    this._offscreen = false;
+
     // Respeta la preferencia de movimiento reducido del sistema (a11y).
-    this.reduceMotion = window.matchMedia
-      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      : false;
+    this._motionQuery = window.matchMedia
+      ? window.matchMedia("(prefers-reduced-motion: reduce)")
+      : null;
+    this.reduceMotion = this._motionQuery ? this._motionQuery.matches : false;
+    // La preferencia puede cambiar en caliente; antes se leía una sola vez.
+    if (this._motionQuery && this._motionQuery.addEventListener) {
+      this._motionQuery.addEventListener("change", (e) => {
+        this.reduceMotion = e.matches;
+        this._repaintIdle();
+      });
+    }
+
     this._buildStarfield();
     this._buildCraters();
+
+    // El devicePixelRatio cambia al mover la ventana entre monitores o al
+    // hacer zoom del navegador: hay que rehacer el búfer o se ve borroso.
+    window.addEventListener(
+      "resize",
+      () => {
+        if (this._applyDpr()) this._repaintIdle();
+      },
+      { passive: true }
+    );
+
+    this._observeVisibility();
+  }
+
+  /**
+   * Ajusta el búfer del canvas al devicePixelRatio y escala el contexto para
+   * seguir dibujando en coordenadas lógicas.
+   *
+   * Sin esto el canvas se rasteriza a 960x540 físicos y el navegador lo estira
+   * por CSS: BORROSO en cualquier pantalla HiDPI (todo móvil, todo Mac).
+   * Como escalamos ambos ejes por igual, la relación de aspecto intrínseca no
+   * cambia y el `height:auto` del CSS sigue funcionando sin tocar el layout.
+   *
+   * @returns {boolean} true si el DPR cambió y hubo que repintar
+   */
+  _applyDpr() {
+    // Capamos a 3: por encima el búfer crece al cuadrado sin ganancia visible.
+    const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 3));
+    if (dpr === this._dpr) return false;
+    this._dpr = dpr;
+    this.canvas.width = Math.round(this.W * dpr);
+    this.canvas.height = Math.round(this.H * dpr);
+    // Reasignar canvas.width RESETEA todo el estado del contexto (incluida la
+    // transformación), así que la reponemos aquí y no antes.
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return true;
+  }
+
+  /**
+   * Pausa el bucle de reposo cuando el lienzo sale de la pantalla.
+   *
+   * NOTA: no hace falta escuchar `visibilitychange`. Los navegadores ya
+   * suspenden requestAnimationFrame en pestañas ocultas (por especificación).
+   * El desperdicio real es el otro: la pestaña está visible pero el usuario ha
+   * bajado hasta la waitlist y seguimos repintando 133 estrellas a 60fps.
+   */
+  _observeVisibility() {
+    if (typeof IntersectionObserver !== "function") return; // degradación
+    try {
+      this._io = new IntersectionObserver(
+        (entries) => {
+          const visible = entries.some((e) => e.isIntersecting);
+          this._offscreen = !visible;
+          if (!visible) {
+            // Solo pausamos el reposo. Un disparo en vuelo debe terminar.
+            if (this._idleRunning && !this._shotRunning) this._stopLoop();
+          } else if (this._idleWorld && !this._shotRunning) {
+            this.idle(this._idleWorld);
+          }
+        },
+        { threshold: 0 }
+      );
+      this._io.observe(this.canvas);
+    } catch (_err) {
+      /* sin IntersectionObserver utilizable: el bucle sigue como antes */
+    }
+  }
+
+  /** Detiene el bucle de reposo (no afecta a un disparo en vuelo). */
+  _stopLoop() {
+    cancelAnimationFrame(this.anim);
+    this._idleRunning = false;
+  }
+
+  /** Repinta el reposo tras un cambio de DPR o de preferencia de movimiento. */
+  _repaintIdle() {
+    if (this._idleWorld && !this._shotRunning) this.idle(this._idleWorld);
   }
 
   /** Genera las capas de estrellas una sola vez (deterministas, con fase propia). */
@@ -709,10 +810,16 @@ class Simulator {
       // Continúa hasta aterrizar y dejar asentar los efectos (~40 frames).
       if (!impacted || settle < 40 || this.particles.length || this.rings.length) {
         this.anim = requestAnimationFrame(tick);
-      } else if (opts.onComplete) {
-        opts.onComplete();
+      } else {
+        // El vuelo terminó: el lienzo vuelve a ser pausable.
+        this._shotRunning = false;
+        if (opts.onComplete) opts.onComplete();
       }
     };
+    // Un disparo en vuelo NUNCA se pausa: si lo cortásemos a mitad, onComplete
+    // no llegaría y la UI quedaría bloqueada con el botón deshabilitado.
+    this._shotRunning = true;
+    this._idleRunning = false;
     this.anim = requestAnimationFrame(tick);
   }
 
@@ -822,19 +929,29 @@ class Simulator {
   /** Dibuja el estado inicial en reposo (con twinkle/banderines vivos). */
   idle(world) {
     cancelAnimationFrame(this.anim);
+    this._idleRunning = false;
+    this._shotRunning = false;
+    // Recordamos el mundo para poder repintar tras un cambio de DPR, de
+    // preferencia de movimiento, o al volver a entrar en pantalla.
+    this._idleWorld = world;
     this.particles = [];
     this.rings = [];
     this.kickAnticip = 0;
-
-    // En reduceMotion: un único fotograma estático.
     this.previewActive = false;
 
-    if (this.reduceMotion) {
+    /** Un único fotograma, sin bucle. */
+    const drawStatic = () => {
       this.clear(world);
       this.drawTargets();
       this.drawRecordMark();
       this.drawRobot();
       this.drawBall({ x: 0, y: 0 }, world.ball);
+    };
+
+    // En reduceMotion, o con el lienzo fuera de pantalla: fotograma estático.
+    // En ambos casos el bucle no aportaría nada y sí gastaría batería.
+    if (this.reduceMotion || this._offscreen) {
+      drawStatic();
       return;
     }
 
@@ -845,13 +962,10 @@ class Simulator {
       const dt = Math.min(now - last, 50);
       last = now;
       this.clock += dt / 1000;
-      this.clear(world);
-      this.drawTargets();
-      this.drawRecordMark();
-      this.drawRobot();
-      this.drawBall({ x: 0, y: 0 }, world.ball);
+      drawStatic();
       this.anim = requestAnimationFrame(loop);
     };
+    this._idleRunning = true;
     this.anim = requestAnimationFrame(loop);
   }
 
